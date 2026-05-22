@@ -50,6 +50,11 @@ python3 reread_breakdown.py
   the background or a separate terminal isn't counted.
 - The system-prompt row is estimated from each session's first cache write.
 
+## Found this useful?
+
+If this helped you see where your Claude Code tokens, time, and cost actually go,
+please ⭐ [the repo](https://github.com/Coral-Bricks-AI/coral-ai) — it helps others find it.
+
 ## License
 
 Apache 2.0 — see the repository [LICENSE](../LICENSE).
