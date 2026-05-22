@@ -12,6 +12,7 @@ pip install -r requirements.txt   # just tiktoken
 python3 token_time_breakdown.py
 python3 cost.py
 python3 main_vs_sidecar.py
+python3 reread_breakdown.py
 ```
 
 > tiktoken is OpenAI's tokenizer, not Claude's, so token *proportions* are
@@ -34,6 +35,11 @@ python3 main_vs_sidecar.py
 - **`main_vs_sidecar.py`** — splits the human-driven main thread from spawned
   subagents (logged under nested `*/subagents/*.jsonl`); reports billed tokens,
   per-model mix, cache-hit rate, and cost for each, plus the combined total.
+- **`reread_breakdown.py`** — per-activity *cumulative* input: replays each
+  session's context growth to show what each kind of context costs once it's
+  re-read every turn. Reports `unique` vs `re-read` tokens per activity (reasoning
+  is the biggest re-read line). The replay is scaled to the measured billed input
+  (exact); the per-activity split is a model.
 
 ## Caveats
 
