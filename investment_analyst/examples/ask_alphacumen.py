@@ -6,15 +6,12 @@ over benchmark rows (plus per-row ``asof`` injection and an override
 store) and you have the harness that produced the numbers in the
 companion blog post.
 
-Note: ``coralbricks-platform`` is in design-partner preview today; the
-public ``pip install`` path opens in Phase 2. Existing design partners
-can install from the private package index that ships with their API
-key.
+Note: ``coralbricks-cli`` is in design-partner preview today; the public
+``pip install`` path opens in Phase 2.
 
-Setup:
-    pip install coralbricks-platform
+Setup (one env var, no infra knowledge required):
+    pip install coralbricks-cli
     export CORAL_API_KEY=ak_...
-    export CORAL_PLATFORM_URL=https://...   # provided with your API key
 """
 
 from __future__ import annotations
@@ -32,10 +29,11 @@ def ask(question: str, *, asof: str | None = None) -> str:
     ``mode="backtest"``; when omitted the run uses ``mode="live"`` and
     sees the corpus as of submit time.
     """
-    client = PlatformClient(
-        base_url=os.environ["CORAL_PLATFORM_URL"],
-        api_key=os.environ["CORAL_API_KEY"],
-    )
+    # PlatformClient() with no args: reads CORAL_API_KEY from env and
+    # targets the public production gateway (https://platform.coralbricks.ai).
+    # Override the gateway with base_url=... or $CORAL_PLATFORM_URL for
+    # staging or local development.
+    client = PlatformClient()
     try:
         submit_kwargs = {
             "pipeline_package": "cb-ia==latest",
@@ -65,6 +63,8 @@ def ask(question: str, *, asof: str | None = None) -> str:
 
 
 if __name__ == "__main__":
+    if not os.environ.get("CORAL_API_KEY"):
+        raise SystemExit("set CORAL_API_KEY before running")
     answer = ask(
         "What was Coca-Cola's FY24 dividend payout ratio vs. its peers?",
     )
