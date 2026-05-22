@@ -30,6 +30,7 @@ Each subdirectory is an independently-installable package or example. They share
 |---|---|
 | [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
 | [`context_prep/examples/`](context_prep/examples/) | End-to-end RAG quickstart, knowledge-graph extraction, distributed `hydrate + merge`, and a fully-embedded RAG demo with DuckDB (`vss` + `duckpgq`) — vectors and graph in one local session, no servers. |
+| [`claude-code-token-xray/`](claude-code-token-xray/) | Standalone scripts that break a month of your own local Claude Code logs into where the tokens, time, and cost actually go. Reads `~/.claude` only; nothing leaves your machine. |
 
 ## Quick start
 
@@ -92,7 +93,8 @@ coral-ai/
 │   ├── crewai/              # coralbricks-crewai         → coralbricks_crewai
 │   ├── langchain/           # coralbricks-langchain      → coralbricks_langchain
 │   └── openclaw/            # persistent-agent-memory skill (bash)
-└── event_scout/             # example: scraping agent + memory dedup
+├── event_scout/             # example: scraping agent + memory dedup
+└── claude-code-token-xray/  # example: token/time/cost breakdown of your Claude Code logs
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
