@@ -34,7 +34,9 @@ python3 reread_breakdown.py
   counterfactual.
 - **`main_vs_sidecar.py`** — splits the human-driven main thread from spawned
   subagents (logged under nested `*/subagents/*.jsonl`); reports billed tokens,
-  per-model mix, cache-hit rate, and cost for each, plus the combined total.
+  per-model mix, cache-hit rate, turns per agent (per session for the main
+  thread, per subagent for the sidecar), and cost for each, plus the combined
+  total.
 - **`reread_breakdown.py`** — per-activity *cumulative* input: replays each
   session's context growth to show what each kind of context costs once it's
   re-read every turn. Reports `unique` vs `re-read` tokens per activity (reasoning

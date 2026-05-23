@@ -20,8 +20,9 @@ def analyze(files):
     R=dict(files=len(files), calls=0,
            billed=collections.Counter(), content=collections.Counter(),
            model_out=collections.Counter(), model_calls=collections.Counter(),
-           per_call_prompt=[], per_call_out=[])
+           per_call_prompt=[], per_call_out=[], per_session=[])
     for f in files:
+        fc=0  # assistant calls in this session file
         for line in open(f):
             line=line.strip()
             if not line: continue
@@ -31,7 +32,7 @@ def analyze(files):
             if not isinstance(m,dict): continue
             role=m.get("role"); u=m.get("usage")
             if isinstance(u,dict) and role=="assistant":
-                R["calls"]+=1
+                R["calls"]+=1; fc+=1
                 ui=u.get("input_tokens",0)or 0; cr=u.get("cache_read_input_tokens",0)or 0
                 cw=u.get("cache_creation_input_tokens",0)or 0; ot=u.get("output_tokens",0)or 0
                 R["billed"]["uncached"]+=ui; R["billed"]["cache_read"]+=cr
@@ -51,6 +52,7 @@ def analyze(files):
                 elif t=="tool_use": R["content"]["tool_calls"]+=ntok(b.get("input",{}))
                 elif t=="tool_result":
                     R["content"]["tool_results"]+=ntok(b.get("content",""))
+        R["per_session"].append(fc)
     return R
 
 import statistics as st
@@ -65,6 +67,8 @@ def report(name,R):
     print(f"  input:output = {inp/max(1,b['output']):.0f}:1   cache_hit={100*b['cache_read']/max(1,inp):.1f}%")
     if R['per_call_out']:
         print(f"  per-call: prompt mean={st.mean(R['per_call_prompt']):,.0f} median={st.median(R['per_call_prompt']):,.0f}  | output mean={st.mean(R['per_call_out']):,.0f} median={st.median(R['per_call_out']):,.0f}")
+    if R.get('per_session'):
+        print(f"  turns/session: mean={st.mean(R['per_session']):.0f} median={st.median(R['per_session']):.0f}  (over {R['files']} session files; max={max(R['per_session'])})")
     # output decomposition (reasoning = output - visible generated)
     vis = R["content"]["assistant_text"]+R["content"]["tool_calls"]
     reason = b["output"]-vis
@@ -85,4 +89,6 @@ for k in M["billed"]: C["billed"][k]=M["billed"][k]+S["billed"][k]
 for k in set(M["content"])|set(S["content"]): C["content"][k]=M["content"][k]+S["content"][k]
 for k in set(M["model_out"])|set(S["model_out"]): C["model_out"][k]=M["model_out"][k]+S["model_out"][k]
 report("COMBINED", C)
-print(f"\nsidecar share of: calls={100*S['calls']/max(1,C['calls']):.1f}%  billed-tokens={100*(sum(S['billed'].values()))/max(1,sum(C['billed'].values())):.1f}%  cost={100*rate_cost(S['billed'])/max(1,rate_cost(C['billed'])):.1f}%")
+print(f"\nturns per agent: main={M['calls']/max(1,M['files']):.0f} (per session, {M['calls']:,}/{M['files']})  "
+      f"subagent={S['calls']/max(1,S['files']):.0f} (per subagent, {S['calls']:,}/{S['files']})")
+print(f"sidecar share of: calls={100*S['calls']/max(1,C['calls']):.1f}%  billed-tokens={100*(sum(S['billed'].values()))/max(1,sum(C['billed'].values())):.1f}%  cost={100*rate_cost(S['billed'])/max(1,rate_cost(C['billed'])):.1f}%")
