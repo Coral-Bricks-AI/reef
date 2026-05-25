@@ -1,6 +1,6 @@
 # coral-ai
 
-High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics, build-time context prep, GPU-native embedding inference, and the swarm layer behind AlphaCumen.
+High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics and the swarm layer behind `investment_analyst`.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
