@@ -1,6 +1,6 @@
 # coral-ai
 
-The memory layer for agentic AI. GPU-native embedding inference, build-time context preparation, and drop-in memory bindings for the agent frameworks people actually use.
+High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics, build-time context prep, GPU-native embedding inference, and the swarm layer behind AlphaCumen.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
@@ -16,12 +16,19 @@ The memory layer for agentic AI. GPU-native embedding inference, build-time cont
 
 Each subdirectory is an independently-installable package or example. They share a `coralbricks.*` PEP 420 namespace but have no hard runtime coupling — pick the pieces you need.
 
-### Core libraries
+### Start here
+
+| Path | What it is |
+|---|---|
+| [`claude-code-token-xray/`](claude-code-token-xray/) | Where your Claude Code tokens, time, and cost actually go — you pay to re-read, not generate (~29M unique tokens billed as 4.35B, ~150×). The problem this repo exists to address. Reads `~/.claude` only; nothing leaves your machine. |
+| [`investment_analyst/`](investment_analyst/) | The AlphaCumen swarm layer — many finance specialists running in parallel over a private corpus; the pattern behind [our benchmark results](https://coralbricks.ai/blog/alphacumen-finance-benchmarks). |
+
+### Building blocks
 
 | Package | PyPI | What it is |
 |---|---|---|
-| [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
 | [`context_prep/`](context_prep/) | [`coralbricks-context-prep`](https://pypi.org/project/coralbricks-context-prep/) | Build-time context prep: `clean → chunk → embed → enrich → hydrate`. Plain functions over `list[dict]` records — no loaders, no orchestrator. |
+| [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
 
 ### Framework integrations
 
@@ -31,13 +38,12 @@ Each subdirectory is an independently-installable package or example. They share
 | [`integrations/langchain/`](integrations/langchain/) | [`coralbricks-langchain`](https://pypi.org/project/coralbricks-langchain/) | LangChain memory backend — `CoralBricksMemory`, `CoralBricksRetriever`, agent tools (`store` / `search` / `forget`). |
 | [`integrations/openclaw/`](integrations/openclaw/skills/persistent-agent-memory/) | — | OpenClaw skill `persistent-agent-memory`: bash-based `coral_store` / `coral_retrieve` / `coral_delete_matching`. |
 
-### Examples
+### More examples
 
 | Path | What it shows |
 |---|---|
 | [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
 | [`context_prep/examples/`](context_prep/examples/) | End-to-end RAG quickstart, knowledge-graph extraction, distributed `hydrate + merge`, and a fully-embedded RAG demo with DuckDB (`vss` + `duckpgq`) — vectors and graph in one local session, no servers. |
-| [`claude-code-token-xray/`](claude-code-token-xray/) | Standalone scripts that break a month of your own local Claude Code logs into where the tokens, time, and cost actually go — the finding: you pay to re-read, not generate (~29M unique tokens billed as 4.35B, ~150×). Reads `~/.claude` only; nothing leaves your machine. |
 
 ## Quick start
 
@@ -94,14 +100,15 @@ LangChain has the same shape plus a `CoralBricksRetriever` for LCEL chains and a
 
 ```
 coral-ai/
-├── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
+├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
+├── investment_analyst/      # AlphaCumen swarm layer (finance specialists, in parallel)
 ├── context_prep/            # build-time context prep    → coralbricks.context_prep
+├── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
 ├── integrations/
 │   ├── crewai/              # coralbricks-crewai         → coralbricks_crewai
 │   ├── langchain/           # coralbricks-langchain      → coralbricks_langchain
 │   └── openclaw/            # persistent-agent-memory skill (bash)
-├── event_scout/             # example: scraping agent + memory dedup
-└── claude-code-token-xray/  # example: token/time/cost breakdown of your Claude Code logs
+└── event_scout/             # example: scraping agent + memory dedup
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
