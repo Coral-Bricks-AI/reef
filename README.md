@@ -45,27 +45,6 @@ Each subdirectory is an independently-installable package or example. They share
 | [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
 | [`context_prep/examples/`](context_prep/examples/) | End-to-end RAG quickstart, knowledge-graph extraction, distributed `hydrate + merge`, and a fully-embedded RAG demo with DuckDB (`vss` + `duckpgq`) — vectors and graph in one local session, no servers. |
 
-## Quick start
-
-Build-time context prep — `clean → chunk → embed → enrich → hydrate`:
-
-```bash
-pip install 'coralbricks-context-prep[chunkers,embed-st]'
-```
-
-```python
-from coralbricks.context_prep import clean, chunk, embed, enrich, hydrate
-
-records = [{"id": "doc-1", "text": "<html>...$AAPL is up...</html>"}]
-cleaned  = clean(records)
-chunks   = chunk(cleaned,   strategy="sliding_token", target_tokens=512)
-vectors  = embed(chunks,    model="st:BAAI/bge-m3")
-enriched = enrich(cleaned,  extractors=["tickers", "dates", "urls"])
-graph    = hydrate(enriched, graph="news")
-```
-
-Verbs, recipes, and the embedded-RAG tutorial live in [`context_prep/README.md`](context_prep/README.md).
-
 ## Repository layout
 
 ```
