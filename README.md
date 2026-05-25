@@ -5,6 +5,13 @@ The memory layer for agentic AI. GPU-native embedding inference, build-time cont
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
 
+> ⭐ **Featured — [`claude-code-token-xray`](claude-code-token-xray/):** I broke a
+> month of my own Claude Code logs into tokens, time, and cost. The surprise — you
+> don't pay to generate, you pay to **re-read**: ~29M unique tokens get billed as
+> **4.35B (~150×)**, and **84% of the bill is input**. Runs on your own `~/.claude`
+> logs; nothing leaves your machine → **[the breakdown](claude-code-token-xray/)** ·
+> **[full write-up](https://coralbricks.ai/blog/claude-code-token-xray)**.
+
 ## What's in here
 
 Each subdirectory is an independently-installable package or example. They share a `coralbricks.*` PEP 420 namespace but have no hard runtime coupling — pick the pieces you need.
@@ -30,7 +37,7 @@ Each subdirectory is an independently-installable package or example. They share
 |---|---|
 | [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
 | [`context_prep/examples/`](context_prep/examples/) | End-to-end RAG quickstart, knowledge-graph extraction, distributed `hydrate + merge`, and a fully-embedded RAG demo with DuckDB (`vss` + `duckpgq`) — vectors and graph in one local session, no servers. |
-| [`claude-code-token-xray/`](claude-code-token-xray/) | Standalone scripts that break a month of your own local Claude Code logs into where the tokens, time, and cost actually go. Reads `~/.claude` only; nothing leaves your machine. |
+| [`claude-code-token-xray/`](claude-code-token-xray/) | Standalone scripts that break a month of your own local Claude Code logs into where the tokens, time, and cost actually go — the finding: you pay to re-read, not generate (~29M unique tokens billed as 4.35B, ~150×). Reads `~/.claude` only; nothing leaves your machine. |
 
 ## Quick start
 
