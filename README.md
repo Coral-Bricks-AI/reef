@@ -28,6 +28,7 @@ Each subdirectory is an independently-installable package or example. They share
 | Package | PyPI | What it is |
 |---|---|---|
 | [`context_prep/`](context_prep/) | [`coralbricks-context-prep`](https://pypi.org/project/coralbricks-context-prep/) | Build-time context prep: `clean → chunk → embed → enrich → hydrate`. Plain functions over `list[dict]` records — no loaders, no orchestrator. |
+| [`integrations/airbyte/`](integrations/airbyte/) | [`coralbricks-airbyte`](https://pypi.org/project/coralbricks-airbyte/) | Ingestion bridge: reads Airbyte destination output (600+ connectors) into `list[dict]` records that feed `context_prep`. |
 | [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
 
 ### Framework integrations
@@ -43,7 +44,6 @@ Each subdirectory is an independently-installable package or example. They share
 | Path | What it shows |
 |---|---|
 | [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
-| [`context_prep/examples/`](context_prep/examples/) | End-to-end RAG quickstart, knowledge-graph extraction, distributed `hydrate + merge`, and a fully-embedded RAG demo with DuckDB (`vss` + `duckpgq`) — vectors and graph in one local session, no servers. |
 
 ## Repository layout
 
@@ -54,6 +54,7 @@ coral-ai/
 ├── context_prep/            # build-time context prep    → coralbricks.context_prep
 ├── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
 ├── integrations/
+│   ├── airbyte/            # coralbricks-airbyte        → feeds context_prep
 │   ├── crewai/              # coralbricks-crewai         → coralbricks_crewai
 │   ├── langchain/           # coralbricks-langchain      → coralbricks_langchain
 │   └── openclaw/            # persistent-agent-memory skill (bash)
