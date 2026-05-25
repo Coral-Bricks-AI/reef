@@ -47,16 +47,7 @@ Each subdirectory is an independently-installable package or example. They share
 
 ## Quick start
 
-### Run a GPU embedding server
-
-```bash
-pip install coralbricks-gpu-inference
-python -m coralbricks.gpu_inference.grpc_server
-```
-
-`MODEL_PATH` accepts a local path, HuggingFace repo id (default: `answerdotai/ModernBERT-base`), or `s3://` URI. Full env-var reference and architecture notes in [`py-gpu-inference/README.md`](py-gpu-inference/README.md).
-
-### Prepare context for retrieval
+Build-time context prep — `clean → chunk → embed → enrich → hydrate`:
 
 ```bash
 pip install 'coralbricks-context-prep[chunkers,embed-st]'
@@ -75,27 +66,6 @@ graph    = hydrate(enriched, graph="news")
 
 Verbs, recipes, and the embedded-RAG tutorial live in [`context_prep/README.md`](context_prep/README.md).
 
-### Give an agent persistent memory
-
-```bash
-pip install coralbricks-crewai      # or coralbricks-langchain
-```
-
-```python
-from coralbricks_crewai import CoralBricksMemory, SearchCoralBricksMemoryTool
-
-memory = CoralBricksMemory(api_key="...")
-memory.get_or_create_memory_store("crewai:my-app")
-memory.set_session_id("user-123")
-
-memory.save_memory("Team prefers staying near Shibuya station.")
-hits = memory.search_memory("hotel preferences", top_k=3)
-
-tool = SearchCoralBricksMemoryTool(memory=memory)  # attach to a CrewAI Agent
-```
-
-LangChain has the same shape plus a `CoralBricksRetriever` for LCEL chains and a `get_tools(memory)` factory for agent loops. See each integration's README for the full API.
-
 ## Repository layout
 
 ```
@@ -112,10 +82,6 @@ coral-ai/
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
-
-## Hosted vs. self-hosted
-
-The integration packages (`crewai`, `langchain`, `openclaw`) talk to the hosted CoralBricks Memory API at `https://memory.coralbricks.ai` by default. Get an API key from the [CoralBricks web app](https://coralbricks.ai). To run end-to-end on your own hardware, point them at a self-hosted stack built around `py-gpu-inference` + `context_prep` + your vector store of choice.
 
 ## License
 
