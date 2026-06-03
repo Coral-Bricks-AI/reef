@@ -1,6 +1,6 @@
 # coral-ai
 
-High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics and the swarm layer behind `investment_analyst`.
+High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics and the swarm layer behind `alphacumen-finance-benchmarks`.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
@@ -21,7 +21,7 @@ Each subdirectory is an independently-installable package or example. They share
 | Path | What it is |
 |---|---|
 | [`claude-code-token-xray/`](claude-code-token-xray/) | Where your Claude Code tokens, time, and cost actually go — you pay to re-read, not generate (~29M unique tokens billed as 4.35B, ~150×). The problem this repo exists to address. Reads `~/.claude` only; nothing leaves your machine. |
-| [`investment_analyst/`](investment_analyst/) | The AlphaCumen swarm layer — many finance specialists running in parallel over a private corpus; the pattern behind [our benchmark results](https://coralbricks.ai/blog/alphacumen-finance-benchmarks). |
+| [`alphacumen-finance-benchmarks/`](alphacumen-finance-benchmarks/) | The AlphaCumen swarm layer — many finance specialists running in parallel over a private corpus; the pattern behind [our benchmark results](https://coralbricks.ai/blog/alphacumen-finance-benchmarks). |
 
 ### Building blocks
 
@@ -50,7 +50,7 @@ Each subdirectory is an independently-installable package or example. They share
 ```
 coral-ai/
 ├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
-├── investment_analyst/      # AlphaCumen swarm layer (finance specialists, in parallel)
+├── alphacumen-finance-benchmarks/  # AlphaCumen swarm layer (finance specialists, in parallel)
 ├── context_prep/            # build-time context prep    → coralbricks.context_prep
 ├── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
 ├── integrations/
