@@ -1,0 +1,22 @@
+{
+  "_comment": "Example config for backup_sessions.py. Copy somewhere outside the repo (e.g. ~/.config/claude-backup.json), edit, then pass via --config or $CLAUDE_BACKUP_CONFIG. Only `bucket` is required.",
+
+  "bucket": "my-claude-sessions",
+  "region": "us-east-1",
+
+  "_actor_map_comment": "Maps IAM user name (from sts caller identity) to a folder name in S3. Optional — defaults to the raw IAM user name, lowercased. Useful when multiple people share the same bucket and you want stable short folder names.",
+  "actor_map": {
+    "alice-iam-user-name": "alice",
+    "bob-iam-user-name": "bob"
+  },
+
+  "_remote_hosts_comment": "Optional. Each entry is a long-lived EC2 box that runs Claude Code headlessly and whose sessions you want backed up. Resolved by EC2 Name tag at runtime, so you can rotate instances without editing config. The bucket policy is auto-extended to let each host's instance role write to its own <key>/* prefix.",
+  "remote_hosts": [
+    {
+      "key": "cb_architect",
+      "name_tag": "cb-architect",
+      "remote_user": "ubuntu",
+      "instance_role_arn": "arn:aws:iam::123456789012:role/your-instance-role"
+    }
+  ]
+}

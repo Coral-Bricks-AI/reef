@@ -76,6 +76,16 @@ Caching is the only thing keeping it sane — without it the same work lists at
   re-read every turn. Reports `unique` vs `re-read` tokens per activity (reasoning
   is the biggest re-read line). The replay is scaled to the measured billed input
   (exact); the per-activity split is a model.
+- **`backup_sessions.py`** — incremental backup of session JSONLs to S3 (uses
+  `aws s3 sync --size-only`, so only new/grown files transfer). Same bucket can
+  hold sessions from many people and/or headless agent boxes — each at their own
+  top-level prefix (`alice/local/`, `bob/local/`, `cb_architect/`, ...). Config
+  is a small JSON file (`backup_config.example.json` is a template); the script
+  itself ships no deployment-specific values. First run creates the bucket and,
+  if remote hosts are configured, attaches a policy so each remote's instance
+  role can write to its own prefix via SSM-triggered `aws s3 sync`. Useful if
+  you want a daily off-machine archive of your session history beyond Claude
+  Code's local `cleanupPeriodDays` window.
 
 ## Caveats
 
