@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" role="img" aria-label="FinanceBench breakdown chart">
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .title { fill: #0f172a; font-size: 16px; font-weight: 700; }
+    .subtitle { fill: #64748b; font-size: 12px; }
+    .value { fill: #ffffff; font-size: 13px; font-weight: 700; }
+    .value-dark { fill: #0f172a; font-size: 12px; font-weight: 700; }
+    .legend-label { fill: #475569; font-size: 12px; }
+    .caption { fill: #94a3b8; font-size: 11px; font-style: italic; }
+  </style>
+
+  <text x="400" y="28" text-anchor="middle" class="title">FinanceBench</text>
+  <text x="400" y="48" text-anchor="middle" class="subtitle">From raw gold-key match (89.3%) to defensible-answer ceiling (99.3%)</text>
+
+  <!-- 99.3% ceiling callout above right edge of bar -->
+  <text x="695" y="76" text-anchor="end" class="value-dark">99.3% defensible ceiling</text>
+  <line x1="700" y1="80" x2="700" y2="90" stroke="#0f172a" stroke-width="1"/>
+
+  <!-- Stacked bar: 134 / 12 / 3 / 1 over 150 (bar width 600px, x=100..700) -->
+  <!-- 134/150 = 89.33% -> width 536 -->
+  <!-- 12/150 = 8.00% -> width 48 -->
+  <!-- 3/150 = 2.00% -> width 12 -->
+  <!-- 1/150 = 0.67% -> width 4 -->
+  <rect x="100" y="90" width="536" height="60" fill="#e15a3a"/>
+  <rect x="636" y="90" width="48" height="60" fill="#f4a88a"/>
+  <rect x="684" y="90" width="12" height="60" fill="#fbd5c0"/>
+  <rect x="696" y="90" width="4" height="60" fill="#94a3b8"/>
+
+  <!-- Inline label for main slice -->
+  <text x="368" y="125" text-anchor="middle" class="value">134 matched gold · 89.3%</text>
+
+  <!-- Legend (3 + 1 columns) -->
+  <rect x="100" y="180" width="14" height="14" fill="#e15a3a" rx="2"/>
+  <text x="122" y="192" class="legend-label">Matched the published gold key (134 · 89.3%)</text>
+
+  <rect x="100" y="204" width="14" height="14" fill="#f4a88a" rx="2"/>
+  <text x="122" y="216" class="legend-label">Different finance convention applied — defensible (12 · 8.0%)</text>
+
+  <rect x="100" y="228" width="14" height="14" fill="#fbd5c0" rx="2"/>
+  <text x="122" y="240" class="legend-label">Benchmark answer key itself was wrong (3 · 2.0%)</text>
+
+  <rect x="430" y="228" width="14" height="14" fill="#94a3b8" rx="2"/>
+  <text x="452" y="240" class="legend-label">Missed (1 · 0.7%)</text>
+</svg>

@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" role="img" aria-label="Fixes by category — share of engineering effort, Vals AI v2 vs Vals AI v1 vs FinanceBench grouped per category">
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .title { fill: #0f172a; font-size: 16px; font-weight: 700; }
+    .subtitle { fill: #64748b; font-size: 12px; }
+    .label { fill: #0f172a; font-size: 13px; font-weight: 600; }
+    .sub { fill: #94a3b8; font-size: 11px; }
+    .value-v2 { fill: #b45309; font-size: 12px; font-weight: 700; }
+    .value-v1 { fill: #c23d3d; font-size: 12px; font-weight: 700; }
+    .value-fb { fill: #1f4e79; font-size: 12px; font-weight: 700; }
+    .axis { fill: #94a3b8; font-size: 11px; }
+    .grid { stroke: #f1f5f9; stroke-width: 1; }
+    .axis-line { stroke: #cbd5e1; stroke-width: 1; }
+    .caption { fill: #94a3b8; font-size: 11px; font-style: italic; }
+    .legend-label { fill: #475569; font-size: 12px; }
+  </style>
+
+  <text x="400" y="22" text-anchor="middle" class="title">Fixes by category — share of engineering effort</text>
+  <text x="400" y="40" text-anchor="middle" class="subtitle">Vals AI v2 (27 questions) · Vals AI v1.1 (50 questions) · FinanceBench (150 questions)</text>
+
+  <!-- Legend top center: 3 entries -->
+  <rect x="240" y="56" width="14" height="14" fill="#f0a020" rx="2"/>
+  <text x="260" y="68" class="legend-label">Vals AI v2</text>
+  <rect x="345" y="56" width="14" height="14" fill="#e15a3a" rx="2"/>
+  <text x="365" y="68" class="legend-label">Vals AI v1.1</text>
+  <rect x="465" y="56" width="14" height="14" fill="#5b9bd5" rx="2"/>
+  <text x="485" y="68" class="legend-label">FinanceBench</text>
+
+  <!-- Plot area: bars from x=320 to x=740 (max width 420); 1% = 6.0px (max 70% = 420px) -->
+  <!-- Value labels positioned AFTER bar end (text-anchor=start at bar_end + 8) -->
+
+  <!-- Vertical gridlines: 0, 10, 20, 30, 40, 50, 60, 70% -->
+  <line x1="320" y1="88" x2="320" y2="408" class="grid"/>
+  <line x1="380" y1="88" x2="380" y2="408" class="grid"/>
+  <line x1="440" y1="88" x2="440" y2="408" class="grid"/>
+  <line x1="500" y1="88" x2="500" y2="408" class="grid"/>
+  <line x1="560" y1="88" x2="560" y2="408" class="grid"/>
+  <line x1="620" y1="88" x2="620" y2="408" class="grid"/>
+  <line x1="680" y1="88" x2="680" y2="408" class="grid"/>
+  <line x1="740" y1="88" x2="740" y2="408" class="grid"/>
+
+  <!-- Row 1: Convention encoding (V2=55 -> 330; V1=45 -> 270; FB=65 -> 390) -->
+  <text x="310" y="102" text-anchor="end" class="label">Convention encoding</text>
+  <text x="310" y="118" text-anchor="end" class="sub">methodology rules in code</text>
+  <rect x="320" y="92" width="330" height="14" fill="#f0a020" rx="2"/>
+  <text x="658" y="103" class="value-v2">~55%</text>
+  <rect x="320" y="108" width="270" height="14" fill="#e15a3a" rx="2"/>
+  <text x="598" y="119" class="value-v1">~45%</text>
+  <rect x="320" y="124" width="390" height="14" fill="#5b9bd5" rx="2"/>
+  <text x="718" y="135" class="value-fb">~65%</text>
+
+  <!-- Row 2: Multi-filing & orchestration (V2=28 -> 168; V1=25 -> 150; FB=8 -> 48) -->
+  <text x="310" y="170" text-anchor="end" class="label">Multi-filing &amp; orchestration</text>
+  <text x="310" y="186" text-anchor="end" class="sub">planner + specialist roster</text>
+  <rect x="320" y="160" width="168" height="14" fill="#f0a020" rx="2"/>
+  <text x="496" y="171" class="value-v2">~28%</text>
+  <rect x="320" y="176" width="150" height="14" fill="#e15a3a" rx="2"/>
+  <text x="478" y="187" class="value-v1">~25%</text>
+  <rect x="320" y="192" width="48" height="14" fill="#5b9bd5" rx="2"/>
+  <text x="376" y="203" class="value-fb">~8%</text>
+
+  <!-- Row 3: Data coverage (V2=10 -> 60; V1=20 -> 120; FB=15 -> 90) -->
+  <text x="310" y="238" text-anchor="end" class="label">Data coverage</text>
+  <text x="310" y="254" text-anchor="end" class="sub">form types, asof, ingestion</text>
+  <rect x="320" y="228" width="60" height="14" fill="#f0a020" rx="2"/>
+  <text x="388" y="239" class="value-v2">~10%</text>
+  <rect x="320" y="244" width="120" height="14" fill="#e15a3a" rx="2"/>
+  <text x="448" y="255" class="value-v1">~20%</text>
+  <rect x="320" y="260" width="90" height="14" fill="#5b9bd5" rx="2"/>
+  <text x="418" y="271" class="value-fb">~15%</text>
+
+  <!-- Row 4: Retrieval ranking (V2=7 -> 42; V1=10 -> 60; FB=12 -> 72) -->
+  <text x="310" y="306" text-anchor="end" class="label">Retrieval ranking</text>
+  <text x="310" y="322" text-anchor="end" class="sub">BM25, item routing, table-cell</text>
+  <rect x="320" y="296" width="42" height="14" fill="#f0a020" rx="2"/>
+  <text x="370" y="307" class="value-v2">~7%</text>
+  <rect x="320" y="312" width="60" height="14" fill="#e15a3a" rx="2"/>
+  <text x="388" y="323" class="value-v1">~10%</text>
+  <rect x="320" y="328" width="72" height="14" fill="#5b9bd5" rx="2"/>
+  <text x="400" y="339" class="value-fb">~12%</text>
+
+  <!-- X-axis -->
+  <line x1="320" y1="408" x2="740" y2="408" class="axis-line"/>
+  <text x="320" y="426" text-anchor="middle" class="axis">0%</text>
+  <text x="380" y="426" text-anchor="middle" class="axis">10%</text>
+  <text x="440" y="426" text-anchor="middle" class="axis">20%</text>
+  <text x="500" y="426" text-anchor="middle" class="axis">30%</text>
+  <text x="560" y="426" text-anchor="middle" class="axis">40%</text>
+  <text x="620" y="426" text-anchor="middle" class="axis">50%</text>
+  <text x="680" y="426" text-anchor="middle" class="axis">60%</text>
+  <text x="740" y="426" text-anchor="middle" class="axis">70%</text>
+</svg>
