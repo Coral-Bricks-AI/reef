@@ -1,7 +1,7 @@
 {
   "project": {
     "name": "cb-ia",
-    "version": "0.0.587"
+    "version": "0.0.588"
   },
   "tool": {
     "coralbricks": {
@@ -43,7 +43,7 @@
           "api.sec-api.io",
           "www.sec.gov"
         ],
-        "entrypoint": "cb_ia.swarm:run",
+        "entrypoint": "alphacumen.swarm:run",
         "indices": [
           "gdelt_events_v2",
           "sec_filings_chunked",
