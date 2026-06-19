@@ -47,4 +47,14 @@ def execute(code: str, *args, **kwargs):
     raise NotImplementedError(_MSG)
 
 
+# Hosted-runtime override. If the gateway's sandbox is on the path, re-import
+# the real py_executor symbols so prod runs hit the real executor and the real
+# PyValidationError type (which alphacumen.tools' except clauses match on).
+try:
+    from coralbricks.sandbox.py_executor import *  # type: ignore[import-not-found]  # noqa: F401,F403
+    _SANDBOX_AVAILABLE = True
+except ImportError:
+    _SANDBOX_AVAILABLE = False
+
+
 __all__ = ["PyValidationError", "execute"]

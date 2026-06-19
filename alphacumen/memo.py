@@ -69,4 +69,13 @@ def persist_memo(
     return memo_id, None
 
 
+# Hosted-runtime override. If the gateway's sandbox is on the path, re-import
+# the real persist_memo so prod runs persist to the Memory API.
+try:
+    from coralbricks.sandbox.memory import persist_memo  # type: ignore[import-not-found]  # noqa: F401
+    _SANDBOX_AVAILABLE = True
+except ImportError:
+    _SANDBOX_AVAILABLE = False
+
+
 __all__ = ["MEMOS_STORE", "persist_memo"]

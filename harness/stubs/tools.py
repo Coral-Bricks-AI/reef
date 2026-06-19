@@ -5,13 +5,18 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.stubs.tools`` -- stubs for the kernel retrieval verbs.
+"""``harness.stubs.tools`` -- kernel retrieval verbs (sandbox-backed or stubs).
 
-Drop-in replacement for the ``coralbricks.sandbox.tools`` interface used by
-``alphacumen.tools`` and the ``compute_*`` / ``extract_*`` skill ``impl.py``
-modules. Every call raises :class:`NotImplementedError` with a message that
-redirects to the Coral Bricks team for the hosted experience, or to a BYO
-implementation against your own data backend.
+Two modes, selected automatically at import time:
+
+1. **Hosted runtime** -- when ``coralbricks.sandbox.tools`` is importable
+   (Coral platform's gateway-installed sandbox), this module re-exports
+   the real kernel verbs so prod runs hit the prefab finance corpus.
+2. **OSS local clone** -- when the sandbox isn't on the path (``git clone``
+   + ``pip install -e .``), every kernel verb raises
+   :class:`NotImplementedError` with a message redirecting to the Coral
+   Bricks team for the hosted experience, or to a BYO implementation
+   against the user's own data backend.
 
 The framework primitives (skills, planner, specialists, constraints) work
 standalone without these verbs; only the retrieval / compute pipeline needs
@@ -21,6 +26,7 @@ a backend.
 from __future__ import annotations
 
 from typing import Any, Mapping, Optional, Sequence
+
 
 _MSG = (
     "\n\n"
@@ -40,6 +46,13 @@ _MSG = (
 def _raise(verb: str) -> "NoReturn":  # type: ignore[name-defined]
     raise NotImplementedError(_MSG.format(verb=verb))
 
+
+# --------------------------------------------------------------------------
+# Stub definitions (used when ``coralbricks.sandbox.tools`` isn't importable).
+# These are unconditionally defined so the module shape is stable; if the
+# sandbox is available, the ``from coralbricks.sandbox.tools import *`` below
+# overrides them with the real implementations.
+# --------------------------------------------------------------------------
 
 def bm25(
     *,
@@ -143,6 +156,21 @@ def list_tools(**kwargs: Any) -> dict[str, Any]:
     Real introspection only matters when the runtime is wired up.
     """
     return {"ok": True, "registrations": []}
+
+
+# --------------------------------------------------------------------------
+# Hosted-runtime override.
+#
+# If the gateway's sandbox is on the path, re-import the real kernel verbs
+# AFTER the stub definitions so they override the local symbols. The hosted
+# runtime path hits the prefab corpus; the OSS path keeps the stubs.
+# --------------------------------------------------------------------------
+
+try:
+    from coralbricks.sandbox.tools import *  # type: ignore[import-not-found]  # noqa: F401,F403
+    _SANDBOX_AVAILABLE = True
+except ImportError:
+    _SANDBOX_AVAILABLE = False
 
 
 __all__ = [
