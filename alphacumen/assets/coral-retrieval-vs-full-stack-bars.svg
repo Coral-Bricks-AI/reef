@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360" role="img" aria-labelledby="chart-title">
+  <title id="chart-title">Atom-pass rate on Vals AI Finance Agent v2 (Kimi K2.6, 239 atom-level claims) — Vals reference harness 44.87%, Vals harness + AlphaCumen retrieval 49.8% across all 239 atoms, full AlphaCumen 82.6%.</title>
+
+  <defs>
+    <linearGradient id="bar-coral" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#c23d3d"/>
+      <stop offset="100%" stop-color="#e15a3a"/>
+    </linearGradient>
+    <pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" fill="url(#bar-coral)" opacity="0.85"/>
+      <path d="M0,8 L8,0" stroke="#fff" stroke-width="1.6" stroke-opacity="0.45"/>
+    </pattern>
+  </defs>
+
+  <style><![CDATA[
+    .axis  { stroke: #d4d4d8; stroke-width: 1; }
+    .grid  { stroke: #e4e4e7; stroke-width: 1; stroke-dasharray: 2 4; }
+    .tick  { fill: #71717a; font: 600 11px ui-sans-serif, system-ui, sans-serif; }
+    .label { fill: #18181b; font: 600 13px ui-sans-serif, system-ui, sans-serif; }
+    .sub   { fill: #71717a; font: 500 11px ui-sans-serif, system-ui, sans-serif; }
+    .value { fill: #fff; font: 700 14px ui-sans-serif, system-ui, sans-serif; }
+    .title { fill: #18181b; font: 700 14px ui-sans-serif, system-ui, sans-serif; }
+    .caption { fill: #52525b; font: 500 11px ui-sans-serif, system-ui, sans-serif; }
+  ]]></style>
+
+  <text class="title" x="40" y="28">Atom-pass rate on Vals AI Finance Agent v2 (Kimi K2.6, 239 atom-level claims)</text>
+
+  <!-- Grid 0/25/50/75/100; bars start x=340, full 100% at x=820 (480px = 100%) -->
+  <line class="grid" x1="340" y1="60"  x2="340" y2="240"/>
+  <line class="grid" x1="460" y1="60"  x2="460" y2="240"/>
+  <line class="grid" x1="580" y1="60"  x2="580" y2="240"/>
+  <line class="grid" x1="700" y1="60"  x2="700" y2="240"/>
+  <line class="grid" x1="820" y1="60"  x2="820" y2="240"/>
+  <text class="tick" x="340" y="258" text-anchor="middle">0%</text>
+  <text class="tick" x="460" y="258" text-anchor="middle">25%</text>
+  <text class="tick" x="580" y="258" text-anchor="middle">50%</text>
+  <text class="tick" x="700" y="258" text-anchor="middle">75%</text>
+  <text class="tick" x="820" y="258" text-anchor="middle">100%</text>
+
+  <!-- Row 1: Vals reference — 44.87% (bar 215) -->
+  <text class="label" x="330" y="78"  text-anchor="end">Kimi K2.6 + Vals harness</text>
+  <text class="sub"   x="330" y="93"  text-anchor="end">Vals reference (Tavily / EDGAR / HTML)</text>
+  <rect x="340" y="68" width="215" height="28" rx="3" fill="#a1a1aa"/>
+  <text class="value" x="547" y="88" text-anchor="end">44.87%</text>
+
+  <!-- Row 2: Vals harness + AlphaCumen retrieval — 49.8% across all 239 atoms (bar 239), hatched -->
+  <text class="label" x="330" y="148" text-anchor="end">Kimi K2.6 + Vals harness + AlphaCumen retrieval</text>
+  <text class="sub"   x="330" y="163" text-anchor="end">across all 239 atoms</text>
+  <rect x="340" y="138" width="239" height="28" rx="3" fill="url(#hatch)"/>
+  <text class="value" x="571" y="158" text-anchor="end">49.8%</text>
+
+  <!-- Row 3: Full AlphaCumen — 82.6% (bar 396) -->
+  <text class="label" x="330" y="218" text-anchor="end">Kimi K2.6 + full AlphaCumen</text>
+  <text class="sub"   x="330" y="233" text-anchor="end">Planner + 6 specialists + 69 skills</text>
+  <rect x="340" y="208" width="396" height="28" rx="3" fill="url(#bar-coral)"/>
+  <text class="value" x="728" y="228" text-anchor="end">82.6%</text>
+
+  <!-- Footnote -->
+  <text class="caption" x="40" y="295">AlphaCumen retrieval tested at 4× the Vals reference budget (200 turns / 7,200 s). Even then, 70 atoms went unanswered when the LLM produced no candidate —</text>
+  <text class="caption" x="40" y="311">exclusively on heavy multi-step compute: multi-issuer ratios, DCF, LBO, M&amp;A footnote breakdowns. AlphaCumen passes all 239 atoms at 1× budget.</text>
+</svg>

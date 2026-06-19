@@ -10,7 +10,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
 [![Stars](https://img.shields.io/github/stars/Coral-Bricks-AI/coral-ai?style=social)](https://github.com/Coral-Bricks-AI/coral-ai)
 [![Blog: finance-benchmarks](https://img.shields.io/badge/blog-finance--benchmarks-orange)](https://coralbricks.ai/blog/finance-benchmarks)
-[![Blog: investment-research](https://img.shields.io/badge/blog-investment--research-orange)](https://coralbricks.ai/blog/alphacumen-investment-research)
+[![Blog: retrieval-vs-full-stack](https://img.shields.io/badge/blog-retrieval--vs--full--stack-orange)](https://coralbricks.ai/blog/coral-retrieval-vs-full-stack)
 
 <img src="assets/alphacumen-three-benchmarks-summary.png" alt="AlphaCumen state-of-the-art results across Vals AI v2 (82.6%), Vals AI v1.1 (90%), and FinanceBench (89.3%) at $0.13 per question — ~10× cheaper than Opus 4.7" width="820">
 
@@ -20,7 +20,7 @@
 
 ## What this is
 
-**AlphaCumen is a 7-agent finance swarm** orchestrating 69 domain skills across SEC filings, equity bars, news, and options — running on Kimi K2.6.
+**AlphaCumen is a multi-agent harness** — 7 agents, 69 skills encoding financial conventions, across four datasets (SEC, news, stocks, options) — running on Kimi K2.6.
 
 Swap Vals AI's generic harness for AlphaCumen's finance-specific stack, and the same Kimi K2.6 model **gains 38 points on v2 and 33 points on v1.1**. Frontier models on the generic harness top out in the 44–64% range. AlphaCumen lands at 82.6 / 90 / 89.3.
 
@@ -32,7 +32,7 @@ Swap Vals AI's generic harness for AlphaCumen's finance-specific stack, and the 
 
 | Benchmark | Top frontier (generic harness) | **AlphaCumen** | Gain |
 |---|--:|--:|--:|
-| Vals AI Finance Agent **v2** (27 questions) | 57.86% (Gemini 3.5 Flash) | **82.6%** | **+24.7pp** |
+| Vals AI Finance Agent **v2** (27 questions, 239 atoms) | 57.86% (Gemini 3.5 Flash) | **82.6%** | **+24.7pp** |
 | Vals AI Finance Agent **v1.1** (50 questions) | 64.4% (Opus 4.7) | **90.0%** | **+25.6pp** |
 | Patronus AI **FinanceBench** (150 questions) | — (no live leaderboard) | **89.3%** | — |
 
@@ -46,46 +46,7 @@ All accuracy numbers reported with 95% CIs in the [full write-up](https://coralb
 | Kimi K2.6 (vanilla) | $0.205 | 6.6× cheaper |
 | **Kimi K2.6 on Coral** | **$0.133** | **10.2× cheaper** |
 
-**Best accuracy and lowest cost in the same system.**
-
----
-
-## How it works — the swarm
-
-When you ask AlphaCumen a question — *"What did Microsoft report in Q1 2026?"* or *"What macro risks should I watch heading into Q2?"* — the planner dispatches **four specialist agents in parallel**:
-
-- **Sector analyst** — searches live SEC filings (10-K, 10-Q, 8-K, 20-F), extracts the actual revenue / EPS / margin figures from filing text
-- **Stock analyst** — pulls real-time equity prices, computes technical indicators, analyzes options positioning
-- **Competitive-intelligence analyst** — searches news + financial articles for market-share shifts and strategic moves
-- **Risk analyst** — scans a global event stream across 190+ countries for geopolitical risk, pulls macro time series (CPI, rates, oil, Treasuries)
-
-Each specialist works independently for 5–10 seconds, then their findings converge into a single synthesized, **fully cited** report. Total time = the slowest specialist, not the sum.
-
-<div align="center">
-
-<img src="assets/alpha_cumen_swarm.png" alt="AlphaCumen agent swarm — 4 specialist agents running in parallel over a billion-scale knowledge graph, converging on a final answer" width="820">
-
-</div>
-
-Every claim in the final report traces back to a specific source — a filing accession number, a dated news article, or a timestamped macro observation. **No unsourced assertions.**
-
----
-
-## Live runs — 87% win rate vs Grok
-
-We score every production query against Grok with an automated judge across five dimensions: data accuracy, financial rigor, actionability, completeness, internal consistency.
-
-<div align="center">
-
-<img src="assets/alpha_cumen_live_runs.png" alt="AlphaCumen live runs dashboard — 87% win rate across 241 scored queries vs Grok, 100% pipeline success, 23.15s average latency" width="820">
-
-</div>
-
-| Metric | Result |
-|---|---|
-| Win rate vs Grok | **87%** |
-| Pipeline success rate | **100%** |
-| Avg response time | **23.15s** |
+Two drivers: an open, affordable base model (Kimi K2.6 lists at a fraction of Opus 4.7 per token), and a runtime built for the shape of agent workloads — **multi-call, cache-heavy** traffic that a metered API doesn't pass through. Per query, AlphaCumen runs ~23 turns averaging **619K total tokens**, of which **82.9% are cached input**. Best accuracy and lowest cost in the same system.
 
 ---
 
@@ -111,7 +72,45 @@ Same model (Kimi K2.6) on the generic Vals AI harness scores **44.87%**. On Alph
 
 ---
 
-## What moved the numbers
+## Is it the retrieval, or the rest of the stack?
+
+Natural follow-up to the headline result: how much of the 38-point gain over Vals AI's reference harness is retrieval, and how much is reasoning? We ran three configurations — same model (Kimi K2.6), same data, same judge.
+
+| | LLM harness | Retrieval | Skills + computation |
+|---|---|---|---|
+| **A. Vals AI reference** | Vals AI | Tavily / EDGAR / HTML parse | calculator + `price_history` |
+| **B. Retrieval swap** | Vals AI | **6 AlphaCumen indices** | calculator only |
+| **C. Full AlphaCumen** | AlphaCumen | 6 indices | 69 skills + dedicated tools |
+
+<div align="center">
+
+<img src="assets/coral-retrieval-vs-full-stack-bars.svg" alt="Atom-pass rate on Vals AI Finance Agent v2 — Vals reference 44.87%, Vals harness + AlphaCumen retrieval 49.8% (at 4× the Vals reference budget), full AlphaCumen 82.6%" width="820">
+
+</div>
+
+**Retrieval alone closes ~5 of the 38 points — about an eighth of the gap.** And only at **4× the Vals reference budget** (200 turns / 7200s instead of 50 turns / 1800s). At the original budget, configuration B scores *worse* than the reference: **37.2%**, because **132 of 239 atoms never produce a final answer** — Kimi stalls in reasoning prose and hits the wall before reaching `submit_final_result`. Bumping the budget 4× lets 30 more atoms converge — but **70 atoms still time out** even at that budget, and average turns-per-row goes from 10 to 52.
+
+**Then we ran the same 70 hard atoms under configuration C (full AlphaCumen) at the original 1× Vals budget. All 70 converged cleanly.**
+
+<div align="center">
+
+<img src="assets/linkedin-chart.png" alt="Two-panel chart — Panel 1: retrieval swap alone moves Vals reference 44.87% to 49.8% (still 33pp short of AlphaCumen's 82.6%). Panel 2: even at 4× budget, generic harness tops out at 49.8% — bigger budget is not a production fix; structure is" width="820">
+
+</div>
+
+The cleanest cut: **169 of 239 atoms get a candidate answer under B at 4× budget; all 239 atoms get one under C at 1× budget.** The skill stack doesn't just lift answer quality — it makes convergence reliable on the atoms where bare-LLM stacks silently abandon.
+
+Three takeaways from the experiment:
+
+- **Retrieval is the small lever; skills + computation is the large one.** Domain-specific retrieval closes only a sliver of the gap on this benchmark. What moves the needle is structured tools that encode the conventions of the domain.
+- **Generic harnesses + frontier LLMs stall on hard domain work.** Multi-step finance reasoning isn't a retrieval problem or a model-size problem — it's a *structure* problem. Without specialist tools, the LLM drifts in prose and never reaches a final answer.
+- **Budget is not a substitute for structure.** Throwing more turns and wall-time at stalling agents is expensive, partial, and leaves the hardest questions unanswered. Structural cures scale; budget doesn't.
+
+Full experiment, including the per-row failure-mode breakdown and the six retrieval adapters we authored against the Vals AI reference harness (forked at SHA `22a5ed49`): [coralbricks.ai/blog/coral-retrieval-vs-full-stack](https://coralbricks.ai/blog/coral-retrieval-vs-full-stack).
+
+---
+
+## What moved the headline numbers
 
 <div align="center">
 
@@ -119,13 +118,13 @@ Same model (Kimi K2.6) on the generic Vals AI harness scores **44.87%**. On Alph
 
 </div>
 
-**1. Finance rules in code, not prose.** Inventory turnover, working capital, basis-point baselines — no single definition analysts agree on. Each rule lives in tested code (~a dozen dedicated computation tools), not in a natural-language prompt the model can paraphrase its way around. The other half is *time*: fiscal-year references resolve to each issuer's own calendar, not the default calendar year.
+**1. Finance rules in code, not prose.** Inventory turnover, working capital, basis-point baselines — no single definition analysts agree on. Each rule lives in tested code (~a dozen dedicated computation tools), not in a natural-language prompt the model can paraphrase its way around. The other half is *time*: fiscal-year references resolve to each issuer's own calendar, not the default calendar year. The deeper finding: conventions don't even agree within a benchmark. FinanceBench wants *ending* inventory on one question and *average* on another — same dataset, same metric, opposite "correct" answers.
 
 **2. Multi-filing orchestration.** *"Did the company beat the forecast it gave investors?"* — pull the forecast from one filing and the actual results from a later one, compare line by line. The planner routes this to the specialist that owns the filing-pair tool — one call returns both filings together, so the model can't mismatch quarters. The specialist renders the comparison into a structured form with a row for every line the company originally guided on, so the model can't skip non-headline items (stock-based comp, capex, share count) that often matter more than the headline.
 
 **3. Data coverage.** Expanded ingestion to include proxy statements (board votes, exec comp), prospectuses (new-share details), registration statements (capital raises), foreign-private-issuer monthly revenue reports, and 10-K/A amendments — filing types typical finance datasets under-index. **Per-question asof** was the single biggest lever — making the asof horizon a per-question setting (not a global clamp) let the planner pull post-asof filings when the question explicitly references later quarters.
 
-**4. Retrieval ranking.** Pure keyword search ranks single-cell table answers low because the surrounding narrative repeats the metric name dozens of times. Embeddings don't save you either. The fix: route the query to the section of the filing that actually carries the granular numbers (disclosure notes, not management discussion), then run a structured-table extractor that records each cell as a *(metric, period, value)* triple — so the model asks for "gross margin in Q3 2024" and gets exactly that cell.
+**4. Retrieval ranking.** Pure keyword search ranks single-cell table answers low because the surrounding narrative repeats the metric name dozens of times. Embeddings don't save you either: a full sentence in the narrative is a closer semantic match to the query than a bare label-and-number. The fix: route the query to the section of the filing that actually carries the granular numbers (disclosure notes, not management discussion), then run a structured-table extractor that records each cell as a *(metric, period, value)* triple — so the model asks for "gross margin in Q3 2024" and gets exactly that cell.
 
 ---
 
@@ -158,7 +157,7 @@ Read the code top-down — `swarm.py` → a specialist `persona_file` → `skill
 |---|---|
 | [`swarm.py`](swarm.py) | The orchestrator — planner LLM call + parallel specialist fan-out per round, accumulates the common thread, calls the postprocessor on convergence |
 | [`tools.py`](tools.py) | Finance-specific tool wrappers (BM25 SEC, equity bars, `compute_technicals`, `get_full_text`, …). Calls into the kernel-verb stubs by default. |
-| [`roster.py`](roster.py) | `SpecialistConfig` per finance role (sector / stock / risk / news_quant / vc analyst) + persona prompt loader |
+| [`roster.py`](roster.py) | `SpecialistConfig` per finance role + persona prompt loader |
 | [`postprocessor.py`](postprocessor.py) | Terminal synthesis call — reads the converged common thread, writes the structured `final_answer` |
 | [`memo.py`](memo.py) | Memo persistence (stubbed in OSS; no cross-call memory) |
 | [`prompts/`](prompts/) | Persona system prompts + planner seed + postprocessor template |
@@ -177,17 +176,10 @@ The benchmark queries (Vals AI Finance Agent v2, FinanceBench) and the in-proces
 
 ---
 
-## Why we built this
+## Read more
 
-Investment professionals live on two clocks. The research clock — thorough analysis that reads filings, cross-references macro data, checks competitive positioning. The market clock — earnings drop after hours, geopolitical events move oil $15 in a day. These two clocks have always been in tension.
-
-The first generation of AI tools tried to solve this with chatbots: fast, but they fabricated figures, confused fiscal and calendar quarters, and cited events that never happened. "Deep research" tools corrected for that but reintroduced the time problem — 3–10 minutes per query during a fast-moving earnings season.
-
-AlphaCumen's bet: **parallel specialists + finance conventions in code + a knowledge graph that already connects entities across data sources**. Speed comes from parallelism, accuracy comes from convention encoding, and grounded citation comes from never letting the model invent a number it can't trace back to a filing accession number, a dated article, or a timestamped macro observation.
-
-Full write-ups:
-- [State-of-the-art on public Financial Benchmarks at $0.13 per Question](https://coralbricks.ai/blog/finance-benchmarks) — the benchmark methodology, every miss reviewed atom-by-atom, the cost math
-- [AlphaCumen: Precision-Grade Investment Research](https://coralbricks.ai/blog/alphacumen-investment-research) — the speed/accuracy tradeoff, the swarm architecture, head-to-head vs Grok
+- [State-of-the-art on Public Financial Benchmarks at $0.13 per Question](https://coralbricks.ai/blog/finance-benchmarks) — the benchmark methodology, every miss reviewed atom-by-atom, the cost math
+- [Just the Retrieval Tools? Isolating What Closes the Gap on Vals AI Finance Agent v2](https://coralbricks.ai/blog/coral-retrieval-vs-full-stack) — three-stack A/B/C experiment, first-sweep failures, the budget-bump math
 
 ---
 
