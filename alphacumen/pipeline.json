@@ -1,0 +1,133 @@
+{
+  "project": {
+    "name": "cb-ia",
+    "version": "0.0.584"
+  },
+  "tool": {
+    "coralbricks": {
+      "pipeline": {
+        "credentials": [
+          {
+            "env_var": "LANGFUSE_PUBLIC_KEY",
+            "json_key": "LANGFUSE_PUBLIC_KEY",
+            "secret_id": "prod/langfuse/public-key"
+          },
+          {
+            "env_var": "LANGFUSE_SECRET_KEY",
+            "json_key": "LANGFUSE_SECRET_KEY",
+            "secret_id": "prod/langfuse/secret-key"
+          },
+          {
+            "env_var": "SEC_API_KEY",
+            "secret_id": "sec-edgar/api-key"
+          },
+          {
+            "env_var": "LILAC_API_KEY",
+            "secret_id": "prod/lilac/api-key"
+          },
+          {
+            "env_var": "OPENROUTER_API_KEY",
+            "json_key": "OPENROUTER_API_KEY",
+            "secret_id": "prod/openrouter/api-key"
+          },
+          {
+            "env_var": "AWS_GPT_API_KEY",
+            "secret_id": "prod/aws-gpt/api-key"
+          }
+        ],
+        "default_model": "Qwen/Qwen3.5-397B-A17B",
+        "egress": [
+          "cloud.langfuse.com",
+          "us.cloud.langfuse.com",
+          "memory.coralbricks.ai",
+          "api.sec-api.io",
+          "www.sec.gov"
+        ],
+        "entrypoint": "cb_ia.swarm:run",
+        "indices": [
+          "gdelt_events_v2",
+          "sec_filings_chunked",
+          "sec_filings_ann",
+          "scraped_articles_bge_m3",
+          "graph_combined",
+          "macro_v1",
+          "equity_bars_v1",
+          "reddit_pullpush_v1",
+          "options_v1"
+        ],
+        "max_wall_seconds": 1800,
+        "models": [
+          "gpt-5.5",
+          "lilac/moonshotai/kimi-k2.6",
+          "openrouter/moonshotai/kimi-k2.6",
+          "claude-opus-4.7",
+          "claude-sonnet-4-6",
+          "Qwen/Qwen3-VL-30B-A3B-Instruct",
+          "anthropic.claude-opus-4-6",
+          "anthropic.claude-sonnet-4-6",
+          "cerebras/zai-glm-4.7",
+          "cerebras/gpt-oss-120b",
+          "deepseek-ai/DeepSeek-V3",
+          "deepseek-ai/DeepSeek-R1",
+          "Qwen/Qwen3.5-397B-A17B",
+          "together/Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+          "aws/gpt-oss-20b",
+          "aws/openai/gpt-oss-120b"
+        ],
+        "py": {
+          "libraries": [
+            "pandas",
+            "numpy"
+          ]
+        },
+        "system_prompts": [
+          "cb_ia/alphacumen/prompts/base.md",
+          "cb_ia/alphacumen/prompts/base_backtest.md",
+          "cb_ia/alphacumen/prompts/specialist_stock.md",
+          "cb_ia/alphacumen/prompts/specialist_vc.md",
+          "cb_ia/alphacumen/prompts/specialist_risk.md",
+          "cb_ia/alphacumen/prompts/specialist_sector_seed.md",
+          "cb_ia/alphacumen/skills/accounting_policy_change.md",
+          "cb_ia/alphacumen/skills/competitive_landscape_structural.md",
+          "cb_ia/alphacumen/skills/compute_competitive_trajectory/SKILL.md",
+          "cb_ia/alphacumen/skills/run_dcf/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_debt_refi_impact/SKILL.md",
+          "cb_ia/alphacumen/skills/extract_ebitda_reconciliation_multi_year/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_eps_guidance_dollar_range/SKILL.md",
+          "cb_ia/alphacumen/skills/event_listing.md",
+          "cb_ia/alphacumen/skills/ex99_exhibits_walker.md",
+          "cb_ia/alphacumen/skills/executive_compensation.md",
+          "cb_ia/alphacumen/skills/compute_fcf_margin_trend/SKILL.md",
+          "cb_ia/alphacumen/skills/financial_ratio_formulas.md",
+          "cb_ia/alphacumen/skills/compute_issuer_ratios/SKILL.md",
+          "cb_ia/alphacumen/skills/run_lbo/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_lease_adjusted_ebitdar/SKILL.md",
+          "cb_ia/alphacumen/skills/extract_ma_deal_terms/SKILL.md",
+          "cb_ia/alphacumen/skills/ma_multi_component.md",
+          "cb_ia/alphacumen/skills/compute_revenue_decomposition_take_rate/SKILL.md",
+          "cb_ia/alphacumen/skills/microcap_momentum_screen.md",
+          "cb_ia/alphacumen/skills/monthly_seasonal_forecast/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_fy_capex_guidance_multi/SKILL.md",
+          "cb_ia/alphacumen/skills/format_guidance_comparison/SKILL.md",
+          "cb_ia/alphacumen/skills/multi_quarter_beat_miss.md",
+          "cb_ia/alphacumen/skills/compute_note_diff_across_years/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_intangible_impairments_by_asset/SKILL.md",
+          "cb_ia/alphacumen/skills/extract_operating_kpi_table/SKILL.md",
+          "cb_ia/alphacumen/skills/peer_payout_ratio/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_restructuring_plan_flowthrough/SKILL.md",
+          "cb_ia/alphacumen/skills/saas_risk_factors.md",
+          "cb_ia/alphacumen/skills/summarize_securities_offering/SKILL.md",
+          "cb_ia/alphacumen/skills/compute_kpi_subperiod_trend/SKILL.md"
+        ],
+        "tools": [
+          "bm25",
+          "ann",
+          "sql",
+          "multihop",
+          "get",
+          "py"
+        ]
+      }
+    }
+  }
+}

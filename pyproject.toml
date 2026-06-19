@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cb-ia"
+version = "0.0.585"
+description = "Coral harness framework + AlphaCumen finance instance"
+requires-python = ">=3.11"
+authors = [{ name = "Coral Bricks AI" }]
+readme = "README.md"
+license = { text = "Apache-2.0" }
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    # Direct-provider LLM client (replaces the gateway-side proxy).
+    # The chat() function in harness/llm.py uses the openai SDK for
+    # OpenAI-compatible providers (Lilac, Together, OpenRouter, Cerebras,
+    # DeepInfra), the anthropic SDK for direct Anthropic, and boto3 for
+    # Bedrock. Install at least one to call models.
+    "openai>=1.0",
+    "anthropic>=0.30",
+    "boto3>=1.34",
+    # Langfuse for run-level tracing. Observations emit from
+    # ``alphacumen._langfuse`` and flush via ``atexit``. No-op without
+    # LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY in env.
+    "langfuse>=3.0,<4",
+    # BeautifulSoup for ``extract_filing_tables`` -- parses raw filing
+    # HTML returned by sec-api's Extractor into matchable ``<table>``
+    # elements. ``html.parser`` (stdlib) is the default backend.
+    "beautifulsoup4>=4.12,<5",
+]
+
+[project.urls]
+Homepage = "https://github.com/Coral-Bricks-AI/coral-ai"
+Blog = "https://coralbricks.ai/blog/write-your-own-harness"
+
+# Flat package layout: harness/ and alphacumen/ are both top-level
+# importable packages bundled together in the cb-ia wheel.
+[tool.setuptools]
+packages = [
+    "harness",
+    "alphacumen",
+    "alphacumen.planner",
+    "alphacumen.tools",
+    "alphacumen.prompts",
+    "alphacumen.planner_skills",
+    "alphacumen.skills",
+]
+
+[tool.setuptools.package-dir]
+harness = "harness"
+alphacumen = "alphacumen"
+
+[tool.setuptools.package-data]
+# Persona prompts, the sector seed, and the planner + postprocessor
+# template scaffolds. The alphacumen layer owns everything the swarm
+# loads at system-prompt-build time.
+"alphacumen.prompts" = ["*.md"]
+"alphacumen.planner_skills" = ["*.md"]
+"alphacumen.skills" = [
+    "*.md",
+    "**/SKILL.md",
+    "**/*.md",
+]
+
+[tool.coralbricks.pipeline]
+# Entrypoint the gateway resolves when serving cb-ia runs.
+entrypoint = "alphacumen.swarm:run"

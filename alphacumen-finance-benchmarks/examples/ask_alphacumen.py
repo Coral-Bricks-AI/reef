@@ -1,71 +1,82 @@
-"""Ask AlphaCumen a single question via the Coral platform SDK.
+# Copyright 2026 Coral Bricks AI Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
 
-This is the minimum submit-and-poll path the eval harness uses to score
-the Vals AI Finance Agent Benchmark and FinanceBench. Wrap it in a loop
-over benchmark rows (plus per-row ``asof`` injection and an override
-store) and you have the harness that produced the numbers in the
-companion blog post.
+"""In-process AlphaCumen example.
 
-Note: ``coralbricks-cli`` is in design-partner preview today; the public
-``pip install`` path opens in Phase 2.
+Demonstrates the framework wiring end-to-end -- planner, specialists,
+skills, constraints, the post-processor synthesis hop. The kernel
+retrieval verbs (`bm25`, `ann`, `sql`, `multihop`, `get`, `py`) are
+stubs in the open-source repo. The first specialist that tries to
+retrieve will raise :class:`NotImplementedError` with a message that
+points you at:
 
-Setup (one env var, no infra knowledge required):
-    pip install coralbricks-cli
-    export CORAL_API_KEY=ak_...
+  * The hosted experience over the prefab finance corpus (~4.5TB of
+    SEC filings, market data, news) -- talk to the Coral Bricks team:
+        https://coralbricks.ai/alphacumen
+
+  * Or wire your own retrieval backends (OpenSearch / Pinecone /
+    DuckDB / your graph DB / your Python sandbox) and you can run
+    AlphaCumen against your own data.
+
+What this example **does** demonstrate (without any backend wired):
+
+  * The planner LLM dispatches specialists in parallel.
+  * Specialists each run a ReAct loop with their own tool roster
+    and skills.
+  * Constraints (asof, max_rounds, allowed_indices) are threaded
+    through the run.
+  * The error path on a missing retrieval backend is a clean
+    NotImplementedError, not a silent failure.
+
+Set ``OPENAI_API_KEY`` (or ``ANTHROPIC_API_KEY`` + change the model
+prefix below) before running -- the planner LLM call goes out to the
+provider you picked.
 """
 
 from __future__ import annotations
 
 import os
-import time
+import sys
 
-from coralbricks.client import PlatformClient
+# Make the coral-ai checkout importable when running from the examples/
+# directory without ``pip install -e .``.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+from alphacumen.swarm import run
 
 
-def ask(question: str, *, asof: str | None = None) -> str:
-    """Submit one question to cb-ia and return the answer summary.
+def main() -> None:
+    if not os.environ.get("OPENAI_API_KEY"):
+        print(
+            "Set OPENAI_API_KEY (or change `model` below to an "
+            "anthropic/... or aws/... prefix and set the matching key).",
+            file=sys.stderr,
+        )
 
-    ``asof`` (ISO-8601 UTC) pins the run to a specific date via
-    ``mode="backtest"``; when omitted the run uses ``mode="live"`` and
-    sees the corpus as of submit time.
-    """
-    # PlatformClient() with no args: reads CORAL_API_KEY from env and
-    # targets the public production gateway (https://platform.coralbricks.ai).
-    # Override the gateway with base_url=... or $CORAL_PLATFORM_URL for
-    # staging or local development.
-    client = PlatformClient()
     try:
-        submit_kwargs = {
-            "pipeline_package": "cb-ia==latest",
-            "inputs": [{"query": question}],
-            "mode": "backtest" if asof else "live",
-        }
-        if asof:
-            submit_kwargs["asof"] = asof
+        result = run(
+            query="What was Apple's FY2024 total revenue?",
+            pipeline="investment_analyst",
+            model="openai/gpt-4o",
+            asof="2026-06-30",
+        )
+    except NotImplementedError as exc:
+        # Expected outcome when no retrieval backend is wired up.
+        print("AlphaCumen raised NotImplementedError as expected:\n")
+        print(str(exc))
+        sys.exit(0)
 
-        batch = client.submit_batch(**submit_kwargs)
-        request_id = batch.runs[0].request_id
-
-        while True:
-            rec = client.get_run(request_id)
-            status = getattr(rec, "status", None) or rec.__dict__.get("status")
-            if status in ("completed", "failed", "cancelled"):
-                break
-            time.sleep(3)
-
-        if status != "completed":
-            raise RuntimeError(f"run did not complete: status={status}")
-
-        result = rec.__dict__.get("result_json") or {}
-        return result.get("answer_summary") or ""
-    finally:
-        client.close()
+    answer = result.get("final_answer") or {}
+    summary = answer.get("answer_summary") or "(no answer)"
+    print(summary)
 
 
 if __name__ == "__main__":
-    if not os.environ.get("CORAL_API_KEY"):
-        raise SystemExit("set CORAL_API_KEY before running")
-    answer = ask(
-        "What was Coca-Cola's FY24 dividend payout ratio vs. its peers?",
-    )
-    print(answer)
+    main()
