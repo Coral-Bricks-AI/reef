@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cb-ia"
-version = "0.0.585"
+version = "0.0.586"
 description = "Coral harness framework + AlphaCumen finance instance"
 requires-python = ">=3.11"
 authors = [{ name = "Coral Bricks AI" }]
@@ -42,31 +42,27 @@ Blog = "https://coralbricks.ai/blog/write-your-own-harness"
 
 # Flat package layout: harness/ and alphacumen/ are both top-level
 # importable packages bundled together in the cb-ia wheel.
+# - alphacumen.tools is a single MODULE (alphacumen/tools.py), not a package
+# - alphacumen/planner_skills/ and alphacumen/skills/ are data dirs with
+#   no __init__.py — markdown playbooks + per-skill impl.py files that the
+#   skills loader pulls via importlib.util.spec_from_file_location. Both
+#   ship as package-data of the alphacumen package.
 [tool.setuptools]
-packages = [
-    "harness",
-    "alphacumen",
-    "alphacumen.planner",
-    "alphacumen.tools",
-    "alphacumen.prompts",
-    "alphacumen.planner_skills",
-    "alphacumen.skills",
-]
+include-package-data = true
 
-[tool.setuptools.package-dir]
-harness = "harness"
-alphacumen = "alphacumen"
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["harness*", "alphacumen", "alphacumen.planner", "alphacumen.prompts"]
 
 [tool.setuptools.package-data]
-# Persona prompts, the sector seed, and the planner + postprocessor
-# template scaffolds. The alphacumen layer owns everything the swarm
-# loads at system-prompt-build time.
 "alphacumen.prompts" = ["*.md"]
-"alphacumen.planner_skills" = ["*.md"]
-"alphacumen.skills" = [
-    "*.md",
-    "**/SKILL.md",
-    "**/*.md",
+alphacumen = [
+    "pipeline.json",
+    "planner_skills/*.md",
+    "skills/*.md",
+    "skills/*/SKILL.md",
+    "skills/*/impl.py",
+    "skills/*/__init__.py",
 ]
 
 [tool.coralbricks.pipeline]
