@@ -24,3 +24,53 @@ package if you're building a non-finance one on top of the same harness.
 """
 
 __version__ = "0.1.0"
+
+
+# --------------------------------------------------------------------------
+# Hosted-runtime integration.
+#
+# When the Coral Bricks platform's sandbox is on the path (gateway-installed
+# per-pipeline venv), pipe LLM calls + kernel-verb tools + the memory store
+# through the gateway. The sandbox exposes:
+#
+#   - coralbricks.sandbox.llm.chat — OpenAI-shape proxy that uses the
+#     gateway's OSS-LLM keys (no API key plumbing required in the wheel).
+#   - coralbricks.sandbox.tools — bm25/ann/sql/multihop/get/py/grok over
+#     the prefab finance corpus (~4.5TB of SEC + market + news data).
+#   - coralbricks.sandbox.memory — Memory API persistence keyed on
+#     CORAL_REQUEST_ID.
+#
+# Override the harness's standalone defaults (direct provider, redirect-to-
+# team stubs, in-memory no-op memo) so the wheel routes everything through
+# the gateway. When the sandbox isn't present (OSS local clone), keep the
+# harness defaults — the framework still imports cleanly; AlphaCumen calls
+# just hit the redirect stubs.
+# --------------------------------------------------------------------------
+
+try:
+    from coralbricks.sandbox import llm as _sandbox_llm
+    from coralbricks.sandbox import tools as _sandbox_tools
+    from coralbricks.sandbox import memory as _sandbox_memory
+
+    # Reroute the harness chat client through the sandbox proxy. Same envelope
+    # shape, gateway-managed auth.
+    import harness.llm as _harness_llm
+    _harness_llm.chat = _sandbox_llm.chat
+
+    # Replace the kernel-verb stubs with real sandbox tool dispatches.
+    import harness.stubs.tools as _stub_tools
+    for _name in getattr(_sandbox_tools, "__all__", ()):
+        _val = getattr(_sandbox_tools, _name, None)
+        if _val is not None:
+            setattr(_stub_tools, _name, _val)
+
+    # Replace the memo stub with the real Memory API persistence.
+    from . import memo as _memo
+    if hasattr(_sandbox_memory, "persist_memo"):
+        _memo.persist_memo = _sandbox_memory.persist_memo
+
+    _SANDBOX_ACTIVE = True
+    del _harness_llm, _stub_tools, _memo, _name, _val
+except ImportError:
+    # No sandbox on the path — keep the harness standalone defaults.
+    _SANDBOX_ACTIVE = False
