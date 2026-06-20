@@ -53,6 +53,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["harness*", "alphacumen", "alphacumen.planner", "alphacumen.prompts"]
+exclude = ["harness.examples*", "alphacumen.examples*", "*.tests*", "*tests*"]
 
 [tool.setuptools.package-data]
 "alphacumen.prompts" = ["*.md"]

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "negroni",
+    "name": "Negroni",
+    "ingredients": [
+      {"name": "gin", "volume_ml": 30, "abv": 0.40},
+      {"name": "sweet vermouth", "volume_ml": 30, "abv": 0.16},
+      {"name": "Campari", "volume_ml": 30, "abv": 0.24}
+    ],
+    "glassware": "rocks",
+    "instructions": "Stir with ice; strain into a rocks glass over ice; garnish with orange peel.",
+    "tags": ["aperitivo", "bitter", "italian", "stirred", "gin"]
+  },
+  {
+    "id": "old_fashioned",
+    "name": "Old Fashioned",
+    "ingredients": [
+      {"name": "bourbon or rye whiskey", "volume_ml": 60, "abv": 0.45},
+      {"name": "simple syrup", "volume_ml": 5, "abv": 0.0},
+      {"name": "Angostura bitters", "volume_ml": 1, "abv": 0.45}
+    ],
+    "glassware": "rocks",
+    "instructions": "Stir whiskey, syrup, and bitters with ice; strain over a large ice cube in a rocks glass; garnish with orange peel.",
+    "tags": ["whiskey", "classic", "stirred", "american"]
+  },
+  {
+    "id": "manhattan",
+    "name": "Manhattan",
+    "ingredients": [
+      {"name": "rye whiskey", "volume_ml": 60, "abv": 0.45},
+      {"name": "sweet vermouth", "volume_ml": 30, "abv": 0.16},
+      {"name": "Angostura bitters", "volume_ml": 1, "abv": 0.45}
+    ],
+    "glassware": "coupe",
+    "instructions": "Stir with ice; strain into a chilled coupe; garnish with a brandied cherry.",
+    "tags": ["whiskey", "classic", "stirred", "american"]
+  },
+  {
+    "id": "martini",
+    "name": "Dry Martini",
+    "ingredients": [
+      {"name": "London Dry gin", "volume_ml": 60, "abv": 0.40},
+      {"name": "dry vermouth", "volume_ml": 10, "abv": 0.18}
+    ],
+    "glassware": "coupe",
+    "instructions": "Stir with ice; strain into a chilled coupe; garnish with a lemon twist or olive.",
+    "tags": ["gin", "classic", "stirred", "dry"]
+  },
+  {
+    "id": "margarita",
+    "name": "Margarita",
+    "ingredients": [
+      {"name": "blanco tequila", "volume_ml": 50, "abv": 0.40},
+      {"name": "Cointreau", "volume_ml": 20, "abv": 0.40},
+      {"name": "fresh lime juice", "volume_ml": 20, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Shake with ice; strain into a chilled coupe with a half-salt rim; garnish with a lime wheel.",
+    "tags": ["tequila", "sour", "shaken", "mexican", "citrus"]
+  },
+  {
+    "id": "daiquiri",
+    "name": "Daiquiri",
+    "ingredients": [
+      {"name": "white rum", "volume_ml": 60, "abv": 0.40},
+      {"name": "fresh lime juice", "volume_ml": 25, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 15, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Shake with ice; double strain into a chilled coupe.",
+    "tags": ["rum", "sour", "shaken", "cuban", "citrus"]
+  },
+  {
+    "id": "mojito",
+    "name": "Mojito",
+    "ingredients": [
+      {"name": "white rum", "volume_ml": 50, "abv": 0.40},
+      {"name": "fresh lime juice", "volume_ml": 25, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 15, "abv": 0.0},
+      {"name": "mint leaves", "volume_ml": 5, "abv": 0.0},
+      {"name": "soda water", "volume_ml": 50, "abv": 0.0}
+    ],
+    "glassware": "highball",
+    "instructions": "Muddle mint with syrup and lime; add rum and ice; top with soda; stir gently.",
+    "tags": ["rum", "long", "refreshing", "cuban", "mint"]
+  },
+  {
+    "id": "aperol_spritz",
+    "name": "Aperol Spritz",
+    "ingredients": [
+      {"name": "Aperol", "volume_ml": 60, "abv": 0.11},
+      {"name": "Prosecco", "volume_ml": 90, "abv": 0.11},
+      {"name": "soda water", "volume_ml": 30, "abv": 0.0}
+    ],
+    "glassware": "wine glass",
+    "instructions": "Build over ice in a wine glass in 3:2:1 Prosecco:Aperol:soda order; garnish with an orange slice.",
+    "tags": ["aperitivo", "italian", "light", "low-abv", "sparkling"]
+  },
+  {
+    "id": "whiskey_sour",
+    "name": "Whiskey Sour",
+    "ingredients": [
+      {"name": "bourbon", "volume_ml": 60, "abv": 0.45},
+      {"name": "fresh lemon juice", "volume_ml": 25, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 15, "abv": 0.0},
+      {"name": "egg white", "volume_ml": 15, "abv": 0.0}
+    ],
+    "glassware": "rocks",
+    "instructions": "Dry shake without ice; shake again with ice; strain into a rocks glass over ice; garnish with bitters drops.",
+    "tags": ["whiskey", "sour", "shaken", "classic", "citrus"]
+  },
+  {
+    "id": "tom_collins",
+    "name": "Tom Collins",
+    "ingredients": [
+      {"name": "London Dry gin", "volume_ml": 50, "abv": 0.40},
+      {"name": "fresh lemon juice", "volume_ml": 25, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 15, "abv": 0.0},
+      {"name": "soda water", "volume_ml": 60, "abv": 0.0}
+    ],
+    "glassware": "highball",
+    "instructions": "Shake gin, lemon, and syrup with ice; strain into a highball over ice; top with soda; garnish with lemon and cherry.",
+    "tags": ["gin", "long", "refreshing", "citrus"]
+  },
+  {
+    "id": "espresso_martini",
+    "name": "Espresso Martini",
+    "ingredients": [
+      {"name": "vodka", "volume_ml": 40, "abv": 0.40},
+      {"name": "coffee liqueur", "volume_ml": 20, "abv": 0.20},
+      {"name": "fresh espresso", "volume_ml": 25, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 10, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Shake hard with ice; double strain into a chilled coupe; garnish with three coffee beans.",
+    "tags": ["vodka", "coffee", "shaken", "modern", "dessert"]
+  },
+  {
+    "id": "cosmopolitan",
+    "name": "Cosmopolitan",
+    "ingredients": [
+      {"name": "citrus vodka", "volume_ml": 45, "abv": 0.40},
+      {"name": "Cointreau", "volume_ml": 15, "abv": 0.40},
+      {"name": "cranberry juice", "volume_ml": 30, "abv": 0.0},
+      {"name": "fresh lime juice", "volume_ml": 15, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Shake with ice; strain into a chilled coupe; garnish with a flamed orange peel.",
+    "tags": ["vodka", "sour", "shaken", "modern", "citrus"]
+  },
+  {
+    "id": "pisco_sour",
+    "name": "Pisco Sour",
+    "ingredients": [
+      {"name": "pisco", "volume_ml": 60, "abv": 0.42},
+      {"name": "fresh lime juice", "volume_ml": 30, "abv": 0.0},
+      {"name": "simple syrup", "volume_ml": 20, "abv": 0.0},
+      {"name": "egg white", "volume_ml": 20, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Dry shake; shake again with ice; strain into a coupe; dot with Angostura bitters.",
+    "tags": ["pisco", "sour", "shaken", "south-american", "citrus"]
+  },
+  {
+    "id": "caipirinha",
+    "name": "Caipirinha",
+    "ingredients": [
+      {"name": "cachaça", "volume_ml": 60, "abv": 0.42},
+      {"name": "lime wedges", "volume_ml": 20, "abv": 0.0},
+      {"name": "sugar", "volume_ml": 10, "abv": 0.0}
+    ],
+    "glassware": "rocks",
+    "instructions": "Muddle lime and sugar in a rocks glass; add cachaça and crushed ice; stir briefly.",
+    "tags": ["cachaca", "sour", "shaken", "brazilian", "citrus"]
+  },
+  {
+    "id": "sazerac",
+    "name": "Sazerac",
+    "ingredients": [
+      {"name": "rye whiskey", "volume_ml": 60, "abv": 0.45},
+      {"name": "Peychaud's bitters", "volume_ml": 3, "abv": 0.35},
+      {"name": "simple syrup", "volume_ml": 5, "abv": 0.0},
+      {"name": "absinthe", "volume_ml": 2, "abv": 0.68}
+    ],
+    "glassware": "rocks",
+    "instructions": "Rinse a chilled rocks glass with absinthe; stir rye, bitters, and syrup with ice; strain into the rinsed glass; garnish with a lemon peel (do not drop in).",
+    "tags": ["whiskey", "classic", "stirred", "american", "new-orleans"]
+  },
+  {
+    "id": "sidecar",
+    "name": "Sidecar",
+    "ingredients": [
+      {"name": "VS or VSOP Cognac", "volume_ml": 50, "abv": 0.40},
+      {"name": "Cointreau", "volume_ml": 20, "abv": 0.40},
+      {"name": "fresh lemon juice", "volume_ml": 20, "abv": 0.0}
+    ],
+    "glassware": "coupe",
+    "instructions": "Shake with ice; strain into a sugar-rimmed coupe; garnish with a lemon twist.",
+    "tags": ["cognac", "sour", "shaken", "french", "citrus"]
+  },
+  {
+    "id": "boulevardier",
+    "name": "Boulevardier",
+    "ingredients": [
+      {"name": "bourbon", "volume_ml": 45, "abv": 0.45},
+      {"name": "sweet vermouth", "volume_ml": 30, "abv": 0.16},
+      {"name": "Campari", "volume_ml": 30, "abv": 0.24}
+    ],
+    "glassware": "rocks",
+    "instructions": "Stir with ice; strain into a rocks glass over ice; garnish with orange peel.",
+    "tags": ["whiskey", "bitter", "stirred", "aperitivo", "american"]
+  },
+  {
+    "id": "mai_tai",
+    "name": "Mai Tai",
+    "ingredients": [
+      {"name": "aged Jamaican rum", "volume_ml": 30, "abv": 0.40},
+      {"name": "agricole rhum", "volume_ml": 30, "abv": 0.40},
+      {"name": "fresh lime juice", "volume_ml": 30, "abv": 0.0},
+      {"name": "orgeat", "volume_ml": 15, "abv": 0.0},
+      {"name": "orange curaçao", "volume_ml": 15, "abv": 0.40}
+    ],
+    "glassware": "double-rocks",
+    "instructions": "Shake with crushed ice; pour unstrained into a double-rocks glass; top with more crushed ice; garnish with mint and a spent lime shell.",
+    "tags": ["rum", "tiki", "shaken", "polynesian", "tropical"]
+  },
+  {
+    "id": "moscow_mule",
+    "name": "Moscow Mule",
+    "ingredients": [
+      {"name": "vodka", "volume_ml": 50, "abv": 0.40},
+      {"name": "fresh lime juice", "volume_ml": 15, "abv": 0.0},
+      {"name": "ginger beer", "volume_ml": 120, "abv": 0.0}
+    ],
+    "glassware": "copper mug",
+    "instructions": "Build in a copper mug with crushed ice; squeeze lime; top with ginger beer; garnish with a lime wedge and mint.",
+    "tags": ["vodka", "long", "refreshing", "ginger", "low-abv"]
+  },
+  {
+    "id": "penicillin",
+    "name": "Penicillin",
+    "ingredients": [
+      {"name": "blended Scotch", "volume_ml": 50, "abv": 0.40},
+      {"name": "Islay single malt", "volume_ml": 10, "abv": 0.46},
+      {"name": "fresh lemon juice", "volume_ml": 22, "abv": 0.0},
+      {"name": "honey-ginger syrup", "volume_ml": 22, "abv": 0.0}
+    ],
+    "glassware": "rocks",
+    "instructions": "Shake the blended Scotch, lemon, and honey-ginger syrup with ice; strain over a large ice cube; float the Islay malt; garnish with candied ginger.",
+    "tags": ["whisky", "scotch", "sour", "shaken", "modern", "smoky"]
+  }
+]

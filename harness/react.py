@@ -81,10 +81,24 @@ from harness import llm as cb_llm
 # can run standalone. ``trace = _langfuse.get_active()`` returns None
 # when no trace is active, and the existing ``if trace is not None``
 # guards below cover both that case and the import-missing case.
-try:
-    from alphacumen import _langfuse  # type: ignore[import-not-found]
-except ImportError:  # pragma: no cover -- only fires in framework-only deployments
-    _langfuse = None  # type: ignore[assignment]
+# Langfuse lookup is sys.modules-only via :func:`_get_langfuse` so that
+# consumers of harness.react (e.g. the cocktails hello-world example) don't
+# transitively pull in the alphacumen package -- importing alphacumen has
+# side effects (the coralbricks.sandbox monkey-patch in
+# alphacumen/__init__.py) that aren't desirable for framework-only callers.
+
+
+def _get_langfuse():
+    """Return alphacumen._langfuse *if alphacumen is already imported*, else None.
+
+    The lookup is sys.modules-only (no triggering import) so framework-only
+    callers (e.g. the cocktails hello-world example) don't pull in alphacumen
+    as a side effect of running chat_with_retry. When prod calls do import
+    alphacumen (via alphacumen.swarm.run etc.), the module is already
+    present and tracing wires up normally.
+    """
+    import sys as _sys
+    return _sys.modules.get("alphacumen._langfuse")
 
 from harness.context import current_constraints, current_enforcer
 from harness.enforcement import ConstraintViolation
@@ -428,7 +442,7 @@ def chat_with_retry(
     sandbox -> provider hop.
     """
     last_exc: Optional[BaseException] = None
-    trace = _langfuse.get_active() if _langfuse is not None else None
+    _lf = _get_langfuse(); trace = _lf.get_active() if _lf is not None else None
 
     # LLM-call watchdog: clamp per-call timeout to the per-model HARD_S
     # unless the caller explicitly asked for something tighter (we never
@@ -1199,7 +1213,7 @@ def run_react(
                 log_label, round_idx + 1, tool_name, _args_preview(args),
             )
 
-            trace = _langfuse.get_active() if _langfuse is not None else None
+            _lf = _get_langfuse(); trace = _lf.get_active() if _lf is not None else None
             tool_exc: Optional[BaseException] = None
             if _enforce_violation is not None:
                 # Enforcer rejected the dispatch; surface as a tool-error
