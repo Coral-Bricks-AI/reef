@@ -26,6 +26,13 @@ package if you're building a non-finance one on top of the same harness.
 __version__ = "0.1.0"
 
 
+# Tell the harness's langfuse primitive to attribute traces to alphacumen.
+# Must run before any RunTrace is constructed.
+from harness import _langfuse as _harness_langfuse
+_harness_langfuse.configure(source="alphacumen", pipeline_default="investment_analyst")
+del _harness_langfuse
+
+
 # --------------------------------------------------------------------------
 # Hosted-runtime integration.
 #

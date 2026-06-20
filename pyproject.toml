@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cb-ia"
-version = "0.0.590"
+version = "0.0.591"
 description = "Coral harness framework + AlphaCumen finance instance"
 requires-python = ">=3.11"
 authors = [{ name = "Coral Bricks AI" }]

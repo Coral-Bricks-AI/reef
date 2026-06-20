@@ -5,32 +5,21 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""alphacumen-owned Langfuse emission.
+"""Langfuse observability primitive for the harness.
 
-alphacumen is the pipeline; Langfuse telemetry is alphacumen's concern. The
-gateway hands the sandbox its per-run credentials + ``$CORAL_REQUEST_ID``
-via the credential injector (manifest ``egress = [..langfuse..]`` gates
-delivery) and stays out of the tracing path entirely.
-
-Why this lives inside alphacumen (not in the sandbox runtime, not in the
-gateway):
-
-* The shared runtime (:mod:`coralbricks.sandbox`) is a thin OpenAI-shape
-  RPC client. Adding a third-party telemetry dep there taints every
-  pipeline with a cost they did not opt into.
-* The gateway used to emit on behalf of every run. That conflated the
-  platform's operational telemetry with the pipeline's product
-  telemetry, and a single-tenant assumption about where traces should
-  land. Pipelines with their own Langfuse project now control their
-  own traces.
+Owned by the framework so any domain instance (cocktails, alphacumen, …) can
+emit run-level traces without re-implementing the wiring. Callers that want a
+domain-specific attribution (e.g. trace name ``alphacumen.investment_analyst``
+instead of the default ``harness.run``) call :func:`configure` once at import
+time before the first :class:`RunTrace` is constructed.
 
 Envelope
 --------
 
-* One :class:`RunTrace` per ``swarm.run`` call. Root span keyed to the
-  deterministic OTEL trace id derived from ``request_id`` so the
+* One :class:`RunTrace` per top-level run. Root span keyed to the
+  deterministic OTEL trace id derived from ``request_id`` so any external
   Console's "Open in Langfuse" deep-link (`?search=<request_id>`) still
-  resolves without the gateway having to persist a second UUID.
+  resolves without persisting a second UUID.
 * :meth:`RunTrace.record_chat` emits one ``generation`` observation per
   LLM call with model, prompt messages, output preview, usage, latency.
 * :meth:`RunTrace.record_tool` emits one ``tool`` observation per
@@ -40,18 +29,17 @@ Env inputs
 ----------
 
 * ``LANGFUSE_PUBLIC_KEY`` / ``LANGFUSE_SECRET_KEY`` -- credentials.
-  Both present = tracing on. The gateway credential injector only
-  ships these when the manifest's ``egress`` allowlist declared a
-  Langfuse host, so their presence is already a strong opt-in
-  signal -- no separate kill-switch flag needed. Local runs stay
-  hermetic by default (no keys in env = no tracing).
+  Both present = tracing on. Hosted-runtime injection of these only
+  happens when the manifest's ``egress`` allowlist declared a Langfuse
+  host, so their presence is already a strong opt-in signal -- no
+  separate kill-switch flag needed. Local runs stay hermetic by default.
 * ``LANGFUSE_HOST`` (or ``LANGFUSE_BASE_URL``) -- defaults to
   ``https://us.cloud.langfuse.com``.
 * ``LANGFUSE_TRACING_ENVIRONMENT`` -- ``[a-z0-9-_]+`` only.
-* ``CORAL_REQUEST_ID`` -- the run's request id. The gateway exports it
-  into the sandbox env alongside ``$CORAL_GATEWAY_SOCKET``. When unset
-  (ad-hoc local ``python -m alphacumen.swarm`` invocation), we synthesize a
-  fresh UUID and log a warning so the trace is still well-formed.
+* ``CORAL_REQUEST_ID`` -- the run's request id. The hosted runtime exports
+  it alongside ``$CORAL_GATEWAY_SOCKET``. When unset (ad-hoc local
+  invocation), :func:`resolve_request_id` synthesises a fresh UUID and
+  logs a warning so the trace is still well-formed.
 
 Failure handling
 ----------------
@@ -84,13 +72,45 @@ _client_lock = threading.Lock()
 _client: Any = None
 
 
-def is_enabled() -> bool:
-    """True iff alphacumen should emit Langfuse traces for this run.
+# Domain-attribution defaults. Override via :func:`configure` at import time
+# before any :class:`RunTrace` is built; the source tag flows into every
+# observation's metadata and the root span name.
+_DEFAULT_SOURCE = "harness"
+_DEFAULT_PIPELINE = "run"
+_source = _DEFAULT_SOURCE
+_pipeline_default = _DEFAULT_PIPELINE
 
-    Gated solely on credential presence: the gateway only ships
-    ``LANGFUSE_*`` into the sandbox when the manifest's ``egress``
-    allowlist declared a Langfuse host, so keys-in-env is already
-    an opt-in signal. Local runs without those keys stay hermetic.
+
+def configure(
+    *,
+    source: Optional[str] = None,
+    pipeline_default: Optional[str] = None,
+) -> None:
+    """Set module-wide attribution defaults.
+
+    ``source`` lands in every observation's ``metadata["source"]`` and is
+    the prefix of the root span name (``<source>.<pipeline>``).
+
+    ``pipeline_default`` is the fallback :class:`RunTrace` ``pipeline``
+    argument when callers don't pass one (e.g. ``alphacumen`` defaults to
+    ``investment_analyst``; a non-finance harness can leave it at ``run``).
+
+    Call this once at the consuming package's import time, before any
+    :class:`RunTrace` is constructed. Idempotent; the last call wins.
+    """
+    global _source, _pipeline_default
+    if source is not None:
+        _source = source
+    if pipeline_default is not None:
+        _pipeline_default = pipeline_default
+
+
+def is_enabled() -> bool:
+    """True iff the harness should emit Langfuse traces for this run.
+
+    Gated solely on credential presence: hosted-runtime injection of
+    ``LANGFUSE_*`` is itself the opt-in signal, so keys-in-env is enough.
+    Local runs without those keys stay hermetic.
     """
     pk = (os.environ.get("LANGFUSE_PUBLIC_KEY") or "").strip()
     sk = (os.environ.get("LANGFUSE_SECRET_KEY") or "").strip()
@@ -116,17 +136,7 @@ def otel_trace_id(external_id: str) -> str:
 
 
 def trace_url(otel_trace_id: str, client: Any | None = None) -> str:
-    """Build a project-scoped Langfuse deep-link for a given OTEL trace id.
-
-    Langfuse Cloud traces live under ``/project/<project-id>/traces/<trace-id>``;
-    the bare ``/traces?search=...`` URL the Console used to emit 404s because
-    there's no project context. We delegate to the SDK's
-    ``Langfuse.get_trace_url`` which fetches (and caches) the project id via
-    the Public API, so the URL is always scoped correctly. Falls back to the
-    host root with a ``?pending`` hint when the client isn't up yet (disabled
-    tracing, failed init, unreachable API) so logs still show *something*
-    greppable instead of dropping the field.
-    """
+    """Build a project-scoped Langfuse deep-link for a given OTEL trace id."""
     c = client if client is not None else get_client()
     if c is not None:
         try:
@@ -161,8 +171,8 @@ def get_client() -> Any | None:
         except ImportError as exc:
             logger.warning(
                 "Langfuse enabled but the 'langfuse' package isn't "
-                "installed (%s); alphacumen telemetry off for this run.",
-                exc,
+                "installed (%s); %s telemetry off for this run.",
+                exc, _source,
             )
             _client = False
             return None
@@ -174,8 +184,8 @@ def get_client() -> Any | None:
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning(
-                "Langfuse init failed (%s); alphacumen telemetry off.",
-                exc,
+                "Langfuse init failed (%s); %s telemetry off.",
+                exc, _source,
             )
             _client = False
             return None
@@ -187,8 +197,8 @@ def get_client() -> Any | None:
                 env,
             )
         logger.info(
-            "alphacumen Langfuse client up host=%s tracing_env=%s",
-            _host(), env or "(unset)",
+            "%s Langfuse client up host=%s tracing_env=%s",
+            _source, _host(), env or "(unset)",
         )
         return _client
 
@@ -218,13 +228,9 @@ def _string_metadata(meta: Mapping[str, Any]) -> dict[str, str]:
 
 
 def _truncate_for_preview(value: Any, *, max_chars: int = 4000) -> Any:
-    """Pass-through. Truncation removed: prior char caps (20K for chat
-    messages, 4K for tool/output) destroyed structural parseability of
-    the logged messages array (the truncated repr couldn't be
-    `ast.literal_eval`d) and obscured full token-cost attribution. The
-    Langfuse SDK serialises native Python structures directly, so we
-    hand them through as-is. ``max_chars`` kept for ABI compat with
-    in-tree callers; it is ignored.
+    """Pass-through. Prior char caps destroyed structural parseability of
+    the logged messages array. The Langfuse SDK serialises native Python
+    structures directly. ``max_chars`` kept for ABI compat; it is ignored.
     """
     return value
 
@@ -288,23 +294,28 @@ def _extract_usage(response: Optional[Mapping[str, Any]]) -> dict[str, int]:
 
 
 class RunTrace:
-    """Per-alphacumen-run Langfuse root span + child observation factory.
+    """Per-run Langfuse root span + child observation factory.
 
-    One instance per :func:`alphacumen.swarm.run` call. Methods are no-ops
-    when Langfuse is disabled or the SDK failed to initialise -- callers
-    don't have to branch on :func:`is_enabled`.
+    One instance per top-level run (e.g. one ``swarm.run`` call). Methods
+    are no-ops when Langfuse is disabled or the SDK failed to initialise --
+    callers don't have to branch on :func:`is_enabled`.
+
+    ``pipeline`` is the run's pipeline name; it falls into the root span
+    name (``<source>.<pipeline>``) and observation metadata. Defaults to
+    whatever :func:`configure` set (or ``"run"`` out of the box).
     """
 
     def __init__(
         self,
         *,
         request_id: str,
-        pipeline: str = "investment_analyst",
+        pipeline: Optional[str] = None,
         query: Optional[str] = None,
         model: Optional[str] = None,
     ) -> None:
         self._request_id = request_id
-        self._pipeline = pipeline
+        self._pipeline = pipeline or _pipeline_default
+        self._source = _source
         self._query = query
         self._model = model
         self._otel_trace_id = otel_trace_id(request_id)
@@ -340,13 +351,13 @@ class RunTrace:
                 "request_id": self._request_id,
                 "pipeline": self._pipeline,
                 "model": self._model or "",
-                "source": "alphacumen",
+                "source": self._source,
             }
         )
         try:
             self._root = client.start_observation(
                 trace_context={"trace_id": self._otel_trace_id},
-                name=f"alphacumen.{self._pipeline}",
+                name=f"{self._source}.{self._pipeline}",
                 as_type="span",
                 input={"query": self._query} if self._query is not None else None,
                 metadata=meta,
@@ -359,8 +370,8 @@ class RunTrace:
             self._root = None
             return
         logger.info(
-            "alphacumen langfuse trace opened request_id=%s trace_id=%s host=%s url=%s",
-            self._request_id, self._otel_trace_id, _host(), self.trace_url,
+            "%s langfuse trace opened request_id=%s trace_id=%s host=%s url=%s",
+            self._source, self._request_id, self._otel_trace_id, _host(), self.trace_url,
         )
 
     def end(
@@ -507,14 +518,7 @@ _active_trace_lock = threading.Lock()
 
 
 def set_active(trace: Optional[RunTrace]) -> None:
-    """Set (or clear) the process-wide active trace.
-
-    alphacumen runs are single-run-per-subprocess (the gateway spawns one
-    ``sandbox.runner`` per request), so a module-level singleton is the
-    simplest shape for ``runtime.chat_with_retry`` and the tool
-    dispatcher to discover the trace without threading it through every
-    call signature.
-    """
+    """Set (or clear) the process-wide active trace."""
     global _active_trace
     with _active_trace_lock:
         _active_trace = trace
@@ -528,26 +532,26 @@ def get_active() -> Optional[RunTrace]:
 def resolve_request_id() -> str:
     """Pick the request id to key the root trace to.
 
-    Reads ``$CORAL_REQUEST_ID`` (the gateway exports it alongside
+    Reads ``$CORAL_REQUEST_ID`` (the hosted runtime exports it alongside
     ``$CORAL_GATEWAY_SOCKET``). Falls back to a synthesized UUID for
     ad-hoc local invocations so the trace is still well-formed; in that
-    case the Console's request-id-based deep-link won't resolve, which
-    is the right behavior (there's no gateway run to link to).
+    case the Console's request-id-based deep-link won't resolve.
     """
     rid = (os.environ.get("CORAL_REQUEST_ID") or "").strip()
     if rid:
         return rid
     synth = str(uuid.uuid4())
     logger.info(
-        "alphacumen: $CORAL_REQUEST_ID unset; synthesizing request_id=%s for "
+        "%s: $CORAL_REQUEST_ID unset; synthesizing request_id=%s for "
         "Langfuse trace (Console deep-link will not resolve)",
-        synth,
+        _source, synth,
     )
     return synth
 
 
 __all__ = [
     "RunTrace",
+    "configure",
     "flush",
     "get_active",
     "get_client",

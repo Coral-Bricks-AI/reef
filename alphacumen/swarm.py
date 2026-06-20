@@ -55,7 +55,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Optional, Sequence
 
-from alphacumen import _langfuse
+from harness import _langfuse
 from harness import (
     ConstraintEnforcer,
     HarnessConstraints,
