@@ -134,7 +134,7 @@ Full experiment, including the per-row failure-mode breakdown and the six retrie
 git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai
 export OPENAI_API_KEY=sk-...
-python alphacumen-finance-benchmarks/examples/ask_alphacumen.py
+python alphacumen/examples/ask_alphacumen.py
 ```
 
 Out of the box the kernel retrieval verbs are stubbed — the first call raises `NotImplementedError` with a redirect message. That's the demo, not a bug. Two paths to a real answer:
@@ -172,7 +172,7 @@ Read the code top-down — `swarm.py` → a specialist `persona_file` → `skill
 
 ### Benchmark queries + runnable example
 
-The benchmark queries (Vals AI Finance Agent v2, FinanceBench) and the in-process example runner live in [`alphacumen-finance-benchmarks/`](../alphacumen-finance-benchmarks). Start with [`examples/ask_alphacumen.py`](../alphacumen-finance-benchmarks/examples/ask_alphacumen.py).
+The benchmark queries (Vals AI Finance Agent v2, FinanceBench) and the in-process example runner live in [`examples/`](examples) (runner) and [`benchmarks/`](benchmarks) (queries). Start with [`examples/ask_alphacumen.py`](examples/ask_alphacumen.py).
 
 ---
 
