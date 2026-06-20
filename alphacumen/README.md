@@ -26,6 +26,16 @@ Swap Vals AI's generic harness for AlphaCumen's finance-specific stack, and the 
 
 > **One sentence:** A domain-specific agent harness beats every frontier model on finance benchmarks, at ~10× lower cost — and the code that does it is open.
 
+### Architecture
+
+<div align="center">
+
+<img src="assets/alphacumen-architecture.svg" alt="Architecture of the AlphaCumen harness: a planner LLM picks specialists and loads skills, three specialists (stock analyst, sector analyst, risk analyst) run in parallel as ReAct loops over their own skills and tools, a synthesizer LLM merges their outputs into the final answer." width="820">
+
+</div>
+
+A planner LLM picks specialists and loads skills; specialists run in parallel as ReAct loops over their own tools; a synthesizer merges their atom-shaped outputs into the final answer.
+
 ---
 
 ## The headline numbers
