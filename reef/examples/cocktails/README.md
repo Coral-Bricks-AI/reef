@@ -1,8 +1,8 @@
-# Cocktails — the framework hello-world
+# Cocktails — the Reef hello-world
 
-The simplest end-to-end use of the harness: **one specialist, two skills, ~20 cocktails of data, ~50 lines of glue code.** No planner, no synthesizer, no `SpecialistConfig`. Just `run_react()` wired to a persona prompt and two skill-dispatch tools.
+The simplest end-to-end use of Reef: **one specialist, two skills, ~20 cocktails of data, ~50 lines of glue.** No planner, no synthesizer, no `SpecialistConfig`. Just `run_react()` wired to a persona prompt and two skill-dispatch tools.
 
-If you've read the [framework write-up](https://coralbricks.ai/blog/write-your-own-harness), this is the worked code behind it.
+If you've read the [Reef write-up](https://coralbricks.ai/blog/write-your-own-harness), this is the worked code behind it.
 
 ## Run it
 
@@ -12,35 +12,98 @@ cd coral-ai
 pip install -e .
 export LLM_API_KEY=sk-...
 
-python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
+python reef/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 ```
 
 Sample queries:
 
 ```bash
-python harness/examples/cocktails/ask.py "Find me a refreshing rum cocktail without mint"
-python harness/examples/cocktails/ask.py "Which classic gin cocktails are stirred?"
-python harness/examples/cocktails/ask.py "How strong is an Espresso Martini?"
+python reef/examples/cocktails/ask.py "Find me a refreshing rum cocktail without mint"
+python reef/examples/cocktails/ask.py "Which classic gin cocktails are stirred?"
+python reef/examples/cocktails/ask.py "How strong is an Espresso Martini?"
 ```
 
-Any provider the framework supports works: switch `model="openai/gpt-4o-mini"` in `ask.py` to `"anthropic/claude-sonnet-4-6"`, `"aws/anthropic.claude-3-5-sonnet"`, etc., and set the matching env var.
+Any provider Reef supports works: switch `model="openai/gpt-4o-mini"` in `ask.py` to `"anthropic/claude-sonnet-4-6"`, `"aws/anthropic.claude-3-5-sonnet"`, etc., and set the matching env var.
 
-## What's in here
+## What's on disk
 
-| File | What it is |
+```
+examples/cocktails/
+├── ask.py                     # 50-line runner — calls run_react()
+├── bartender.md               # the system prompt (with {skill_index} placeholder)
+├── data/cocktails.json        # the corpus (20 cocktails)
+└── skills/
+    ├── search_cocktails/
+    │   ├── SKILL.md           # routing playbook the model reads
+    │   └── impl.py            # @skill_fn-decorated Python the runtime calls
+    └── compute_alcohol_content/
+        ├── SKILL.md
+        └── impl.py
+```
+
+| File | Role |
 |---|---|
 | [`data/cocktails.json`](data/cocktails.json) | The corpus — 20 well-known cocktails with ingredients, ABV, glassware, instructions, tags |
-| [`skills/search_cocktails/`](skills/search_cocktails/) | A BM25 search skill over the corpus. `SKILL.md` is the procedural playbook the model reads; `impl.py` is the `@skill_fn`-decorated Python callable. |
-| [`skills/compute_alcohol_content/`](skills/compute_alcohol_content/) | A computation skill — volume-weighted ABV across a cocktail's ingredients. Same `SKILL.md` + `impl.py` shape. |
-| [`bartender.md`](bartender.md) | The specialist's system prompt. Renders the skill index inline so the model knows what's loadable. |
-| [`ask.py`](ask.py) | ~50-line runner. Calls `harness.react.run_react()` directly with the bartender persona + two dispatch tools. |
+| [`skills/search_cocktails/`](skills/search_cocktails/) | BM25 search over the corpus |
+| [`skills/compute_alcohol_content/`](skills/compute_alcohol_content/) | Volume-weighted ABV across a cocktail's ingredients |
+| [`bartender.md`](bartender.md) | The specialist's system prompt — renders the skill index inline |
+| [`ask.py`](ask.py) | ~50-line runner. Calls `reef.react.run_react()` directly with the bartender persona + two dispatch tools |
 
-## What the framework gives you here
+## One skill, end to end
 
-- **Skill primitive.** A `SKILL.md` + `impl.py` folder is the unit of reusable competence. The markdown is the routing playbook the model reads; the Python is the implementation the runtime dispatches to via `invoke_skill_fn(skill_id, fn, args)`. The `@skill_fn` decorator binds them together at import time.
-- **Lazy loading.** The specialist sees a one-line *index* of skills in its system prompt and calls `load_skill(skill_ids=[…])` to pull bodies on demand. 70 skills indexed cost ~70 lines of context; only the loaded bodies pay tokens.
-- **ReAct loop.** `harness.react.run_react()` is the loop: model → tool → model → tool → … until a no-tool answer. About 1,900 lines of Python with retry, watchdog, provider fallback, structured trajectory recording, and tool-error-as-message serialization.
-- **Direct LLM client.** `harness.llm.chat()` talks OpenAI / Anthropic / Bedrock plus OpenAI-compatible proxies (Together, OpenRouter, Cerebras, DeepInfra, Lilac) via env-var auth.
+Two files, sharing a slug. Markdown for the model, Python for the runtime.
+
+[`skills/search_cocktails/SKILL.md`](skills/search_cocktails/SKILL.md):
+
+```markdown
+---
+id: search_cocktails
+when: Find cocktails by name, ingredient, style, or tag. Use FIRST when the user
+      names a cocktail or describes a style.
+applies_to: [bartender]
+---
+
+Call `search_cocktails(query=<free text>, k=<int, default 5>)`.
+
+Returns a ranked list of `{"id", "name", "tags", "ingredient_names"}`.
+After search, if the question is quantitative, follow up with
+`compute_alcohol_content` using the top result's `id`.
+```
+
+[`skills/search_cocktails/impl.py`](skills/search_cocktails/impl.py):
+
+```python
+from reef.skill_fn import skill_fn
+
+@skill_fn(
+    skill_id="search_cocktails",
+    description="Rank cocktails by BM25 over name + tags + ingredient names.",
+    parameters={
+        "type": "object",
+        "properties": {
+            "query": {"type": "string"},
+            "k": {"type": "integer", "default": 5},
+        },
+        "required": ["query"],
+    },
+)
+def search_cocktails(*, query: str, k: int = 5):
+    ...  # BM25 over the corpus
+    return {"query": query, "results": results}
+```
+
+The decorator registers the callable in a process-global registry at import time. The model dispatches by id — `invoke_skill_fn(skill_id="search_cocktails", fn="search_cocktails", args={...})` — and the runtime runs your Python.
+
+## Skills load lazily
+
+The model sees only a one-line *index* of every skill in its system prompt:
+
+```
+- search_cocktails  — Find cocktails by name, ingredient, style, or tag. Use FIRST...
+- compute_alcohol_content — Volume-weighted ABV across a cocktail's ingredients.
+```
+
+To use one, it calls `load_skill(skill_ids=["search_cocktails"])` and the body of `SKILL.md` plus the JSON Schema for `invoke_skill_fn` get spliced into the thread. Seventy skills indexed cost ~70 lines of context; only the loaded bodies pay tokens.
 
 ## What this example does NOT use
 
@@ -54,6 +117,6 @@ When you have one specialist, none of that buys you anything. When you have six 
 
 ## Where to go next
 
-- [The framework write-up](https://coralbricks.ai/blog/write-your-own-harness) — the design patterns walked one section per primitive
-- [`harness/`](../..) — the framework itself; read [`react.py`](../../react.py) and [`skill_fn.py`](../../skill_fn.py) to see how this hello-world hangs together
+- [The Reef write-up](https://coralbricks.ai/blog/write-your-own-harness) — design rationale walked one section per primitive
+- [`reef/`](../..) — the framework itself; read [`react.py`](../../react.py) and [`skill_fn.py`](../../skill_fn.py) to see how this hello-world hangs together
 - [`alphacumen/`](../../../alphacumen) — the worked finance instance: 7 specialists, 69 skills, the planner + synthesizer scaffolding. Same primitives at a much larger scale.
