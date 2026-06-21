@@ -37,7 +37,6 @@ Each subdirectory is an independently-installable package or example. They share
 
 | Package | PyPI | What it is |
 |---|---|---|
-| [`context_prep/`](context_prep/) | [`coralbricks-context-prep`](https://pypi.org/project/coralbricks-context-prep/) | Build-time context prep: `clean → chunk → embed → enrich → hydrate`. Plain functions over `list[dict]` records — no loaders, no orchestrator. |
 | [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
 
 ## Repository layout
@@ -47,7 +46,6 @@ coral-ai/
 ├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
 ├── reef/                    # Reef — agent-harness framework (ReAct, skills, constraints)
 ├── alphacumen/              # worked finance instance of Reef (7 agents, 69 skills)
-├── context_prep/            # build-time context prep    → coralbricks.context_prep
 └── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
 ```
 
