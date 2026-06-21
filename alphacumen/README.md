@@ -143,7 +143,7 @@ Full experiment, including the per-row failure-mode breakdown and the six retrie
 ```bash
 git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai
-export OPENAI_API_KEY=sk-...
+export LLM_API_KEY=sk-...
 python alphacumen/examples/ask_alphacumen.py
 ```
 

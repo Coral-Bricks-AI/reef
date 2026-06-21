@@ -14,10 +14,10 @@ interface to that machinery:
 
 - :data:`INVOKE_SKILL_FN` -- dispatch to a ``@skill_fn``-decorated
   callable by ``(skill_id, fn)``, passing model-supplied args.
-- :func:`make_load_skills_tool` -- factory that returns a
-  ``load_skills`` :class:`~harness.tool.Tool` bound to a caller-supplied
+- :func:`make_load_skill_tool` -- factory that returns a
+  ``load_skill`` :class:`~harness.tool.Tool` bound to a caller-supplied
   loader (a function from a list of skill ids to the rendered playbook
-  block). Each harness instance constructs its own ``load_skills`` tool
+  block). Each harness instance constructs its own ``load_skill`` tool
   this way -- no global registry, no hidden coupling between instances.
 
 The factory pattern keeps the framework domain-agnostic: harness
@@ -136,7 +136,7 @@ INVOKE_SKILL_FN = Tool(
 
 
 # ---------------------------------------------------------------------------
-# load_skills -- factory
+# load_skill -- factory
 # ---------------------------------------------------------------------------
 
 LoadFn = Callable[[Sequence[str]], str]
@@ -149,13 +149,13 @@ helpful error to the model.
 """
 
 
-def make_load_skills_tool(
+def make_load_skill_tool(
     load_fn: LoadFn,
     *,
-    name: str = "load_skills",
+    name: str = "load_skill",
     description: Optional[str] = None,
 ) -> Tool:
-    """Build a ``load_skills`` :class:`Tool` bound to ``load_fn``.
+    """Build a ``load_skill`` :class:`Tool` bound to ``load_fn``.
 
     ``load_fn`` is a function from a list of skill ids to a rendered
     block of skill bodies (the ``=== LOADED SKILLS ===`` block the
@@ -164,10 +164,10 @@ def make_load_skills_tool(
     ``SKILLS`` dict::
 
         from harness.skills_loader import load_skills, render_loaded
-        from harness.skill_tools import make_load_skills_tool
+        from harness.skill_tools import make_load_skill_tool
 
         SKILLS = load_skills("./skills")
-        LOAD = make_load_skills_tool(
+        LOAD_SKILL = make_load_skill_tool(
             lambda ids: render_loaded(list(ids), skills=SKILLS)
         )
 
@@ -223,5 +223,5 @@ def make_load_skills_tool(
 __all__ = [
     "INVOKE_SKILL_FN",
     "LoadFn",
-    "make_load_skills_tool",
+    "make_load_skill_tool",
 ]

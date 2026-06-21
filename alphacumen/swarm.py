@@ -199,7 +199,7 @@ def _planner_round_hint(
         )
     if round_count == 1:
         return (
-            "This is your first turn. Call `load_skills` for every "
+            "This is your first turn. Call `load_skill` for every "
             "plausibly-matching skill in the index, then emit one "
             "`dispatch_<persona>` tool call per decomposed unit with "
             "an OUTCOME-framed instruction."
@@ -2530,7 +2530,7 @@ def run(
             sections.append(hint)
 
             from alphacumen.tools import (  # noqa: PLC0415
-                LOAD_PLANNER_SKILLS,
+                LOAD_PLANNER_SKILL,
                 RUN_PYTHON,
                 build_planner_dispatch_tools,
             )
@@ -2545,14 +2545,14 @@ def run(
                 model=chosen_model,
                 system_prompt=sys_prompt,
                 user_message="\n\n".join(sections),
-                tools=(*_dispatch_tools, LOAD_PLANNER_SKILLS, RUN_PYTHON),
+                tools=(*_dispatch_tools, LOAD_PLANNER_SKILL, RUN_PYTHON),
                 max_steps=6,
                 max_tokens=6_144,
                 log_label="planner",
             )
             # Walk planner_traj.steps and partition tool calls into:
             # - run_python -> surface result onto common_thread
-            # - load_skills -> add ids to planner_loaded_skills
+            # - load_skill -> add ids to planner_loaded_skills
             # - dispatch_<persona> -> collect into invoke_next
             # The planner emits these as native tool calls and the
             # runtime captures them here for the swarm dispatch loop.
@@ -2574,7 +2574,7 @@ def run(
                         ),
                     })
                     continue
-                if name == "load_skills":
+                if name == "load_skill":
                     args = step.arguments or {}
                     ids = args.get("skill_ids") or []
                     new_ids = validate_ids(ids)

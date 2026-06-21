@@ -32,9 +32,10 @@ What this example **does** demonstrate (without any backend wired):
   * The error path on a missing retrieval backend is a clean
     NotImplementedError, not a silent failure.
 
-Set ``OPENAI_API_KEY`` (or ``ANTHROPIC_API_KEY`` + change the model
-prefix below) before running -- the planner LLM call goes out to the
-provider you picked.
+Set ``LLM_API_KEY`` before running -- the planner LLM call goes out
+to the provider matching your ``model=`` prefix. Provider-specific
+env vars (``OPENAI_API_KEY``, ``ANTHROPIC_API_KEY``) are also honored
+if you'd rather set them.
 """
 
 from __future__ import annotations
@@ -53,10 +54,10 @@ from alphacumen.swarm import run
 
 
 def main() -> None:
-    if not os.environ.get("OPENAI_API_KEY"):
+    if not (os.environ.get("LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")):
         print(
-            "Set OPENAI_API_KEY (or change `model` below to an "
-            "anthropic/... or aws/... prefix and set the matching key).",
+            "Set LLM_API_KEY before running (or set the provider-specific "
+            "key for whichever `model=` prefix you use).",
             file=sys.stderr,
         )
 

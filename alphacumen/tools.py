@@ -132,8 +132,8 @@ from alphacumen.capabilities import (
     IndexCapabilitiesMap,
     render_index_section,
 )
-from alphacumen.skill_registry import LOAD_SKILLS
-from alphacumen.skills import LOAD_PLANNER_SKILLS
+from alphacumen.skill_registry import LOAD_SKILL
+from alphacumen.skills import LOAD_PLANNER_SKILL
 from harness.decorators import time_bounded
 from harness.skill_tools import INVOKE_SKILL_FN
 from harness.tool import (
@@ -9017,7 +9017,7 @@ ASK_GROK = Tool(
 GROK_ANALYST_TOOLS: tuple[Tool, ...] = (ASK_GROK,)
 
 
-# INVOKE_SKILL_FN, LOAD_SKILLS, LOAD_PLANNER_SKILLS (and their
+# INVOKE_SKILL_FN, LOAD_SKILL, LOAD_PLANNER_SKILL (and their
 # _do_* executors) moved to :mod:`harness.skill_tools` and
 # are imported at the top of this module. The rosters below pick
 # up the same Tool instances from there.
@@ -9172,7 +9172,7 @@ SECTOR_ANALYST_TOOLS_SLIM: tuple[Tool, ...] = (
     VECTOR_SCRAPED_ARTICLES,
     GET_MACRO_SERIES,
     RUN_PYTHON,
-    LOAD_SKILLS,
+    LOAD_SKILL,
     INVOKE_SKILL_FN,
 )
 
@@ -9196,7 +9196,7 @@ ALL_TOOLS: tuple[Tool, ...] = (
     COMPUTE_TECHNICALS,
     COMPUTE_PRICE_RETURNS_MULTI,
     RUN_PYTHON,
-    LOAD_SKILLS,
+    LOAD_SKILL,
     INVOKE_SKILL_FN,
 )
 """Convenience flat list -- tests / introspection."""
@@ -9247,8 +9247,8 @@ __all__ = [
     "SECTOR_ANALYST_TOOLS",
     "SECTOR_ANALYST_TOOLS_SLIM",
     "INVOKE_SKILL_FN",
-    "LOAD_SKILLS",
-    "LOAD_PLANNER_SKILLS",
+    "LOAD_SKILL",
+    "LOAD_PLANNER_SKILL",
     "build_planner_dispatch_tools",
     "STOCK_ANALYST_TOOLS",
     "Tool",

@@ -11,11 +11,11 @@ ad-hoc orchestration will miss.
 
 Before any retrieval, in your `reasoning`, scan the index below
 and name each skill whose trigger plausibly matches. If any
-match, call `load_skills(skill_ids=[…])` — the playbook bodies
+match, call `load_skill(skill_ids=[…])` — the playbook bodies
 appear on the thread under `=== LOADED SKILLS ===`; follow each
 verbatim. Multi-skill matches are additive; load all that apply.
 
-**`load_skills` is your MANDATORY first tool call when ANY skill
+**`load_skill` is your MANDATORY first tool call when ANY skill
 plausibly matches.** 
 
 If no skill matches the question shape, name which you considered

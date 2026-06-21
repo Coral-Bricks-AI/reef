@@ -10,7 +10,7 @@ If you've read the [framework write-up](https://coralbricks.ai/blog/write-your-o
 git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai
 pip install -e .
-export OPENAI_API_KEY=sk-...
+export LLM_API_KEY=sk-...
 
 python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 ```
@@ -38,7 +38,7 @@ Any provider the framework supports works: switch `model="openai/gpt-4o-mini"` i
 ## What the framework gives you here
 
 - **Skill primitive.** A `SKILL.md` + `impl.py` folder is the unit of reusable competence. The markdown is the routing playbook the model reads; the Python is the implementation the runtime dispatches to via `invoke_skill_fn(skill_id, fn, args)`. The `@skill_fn` decorator binds them together at import time.
-- **Lazy loading.** The specialist sees a one-line *index* of skills in its system prompt and calls `load_skills(skill_ids=[…])` to pull bodies on demand. 70 skills indexed cost ~70 lines of context; only the loaded bodies pay tokens.
+- **Lazy loading.** The specialist sees a one-line *index* of skills in its system prompt and calls `load_skill(skill_ids=[…])` to pull bodies on demand. 70 skills indexed cost ~70 lines of context; only the loaded bodies pay tokens.
 - **ReAct loop.** `harness.react.run_react()` is the loop: model → tool → model → tool → … until a no-tool answer. About 1,900 lines of Python with retry, watchdog, provider fallback, structured trajectory recording, and tool-error-as-message serialization.
 - **Direct LLM client.** `harness.llm.chat()` talks OpenAI / Anthropic / Bedrock plus OpenAI-compatible proxies (Together, OpenRouter, Cerebras, DeepInfra, Lilac) via env-var auth.
 

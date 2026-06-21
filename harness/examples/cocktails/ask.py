@@ -10,15 +10,15 @@
 
 Usage::
 
-    export OPENAI_API_KEY=sk-...
+    export LLM_API_KEY=sk-...
     python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 
 The framework hello-world. No planner, no synthesizer, no
 SpecialistConfig -- just :func:`harness.react.run_react` wired to a
 persona prompt and two skill-dispatch tools.
 
-``make_load_skills_tool`` is the factory the framework ships for the
-``load_skills`` Tool; we close it over this example's ``SKILLS`` dict.
+``make_load_skill_tool`` is the factory the framework ships for the
+``load_skill`` Tool; we close it over this example's ``SKILLS`` dict.
 ``INVOKE_SKILL_FN`` is reused straight from the framework (the
 ``@skill_fn`` decorator registers into a process-global registry that
 this example's ``impl.py`` modules populate when ``load_skills(...)``
@@ -33,7 +33,7 @@ from pathlib import Path
 
 from harness.react import run_react
 from harness.skills_loader import load_skills, render_index, render_loaded
-from harness.skill_tools import INVOKE_SKILL_FN, make_load_skills_tool
+from harness.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
 
 HERE = Path(__file__).resolve().parent
 
@@ -46,7 +46,7 @@ SKILLS = load_skills(
 )
 
 
-LOAD_SKILLS_LOCAL = make_load_skills_tool(
+LOAD_SKILL = make_load_skill_tool(
     lambda ids: render_loaded(list(ids), skills=SKILLS),
 )
 
@@ -64,7 +64,7 @@ def ask(question: str, model: str = "openai/gpt-4o-mini") -> str | None:
         model=model,
         system_prompt=_PROMPT,
         user_message=question,
-        tools=[LOAD_SKILLS_LOCAL, INVOKE_SKILL_FN],
+        tools=[LOAD_SKILL, INVOKE_SKILL_FN],
         max_steps=6,
         log_label="cocktails.bartender",
     )
@@ -74,10 +74,10 @@ def ask(question: str, model: str = "openai/gpt-4o-mini") -> str | None:
 
 
 if __name__ == "__main__":
-    if "OPENAI_API_KEY" not in os.environ:
+    if "LLM_API_KEY" not in os.environ and "OPENAI_API_KEY" not in os.environ:
         print(
-            "Set OPENAI_API_KEY before running this example:\n"
-            "    export OPENAI_API_KEY=sk-...\n",
+            "Set your LLM API key before running this example:\n"
+            "    export LLM_API_KEY=sk-...\n",
             file=sys.stderr,
         )
         sys.exit(2)

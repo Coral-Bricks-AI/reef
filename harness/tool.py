@@ -24,7 +24,7 @@ same source tool without racing.
 This module is domain-agnostic. Concrete tool surfaces (retrieval
 verbs, SQL, executors, ...) live in the consumer package. The
 generic skill-dispatch tool (``INVOKE_SKILL_FN``) and the
-``make_load_skills_tool`` factory live next door in
+``make_load_skill_tool`` factory live next door in
 :mod:`harness.skill_tools`.
 """
 

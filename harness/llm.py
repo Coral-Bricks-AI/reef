@@ -15,8 +15,8 @@ keeps working unchanged.
 Provider dispatch is by model prefix. The model id looks like
 ``<provider>/<model>`` and the prefix routes the call:
 
-- ``openai/...`` -> OpenAI direct via ``OPENAI_API_KEY``
-- ``anthropic/...`` -> Anthropic direct via ``ANTHROPIC_API_KEY``
+- ``openai/...`` -> OpenAI direct via ``OPENAI_API_KEY`` (or ``LLM_API_KEY`` as a generic fallback)
+- ``anthropic/...`` -> Anthropic direct via ``ANTHROPIC_API_KEY`` (or ``LLM_API_KEY``)
 - ``aws/...`` -> Bedrock via boto3 + standard AWS creds
 - ``lilac/...`` -> OpenAI-compatible proxy at ``LILAC_BASE_URL``
   with ``LILAC_API_KEY``
@@ -164,10 +164,10 @@ def _anthropic_chat(
             "Install with: pip install 'anthropic>=0.30'"
         ) from exc
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("LLM_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY not set; required for anthropic/ models."
+            "set LLM_API_KEY (or ANTHROPIC_API_KEY) — required for anthropic/ models."
         )
 
     client = Anthropic(api_key=api_key, timeout=timeout_s)
@@ -383,8 +383,8 @@ def chat(
     - ``lilac/...``, ``together/...``, ``openrouter/...``,
       ``cerebras/...``, ``deepinfra/...``, ``qwen/...`` --
       OpenAI-compatible proxies
-    - bare ``<model>`` (no prefix) -- routes through ``OPENAI_API_KEY``
-      against the OpenAI endpoint
+    - bare ``<model>`` (no prefix) -- routes through ``LLM_API_KEY``
+      (or ``OPENAI_API_KEY``) against the OpenAI endpoint
 
     The ``socket_path`` kwarg is accepted for signature compatibility
     with the sandbox proxy and is ignored.
@@ -433,10 +433,13 @@ def chat(
             prefix
         ]
         base_url = os.environ.get(base_url_env, default_base_url)
-        api_key = os.environ.get(api_key_env)
+        # Provider-specific env var wins (lets multi-provider setups keep
+        # distinct keys), but LLM_API_KEY is honored as the generic
+        # fallback so single-provider users only set one variable.
+        api_key = os.environ.get(api_key_env) or os.environ.get("LLM_API_KEY")
         if not api_key:
             raise RuntimeError(
-                f"{api_key_env} not set; required for {prefix}/ models."
+                f"set LLM_API_KEY (or {api_key_env}) — required for {prefix}/ models."
             )
         # For pure OpenAI, pass the bare model name. For proxies that
         # accept ``vendor/model`` ids (Lilac, OpenRouter), pass the

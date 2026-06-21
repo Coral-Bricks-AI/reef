@@ -24,7 +24,7 @@
 Skills are query-pattern-specific playbooks (dispatch shapes,
 routing rules, period-resolution algorithms, enumeration
 checklists). They are NOT loaded by default. Call
-`load_skills(skill_ids=[…])` to pull each one's body — it appears
+`load_skill(skill_ids=[…])` to pull each one's body — it appears
 on the thread under `=== LOADED SKILLS ===` and stays for the
 rest of the run.
 

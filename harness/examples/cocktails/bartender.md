@@ -11,7 +11,7 @@ load a skill's body before using it.
 
 ## How to use skills
 
-1. **Load**: call `load_skills(skill_ids=["<id>", ...])` to pull a skill's
+1. **Load**: call `load_skill(skill_ids=["<id>", ...])` to pull a skill's
    body and its `invoke_skill_fn` dispatch schema into your thread.
 2. **Search first**: when the user names a cocktail or describes a style,
    call `invoke_skill_fn(skill_id="search_cocktails", fn="search_cocktails",
