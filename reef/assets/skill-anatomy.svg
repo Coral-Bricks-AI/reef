@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 360" role="img" aria-labelledby="anatomy-title">
+  <title id="anatomy-title">Anatomy of a Reef skill: one folder named with the skill slug contains two files — SKILL.md (coral pill, the procedural playbook the model reads on demand) and impl.py (teal pill, the @skill_fn-decorated Python callable the runtime dispatches). The @skill_fn decorator binds the two together at import time, registering the callable against the skill id with its JSON Schema. Model reads the markdown; runtime dispatches the Python.</title>
+
+  <defs>
+    <!-- Coral pillar (SKILL.md side — signature coral, matches primitives SVG) -->
+    <linearGradient id="anatomyCoral" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#e15a3a"/>
+      <stop offset="100%" stop-color="#c23d3d"/>
+    </linearGradient>
+    <!-- Teal pillar (impl.py side — cool complement, matches primitives SVG) -->
+    <linearGradient id="anatomyTeal" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#0e7490"/>
+      <stop offset="100%" stop-color="#155e75"/>
+    </linearGradient>
+
+    <!-- Card clip-paths so the colored header respects rounded corners -->
+    <clipPath id="anatomy-clip-md">
+      <rect x="70" y="120" width="320" height="180" rx="14"/>
+    </clipPath>
+    <clipPath id="anatomy-clip-py">
+      <rect x="530" y="120" width="320" height="180" rx="14"/>
+    </clipPath>
+
+    <!-- Soft card shadow (matches primitives SVG) -->
+    <filter id="anatomyCardLift" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.2"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Arrowhead for the decorator binder lines -->
+    <marker id="anatomyArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+
+  <style><![CDATA[
+    .a-title    { fill: #0f172a; font: 700 18px ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    .a-caption  { fill: #64748b; font: 500 12.5px ui-sans-serif, system-ui, sans-serif; }
+    .a-folder   { fill: #334155; font: 600 13px ui-monospace, "SF Mono", Menlo, monospace; }
+    .a-fileH    { fill: #ffffff; font: 700 16px ui-monospace, "SF Mono", Menlo, monospace; }
+    .a-fileSub  { fill: #ffffff; font: 500 11.5px ui-sans-serif, system-ui, sans-serif; opacity: 0.92; }
+    .a-bullet   { fill: #1e293b; font: 600 12.5px ui-sans-serif, system-ui, sans-serif; }
+    .a-bulletS  { fill: #64748b; font: 500 11px ui-sans-serif, system-ui, sans-serif; }
+    .a-dec      { fill: #b91c1c; font: 700 14px ui-monospace, "SF Mono", Menlo, monospace; }
+    .a-decSub   { fill: #475569; font: 500 12px ui-sans-serif, system-ui, sans-serif; }
+  ]]></style>
+
+  <!-- Title -->
+  <text class="a-title"   x="40" y="36">Anatomy of a skill</text>
+  <text class="a-caption" x="40" y="56">one folder · two files · bound at import time</text>
+
+  <!-- Folder label (above the two files) -->
+  <g transform="translate(40, 92)" stroke="#64748b" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 4 L8 4 L11 0 L26 0 L26 18 L0 18 Z" fill="#fef2ed"/>
+  </g>
+  <text class="a-folder" x="78" y="106">search_cocktails/</text>
+
+  <!-- ============= LEFT: SKILL.md (coral) ============= -->
+  <g filter="url(#anatomyCardLift)">
+    <rect x="70" y="120" width="320" height="180" rx="14" fill="#ffffff"/>
+    <g clip-path="url(#anatomy-clip-md)">
+      <rect x="70" y="120" width="320" height="180" fill="#fff5f0"/>
+      <rect x="70" y="120" width="320" height="56" fill="url(#anatomyCoral)"/>
+    </g>
+    <rect x="70" y="120" width="320" height="180" rx="14" fill="none" stroke="#fecaca" stroke-width="1.4"/>
+    <!-- Icon: document with lines -->
+    <g transform="translate(88, 134)" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="20" height="26" rx="2.5"/>
+      <line x1="4.5" y1="7.5" x2="15.5" y2="7.5"/>
+      <line x1="4.5" y1="13" x2="15.5" y2="13"/>
+      <line x1="4.5" y1="18.5" x2="12" y2="18.5"/>
+    </g>
+    <text class="a-fileH"   x="122" y="148">SKILL.md</text>
+    <text class="a-fileSub" x="122" y="166">the model reads this</text>
+
+    <text class="a-bullet" x="90" y="202">Frontmatter</text>
+    <text class="a-bulletS" x="90" y="218">id · when · applies_to</text>
+
+    <text class="a-bullet" x="90" y="248">Procedural playbook</text>
+    <text class="a-bulletS" x="90" y="264">routing rules · when to dispatch · args</text>
+
+    <text class="a-bullet" x="90" y="290">Loaded on demand</text>
+  </g>
+
+  <!-- ============= RIGHT: impl.py (teal) ============= -->
+  <g filter="url(#anatomyCardLift)">
+    <rect x="530" y="120" width="320" height="180" rx="14" fill="#ffffff"/>
+    <g clip-path="url(#anatomy-clip-py)">
+      <rect x="530" y="120" width="320" height="180" fill="#ecfeff"/>
+      <rect x="530" y="120" width="320" height="56" fill="url(#anatomyTeal)"/>
+    </g>
+    <rect x="530" y="120" width="320" height="180" rx="14" fill="none" stroke="#a5f3fc" stroke-width="1.4"/>
+    <!-- Icon: code brackets -->
+    <g transform="translate(548, 134)" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="7,2 1,13 7,24"/>
+      <polyline points="17,2 23,13 17,24"/>
+    </g>
+    <text class="a-fileH"   x="582" y="148">impl.py</text>
+    <text class="a-fileSub" x="582" y="166">the runtime dispatches this</text>
+
+    <text class="a-bullet" x="550" y="202">@skill_fn-decorated callable</text>
+    <text class="a-bulletS" x="550" y="218">name · description · JSON Schema</text>
+
+    <text class="a-bullet" x="550" y="248">Plain Python function</text>
+    <text class="a-bulletS" x="550" y="264">your retrieval · your computation</text>
+
+    <text class="a-bullet" x="550" y="290">In-process invocation</text>
+  </g>
+
+  <!-- ============= Decorator binder (centered between the two cards) ============= -->
+  <!-- Two arrows from the pill pointing into each card -->
+  <line x1="420" y1="210" x2="392" y2="210"
+        stroke="#b91c1c" stroke-width="2"
+        marker-end="url(#anatomyArrow)"/>
+  <line x1="500" y1="210" x2="528" y2="210"
+        stroke="#b91c1c" stroke-width="2"
+        marker-end="url(#anatomyArrow)"/>
+  <!-- Pill on top, sits in the 140px gap (390-530) -->
+  <rect x="420" y="196" width="80" height="28" rx="14"
+        fill="#ffffff" stroke="#fecaca" stroke-width="1.4"/>
+  <text class="a-dec" x="460" y="215" text-anchor="middle">@skill_fn</text>
+
+  <!-- Closing caption -->
+  <text class="a-decSub" x="460" y="338" text-anchor="middle">
+    binds prompt instructions, JSON Schema, and Python at import time
+  </text>
+</svg>

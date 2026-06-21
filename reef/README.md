@@ -9,6 +9,10 @@
 [![Stars](https://img.shields.io/github/stars/Coral-Bricks-AI/coral-ai?style=social)](https://github.com/Coral-Bricks-AI/coral-ai)
 [![Blog](https://img.shields.io/badge/blog-write--a--winning--agent--harness-orange)](https://coralbricks.ai/blog/write-a-winning-agent-harness)
 
+<p align="center">
+  <img src="assets/reef-primitives.svg" alt="Primitives of Reef — a ReAct loop supported by three pillars: skills (procedural instructions, principles over n-shot examples, Python bindings via decorators, in-process invocations), agent types (parallel and sequential execution, planner for routing, specialists for compute), and runtime constraints (anti-hallucination, convergence, data access)." width="820">
+</p>
+
 ---
 
 ## Quickstart
@@ -62,6 +66,10 @@ Decide what your specialist knows. The bartender knows 20 cocktails. Yours might
 ### 2. Write each skill as a folder
 
 A skill is `<slug>/SKILL.md` (the routing playbook the model reads) + `<slug>/impl.py` (the Python the runtime dispatches to). They share a slug.
+
+<p align="center">
+  <img src="assets/skill-anatomy.svg" alt="Anatomy of a Reef skill — one folder, two files. SKILL.md is the procedural playbook the model loads on demand (frontmatter id/when/applies_to plus routing rules). impl.py is the @skill_fn-decorated Python callable the runtime dispatches. The @skill_fn decorator binds prompt instructions, JSON Schema, and the Python function at import time." width="820">
+</p>
 
 ```
 skills/

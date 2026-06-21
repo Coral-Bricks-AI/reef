@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 462" role="img" aria-labelledby="primitives-title">
+  <title id="primitives-title">Primitives of Reef shown as a deep-coral beam labeled "REACT LOOP" supported by three color-coded pillars (the three Reef primitives that configure the loop). Skills (signature coral, document icon) lists procedural instructions, principles over N-shot examples, python bindings via decorators (not separate schemas), and in-process invocations (not bash subprocess). Agent types (teal, nodes icon) lists parallel and sequential execution, planner for routing, and specialists for compute. Runtime constraints (gold, shield icon) lists anti-hallucination constraints, convergence constraints, and data access constraints. A closing call to action reads: "Architect your own domain specific harness!"</title>
+
+  <defs>
+    <!-- Beam gradient: deep burgundy coral (dramatic frame above the brand-coral skills pillar) -->
+    <linearGradient id="beamCoral" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#b91c1c"/>
+      <stop offset="100%" stop-color="#7f1d1d"/>
+    </linearGradient>
+
+    <!-- Pillar 1: Coral Bricks signature coral -->
+    <linearGradient id="coralHead" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#e15a3a"/>
+      <stop offset="100%" stop-color="#c23d3d"/>
+    </linearGradient>
+    <!-- Pillar 2: Teal (cool complement to coral) -->
+    <linearGradient id="tealHead" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#0e7490"/>
+      <stop offset="100%" stop-color="#155e75"/>
+    </linearGradient>
+    <!-- Pillar 3: Gold (warm sibling to coral) -->
+    <linearGradient id="goldHead" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%"  stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Card clip-paths so the colored header respects rounded corners -->
+    <clipPath id="clip-skills">
+      <rect x="70"  y="166" width="240" height="246" rx="14"/>
+    </clipPath>
+    <clipPath id="clip-agent">
+      <rect x="340" y="166" width="240" height="246" rx="14"/>
+    </clipPath>
+    <clipPath id="clip-runtime">
+      <rect x="610" y="166" width="240" height="246" rx="14"/>
+    </clipPath>
+
+    <!-- Soft card shadow -->
+    <filter id="cardLift" x="-10%" y="-10%" width="120%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.2"/>
+      <feOffset dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Beam shadow (a touch stronger) -->
+    <filter id="beamLift" x="-10%" y="-10%" width="120%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.5"/>
+      <feOffset dy="4"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style><![CDATA[
+    .title       { fill: #0f172a; font: 700 18px ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    .caption     { fill: #64748b; font: 500 12.5px ui-sans-serif, system-ui, sans-serif; }
+    .beamH       { fill: #ffffff; font: 800 22px ui-sans-serif, system-ui, sans-serif; letter-spacing: 4px; }
+    .pillarH     { fill: #ffffff; font: 700 16px ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.3px; }
+    .dotCoral    { fill: #c23d3d; }
+    .dotTeal     { fill: #0e7490; }
+    .dotGold     { fill: #b45309; }
+    .bulletTxt   { fill: #1e293b; font: 600 12.5px ui-sans-serif, system-ui, sans-serif; }
+    .bulletSub   { fill: #64748b; font: 500 11px ui-sans-serif, system-ui, sans-serif; }
+    .cta         { fill: #b91c1c; font: 700 15px ui-sans-serif, system-ui, sans-serif; letter-spacing: 0.2px; }
+    .ctaArrow    { fill: #b91c1c; font: 700 15px ui-sans-serif, system-ui, sans-serif; }
+  ]]></style>
+
+  <!-- Title -->
+  <text class="title"   x="40" y="36">Primitives of Reef</text>
+  <text class="caption" x="40" y="56">skills · agent types · runtime constraints</text>
+
+  <!-- =================== Beam =================== -->
+  <g filter="url(#beamLift)">
+    <rect x="70" y="86" width="780" height="64" rx="14" fill="url(#beamCoral)"/>
+    <!-- Subtle inner highlight -->
+    <rect x="70" y="86" width="780" height="20" rx="14" fill="#ffffff" opacity="0.10"/>
+    <text class="beamH" x="460" y="126" text-anchor="middle">REACT LOOP</text>
+  </g>
+
+  <!-- ============= Pillar 1: Skills (coral — brand) ============= -->
+  <g filter="url(#cardLift)">
+    <rect x="70" y="166" width="240" height="246" rx="14" fill="#ffffff"/>
+    <g clip-path="url(#clip-skills)">
+      <rect x="70" y="166" width="240" height="246" fill="#fff5f0"/>
+      <rect x="70" y="166" width="240" height="64" fill="url(#coralHead)"/>
+    </g>
+    <rect x="70" y="166" width="240" height="246" rx="14" fill="none" stroke="#fecaca" stroke-width="1.4"/>
+    <!-- Icon: document with lines -->
+    <g transform="translate(86, 184)" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="20" height="26" rx="2.5"/>
+      <line x1="4.5" y1="7.5" x2="15.5" y2="7.5"/>
+      <line x1="4.5" y1="13" x2="15.5" y2="13"/>
+      <line x1="4.5" y1="18.5" x2="12" y2="18.5"/>
+    </g>
+    <text class="pillarH" x="120" y="207">Skills</text>
+
+    <circle class="dotCoral" cx="92" cy="254" r="3"/>
+    <text class="bulletTxt" x="105" y="258">Procedural instructions</text>
+
+    <circle class="dotCoral" cx="92" cy="284" r="3"/>
+    <text class="bulletTxt" x="105" y="288">Principles over N-shot examples</text>
+
+    <circle class="dotCoral" cx="92" cy="316" r="3"/>
+    <text class="bulletTxt" x="105" y="320">Python bindings w/ decorators</text>
+    <text class="bulletSub" x="105" y="336">— not separate schemas</text>
+
+    <circle class="dotCoral" cx="92" cy="368" r="3"/>
+    <text class="bulletTxt" x="105" y="372">In-process invocations</text>
+    <text class="bulletSub" x="105" y="388">— not bash subprocess</text>
+  </g>
+
+  <!-- ============= Pillar 2: Agent types (teal — cool complement) ============= -->
+  <g filter="url(#cardLift)">
+    <rect x="340" y="166" width="240" height="246" rx="14" fill="#ffffff"/>
+    <g clip-path="url(#clip-agent)">
+      <rect x="340" y="166" width="240" height="246" fill="#ecfeff"/>
+      <rect x="340" y="166" width="240" height="64" fill="url(#tealHead)"/>
+    </g>
+    <rect x="340" y="166" width="240" height="246" rx="14" fill="none" stroke="#a5f3fc" stroke-width="1.4"/>
+    <!-- Icon: nodes connected (network of agent types) -->
+    <g transform="translate(356, 184)" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="6" x2="21" y2="6"/>
+      <line x1="5" y1="6" x2="13" y2="22"/>
+      <line x1="21" y1="6" x2="13" y2="22"/>
+      <circle cx="5"  cy="6"  r="3" fill="#ffffff" stroke="none"/>
+      <circle cx="21" cy="6"  r="3" fill="#ffffff" stroke="none"/>
+      <circle cx="13" cy="22" r="3" fill="#ffffff" stroke="none"/>
+    </g>
+    <text class="pillarH" x="390" y="207">Agent types</text>
+
+    <circle class="dotTeal" cx="362" cy="254" r="3"/>
+    <text class="bulletTxt" x="375" y="258">Parallel &amp; sequential execution</text>
+
+    <circle class="dotTeal" cx="362" cy="288" r="3"/>
+    <text class="bulletTxt" x="375" y="292">Planner for routing</text>
+
+    <circle class="dotTeal" cx="362" cy="322" r="3"/>
+    <text class="bulletTxt" x="375" y="326">Specialists for compute</text>
+  </g>
+
+  <!-- ============= Pillar 3: Runtime constraints (gold — warm sibling) ============= -->
+  <g filter="url(#cardLift)">
+    <rect x="610" y="166" width="240" height="246" rx="14" fill="#ffffff"/>
+    <g clip-path="url(#clip-runtime)">
+      <rect x="610" y="166" width="240" height="246" fill="#fffbeb"/>
+      <rect x="610" y="166" width="240" height="64" fill="url(#goldHead)"/>
+    </g>
+    <rect x="610" y="166" width="240" height="246" rx="14" fill="none" stroke="#fde68a" stroke-width="1.4"/>
+    <!-- Icon: shield with checkmark -->
+    <g transform="translate(626, 183)" stroke="#ffffff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 1 L3 5 L3 13 C3 19 8 23.5 13 25 C18 23.5 23 19 23 13 L23 5 Z"/>
+      <path d="M8 12.5 L11.5 16 L18 9.5"/>
+    </g>
+    <text class="pillarH" x="660" y="207">Runtime constraints</text>
+
+    <circle class="dotGold" cx="632" cy="254" r="3"/>
+    <text class="bulletTxt" x="645" y="258">Anti-hallucination constraints</text>
+
+    <circle class="dotGold" cx="632" cy="288" r="3"/>
+    <text class="bulletTxt" x="645" y="292">Convergence constraints</text>
+
+    <circle class="dotGold" cx="632" cy="322" r="3"/>
+    <text class="bulletTxt" x="645" y="326">Data access constraints</text>
+  </g>
+
+  <!-- ============= Closing CTA ============= -->
+  <text class="cta" x="460" y="446" text-anchor="middle">Architect your own domain specific harness!</text>
+
+</svg>
