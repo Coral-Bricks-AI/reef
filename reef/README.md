@@ -7,7 +7,7 @@
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
 [![Stars](https://img.shields.io/github/stars/Coral-Bricks-AI/coral-ai?style=social)](https://github.com/Coral-Bricks-AI/coral-ai)
-[![Blog](https://img.shields.io/badge/blog-write--your--own--harness-orange)](https://coralbricks.ai/blog/write-your-own-harness)
+[![Blog](https://img.shields.io/badge/blog-write--a--winning--agent--harness-orange)](https://coralbricks.ai/blog/write-a-winning-agent-harness)
 
 ---
 
@@ -47,7 +47,7 @@ Reef is an agent harness for domains with dozens of conditional rules — financ
 - **Standalone.** Zero finance imports — Reef is a domain-agnostic library you can vendor on its own.
 - **Apache 2.0.** Fork it, vendor it, rip pieces out.
 
-The long-form design rationale is in the blog post: [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-harness) — one section per primitive.
+The long-form design rationale is in the blog post: [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-a-winning-agent-harness) — one section per primitive.
 
 ---
 

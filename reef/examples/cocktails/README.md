@@ -2,7 +2,7 @@
 
 The simplest end-to-end use of Reef: **one specialist, two skills, ~20 cocktails of data, ~50 lines of glue.** No planner, no synthesizer, no `SpecialistConfig`. Just `run_react()` wired to a persona prompt and two skill-dispatch tools.
 
-If you've read the [Reef write-up](https://coralbricks.ai/blog/write-your-own-harness), this is the worked code behind it.
+If you've read the [Reef write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness), this is the worked code behind it.
 
 ## Run it
 
@@ -117,6 +117,6 @@ When you have one specialist, none of that buys you anything. When you have six 
 
 ## Where to go next
 
-- [The Reef write-up](https://coralbricks.ai/blog/write-your-own-harness) — design rationale walked one section per primitive
+- [The Reef write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness) — design rationale walked one section per primitive
 - [`reef/`](../..) — the framework itself; read [`react.py`](../../react.py) and [`skill_fn.py`](../../skill_fn.py) to see how this hello-world hangs together
 - [`alphacumen/`](../../../alphacumen) — the worked finance instance: 7 specialists, 69 skills, the planner + synthesizer scaffolding. Same primitives at a much larger scale.

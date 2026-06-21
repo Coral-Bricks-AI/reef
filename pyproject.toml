@@ -38,7 +38,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/Coral-Bricks-AI/coral-ai"
-Blog = "https://coralbricks.ai/blog/write-your-own-harness"
+Blog = "https://coralbricks.ai/blog/write-a-winning-agent-harness"
 
 # Flat package layout: reef/ and alphacumen/ are both top-level
 # importable packages bundled together in the cb-ia wheel.
