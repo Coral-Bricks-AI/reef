@@ -1,3 +1,0 @@
-{"_airbyte_ab_id":"ab-0001","_airbyte_emitted_at":1713500000000,"_airbyte_data":{"id":39678900,"by":"pg","title":"$AAPL and $MSFT both rallied on Fed announcement; $NVDA followed late","score":124,"time":1713499800,"type":"story","url":"https://example.com/1"}}
-{"_airbyte_ab_id":"ab-0002","_airbyte_emitted_at":1713500100000,"_airbyte_data":{"id":39678901,"by":"jl","title":"$AAPL beat earnings; $GOOGL also up after strong cloud results","score":89,"time":1713499900,"type":"story","url":"https://example.com/2"}}
-{"_airbyte_ab_id":"ab-0003","_airbyte_emitted_at":1713500200000,"_airbyte_data":{"id":39678902,"by":"dh","title":"$NVDA hit a new high; $MSFT followed on AI demand","score":178,"time":1713500000,"type":"story","url":"https://example.com/3"}}

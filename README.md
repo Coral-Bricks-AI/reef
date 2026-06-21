@@ -38,38 +38,17 @@ Each subdirectory is an independently-installable package or example. They share
 | Package | PyPI | What it is |
 |---|---|---|
 | [`context_prep/`](context_prep/) | [`coralbricks-context-prep`](https://pypi.org/project/coralbricks-context-prep/) | Build-time context prep: `clean → chunk → embed → enrich → hydrate`. Plain functions over `list[dict]` records — no loaders, no orchestrator. |
-| [`integrations/airbyte/`](integrations/airbyte/) | [`coralbricks-airbyte`](https://pypi.org/project/coralbricks-airbyte/) | Ingestion bridge: reads Airbyte destination output (600+ connectors) into `list[dict]` records that feed `context_prep`. |
 | [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
-
-### Framework integrations
-
-| Package | PyPI | What it is |
-|---|---|---|
-| [`integrations/crewai/`](integrations/crewai/) | [`coralbricks-crewai`](https://pypi.org/project/coralbricks-crewai/) | CrewAI memory backend — `CoralBricksMemory` + `SearchCoralBricksMemoryTool`. |
-| [`integrations/langchain/`](integrations/langchain/) | [`coralbricks-langchain`](https://pypi.org/project/coralbricks-langchain/) | LangChain memory backend — `CoralBricksMemory`, `CoralBricksRetriever`, agent tools (`store` / `search` / `forget`). |
-| [`integrations/openclaw/`](integrations/openclaw/skills/persistent-agent-memory/) | — | OpenClaw skill `persistent-agent-memory`: bash-based `coral_store` / `coral_retrieve` / `coral_delete_matching`. |
-
-### More examples
-
-| Path | What it shows |
-|---|---|
-| [`event_scout/`](event_scout/) | A small agent that scrapes upcoming AI/tech events (Luma + Eventbrite) via TinyFish and dedups against CoralBricks memory across runs. |
 
 ## Repository layout
 
 ```
 coral-ai/
 ├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
-├── reef/                   # Reef — agent-harness framework (ReAct, skills, constraints)
-├── alphacumen/             # worked finance instance of Reef (7 agents, 69 skills)
+├── reef/                    # Reef — agent-harness framework (ReAct, skills, constraints)
+├── alphacumen/              # worked finance instance of Reef (7 agents, 69 skills)
 ├── context_prep/            # build-time context prep    → coralbricks.context_prep
-├── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
-├── integrations/
-│   ├── airbyte/            # coralbricks-airbyte        → feeds context_prep
-│   ├── crewai/              # coralbricks-crewai         → coralbricks_crewai
-│   ├── langchain/           # coralbricks-langchain      → coralbricks_langchain
-│   └── openclaw/            # persistent-agent-memory skill (bash)
-└── event_scout/             # example: scraping agent + memory dedup
+└── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
