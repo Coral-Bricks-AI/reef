@@ -132,12 +132,10 @@ from alphacumen.capabilities import (
     IndexCapabilitiesMap,
     render_index_section,
 )
+from alphacumen.skill_registry import LOAD_SKILLS
+from alphacumen.skills import LOAD_PLANNER_SKILLS
 from harness.decorators import time_bounded
-from harness.skill_tools import (
-    INVOKE_SKILL_FN,
-    LOAD_PLANNER_SKILLS,
-    LOAD_SKILLS,
-)
+from harness.skill_tools import INVOKE_SKILL_FN
 from harness.tool import (
     _BIND_AS_PARAM_SCHEMA,
     _TOOL_RESULT_MAX_CHARS,

@@ -8,11 +8,10 @@
 """``harness.context`` -- per-run constraints/enforcer propagation.
 
 Threading :class:`HarnessConstraints` + :class:`ConstraintEnforcer`
-explicitly through every signature in a 17k-LOC harness would be a
-days-long refactor for code that today reads asof off a thread-local
-(see ``alphacumen.tools.set_temporal_ceiling``). This module is the principled
-replacement: a pair of :class:`contextvars.ContextVar` slots scoped to
-one run, set by the swarm entrypoint and read at the tool-dispatch site.
+explicitly through every signature in a large tool surface would be a
+days-long refactor. This module is the principled alternative: a pair
+of :class:`contextvars.ContextVar` slots scoped to one run, set by
+the runner entrypoint and read at the tool-dispatch site.
 
 Why ContextVar and not thread-local: ContextVar is the modern Python
 primitive for this exact pattern. It plays correctly with asyncio

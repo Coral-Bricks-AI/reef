@@ -7,10 +7,10 @@
 
 """Langfuse observability primitive for the harness.
 
-Owned by the framework so any domain instance (cocktails, alphacumen, …) can
-emit run-level traces without re-implementing the wiring. Callers that want a
-domain-specific attribution (e.g. trace name ``alphacumen.investment_analyst``
-instead of the default ``harness.run``) call :func:`configure` once at import
+Owned by the framework so any domain instance can emit run-level
+traces without re-implementing the wiring. Callers that want a
+domain-specific attribution (e.g. a custom trace name in place of
+the default ``harness.run``) call :func:`configure` once at import
 time before the first :class:`RunTrace` is constructed.
 
 Envelope
@@ -92,8 +92,8 @@ def configure(
     the prefix of the root span name (``<source>.<pipeline>``).
 
     ``pipeline_default`` is the fallback :class:`RunTrace` ``pipeline``
-    argument when callers don't pass one (e.g. ``alphacumen`` defaults to
-    ``investment_analyst``; a non-finance harness can leave it at ``run``).
+    argument when callers don't pass one. Most harnesses can leave
+    it at ``run``.
 
     Call this once at the consuming package's import time, before any
     :class:`RunTrace` is constructed. Idempotent; the last call wins.

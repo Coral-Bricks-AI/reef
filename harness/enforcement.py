@@ -201,9 +201,9 @@ class NullEnforcer:
 # ---------------------------------------------------------------------------
 
 # Convention-based fallback when a tool doesn't carry @time_bounded.
-# These arg names mean "asof" across the existing alphacumen tool surface;
-# tools with one of them get asof injected/validated even without a
-# decorator. New tools should prefer the explicit decorator.
+# These arg names are the common spellings of "asof" across tool
+# surfaces; tools with one of them get asof injected/validated even
+# without a decorator. New tools should prefer the explicit decorator.
 _ASOF_ARG_ALIASES = frozenset({
     "asof", "as_of", "asof_iso", "as_of_iso", "asof_date", "as_of_date",
     "cutoff", "cutoff_date",

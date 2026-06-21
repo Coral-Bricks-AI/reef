@@ -41,6 +41,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Sequence
 
+from harness.skill_tools import make_load_skills_tool
+from harness.tool import Tool
+
 _SKILLS_DIR = Path(__file__).resolve().parent / "planner_skills"
 
 # Tokens we don't want polluting the keyword-overlap heuristic.
@@ -241,7 +244,24 @@ def suggest_ids(
     return [sid for _, sid in scored[:top_k]]
 
 
+LOAD_PLANNER_SKILLS: Tool = make_load_skills_tool(
+    lambda ids: render_loaded(list(ids)),
+    description=(
+        "Pull one or more planner skill playbook bodies into the "
+        "thread so you can consult dispatch / routing rules before "
+        "deciding the next round. Pass a list of skill ids from the "
+        "index in your seed. Returns the rendered `=== LOADED "
+        "SKILLS ===` block."
+    ),
+)
+"""``load_skills`` tool bound to AlphaCumen's flat planner-skill registry.
+
+Re-exported as :data:`alphacumen.tools.LOAD_PLANNER_SKILLS`.
+"""
+
+
 __all__ = [
+    "LOAD_PLANNER_SKILLS",
     "Skill",
     "load_skills",
     "render_index",

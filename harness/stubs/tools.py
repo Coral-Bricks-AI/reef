@@ -30,13 +30,10 @@ from typing import Any, Mapping, Optional, Sequence
 
 _MSG = (
     "\n\n"
-    "AlphaCumen's kernel retrieval verb `{verb}` requires a data backend "
+    "Kernel retrieval verb `{verb}` requires a data backend "
     "(BM25 index, vector store, SQL DB, graph DB, HTTP client, or Python "
-    "executor).\n\n"
-    "👉 For the hosted experience over the prefab finance corpus (~4.5TB of "
-    "SEC filings + market data + news), talk to the Coral Bricks team:\n"
-    "   https://coralbricks.ai/alphacumen\n\n"
-    "👉 To wire your own retrieval against your data (OpenSearch, Pinecone, "
+    "executor) that this harness build does not ship.\n\n"
+    "To wire your own retrieval against your data (OpenSearch, Pinecone, "
     "DuckDB, etc.), implement this function with your backend and replace "
     "the stub. The framework primitives -- skills, planner, specialists, "
     "constraints -- work standalone.\n"
@@ -151,9 +148,9 @@ def bind_py_global(name: str, value: Any) -> None:
 def list_tools(**kwargs: Any) -> dict[str, Any]:
     """Stub for listing kernel-side tool registrations.
 
-    Returns an empty registration envelope so ``alphacumen.capabilities``
-    can construct an empty :class:`IndexCapabilitiesMap` without raising.
-    Real introspection only matters when the runtime is wired up.
+    Returns an empty registration envelope so a downstream capabilities
+    map can be constructed without raising. Real introspection only
+    matters when the runtime is wired up.
     """
     return {"ok": True, "registrations": []}
 

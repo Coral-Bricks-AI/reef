@@ -13,16 +13,16 @@ Usage::
     export OPENAI_API_KEY=sk-...
     python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 
-The framework hello-world. No planner, no synthesizer, no SpecialistConfig --
-just :func:`harness.react.run_react` wired to a persona prompt and two
-skill-dispatch tools that close over this example's skills dict.
+The framework hello-world. No planner, no synthesizer, no
+SpecialistConfig -- just :func:`harness.react.run_react` wired to a
+persona prompt and two skill-dispatch tools.
 
-The framework's ``harness.skill_tools.LOAD_SKILLS`` hard-codes a registry from
-``alphacumen.skill_registry``. The skinny example owns its own ``load_skills``
-tool that resolves against its local registry; ``invoke_skill_fn`` is reused
-straight from the framework (the ``@skill_fn`` decorator registers into a
-process-global registry that this example's ``impl.py`` modules populate
-when ``load_skills(...)`` imports them).
+``make_load_skills_tool`` is the factory the framework ships for the
+``load_skills`` Tool; we close it over this example's ``SKILLS`` dict.
+``INVOKE_SKILL_FN`` is reused straight from the framework (the
+``@skill_fn`` decorator registers into a process-global registry that
+this example's ``impl.py`` modules populate when ``load_skills(...)``
+imports them).
 """
 
 from __future__ import annotations
@@ -30,12 +30,10 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Sequence
 
 from harness.react import run_react
 from harness.skills_loader import load_skills, render_index, render_loaded
-from harness.skill_tools import INVOKE_SKILL_FN
-from harness.tool import Tool
+from harness.skill_tools import INVOKE_SKILL_FN, make_load_skills_tool
 
 HERE = Path(__file__).resolve().parent
 
@@ -48,40 +46,8 @@ SKILLS = load_skills(
 )
 
 
-def _do_load_skills(skill_ids: Sequence[str]):
-    """Local load_skills that resolves against this example's SKILLS dict."""
-    if not skill_ids:
-        return {"error": "skill_ids must be a non-empty list"}
-    block = render_loaded(list(skill_ids), skills=SKILLS)
-    if not block:
-        return {
-            "error": (
-                f"no known skills in {list(skill_ids)!r} -- "
-                f"valid ids: {sorted(SKILLS)}"
-            )
-        }
-    return block
-
-
-LOAD_SKILLS_LOCAL = Tool(
-    name="load_skills",
-    description=(
-        "Pull one or more skill playbook bodies into the thread. For folder-"
-        "shaped (callable) skills the loaded block includes the "
-        "`invoke_skill_fn` dispatch schema -- follow that to execute."
-    ),
-    parameters={
-        "type": "object",
-        "properties": {
-            "skill_ids": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Skill ids from the index in the system prompt.",
-            },
-        },
-        "required": ["skill_ids"],
-    },
-    fn=_do_load_skills,
+LOAD_SKILLS_LOCAL = make_load_skills_tool(
+    lambda ids: render_loaded(list(ids), skills=SKILLS),
 )
 
 

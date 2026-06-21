@@ -80,6 +80,7 @@ from harness.react import (
     json_llm_call,
     run_react,
 )
+from alphacumen.capabilities import render_index_section
 from alphacumen.memo import persist_memo
 from alphacumen.skills import load_skills, render_index, render_loaded, validate_ids
 from alphacumen.tools import bind_tools
@@ -1625,7 +1626,7 @@ def _run_one_specialist(
     effective_steps = spec.max_steps
     if max_steps_override is not None and max_steps_override > spec.max_steps:
         effective_steps = min(max_steps_override, _MAX_STEPS_CEILING)
-    bound = bind_tools(spec.tools, index_caps)
+    bound = bind_tools(spec.tools, index_caps, render_index_section)
     log_label = f"{spec.key}#r{round_idx}.i{invocation_idx}"
     logger.info(
         "alphacumen specialist=%s round=%d invocation=%d starting "

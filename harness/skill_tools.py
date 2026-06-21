@@ -8,36 +8,29 @@
 """``harness.skill_tools`` -- model-facing tools for skill dispatch.
 
 A SKILL in this harness is ``SKILL.md`` (markdown instructions the
-planner reads) + Python bindings registered via ``@skill_fn`` (see
-:mod:`harness.skill_fn`). The three tools in this module are
-the model's interface to that machinery:
+model reads) + Python bindings registered via ``@skill_fn`` (see
+:mod:`harness.skill_fn`). The tools in this module are the model's
+interface to that machinery:
 
 - :data:`INVOKE_SKILL_FN` -- dispatch to a ``@skill_fn``-decorated
   callable by ``(skill_id, fn)``, passing model-supplied args.
-- :data:`LOAD_SKILLS` -- pull one or more **folder-shaped** skill
-  bodies (``SKILL.md`` + ``impl.py``) into the specialist's thread.
-- :data:`LOAD_PLANNER_SKILLS` -- pull one or more **flat** skill
-  bodies (planner-side ``*.md`` routing playbooks) into the planner's
-  thread.
+- :func:`make_load_skills_tool` -- factory that returns a
+  ``load_skills`` :class:`~harness.tool.Tool` bound to a caller-supplied
+  loader (a function from a list of skill ids to the rendered playbook
+  block). Each harness instance constructs its own ``load_skills`` tool
+  this way -- no global registry, no hidden coupling between instances.
 
-The two ``LOAD_*`` tools are kept as separate model-facing names even
-though they share machinery: the planner's skill registry (routing
-playbooks) and the sector specialist's skill registry (retrieval
-recipes + their Python impl) are intentionally distinct so each side
-sees only what's relevant to its turn.
-
-All three tools currently call into ``alphacumen.skills`` (flat loader) and
-``alphacumen.skills`` (folder loader). Those modules sit one layer
-below the harness in the current package shape -- they are
-parameterized loaders that happen to point at the alphacumen-side
-skill directories. Future cleanup will move the loaders themselves
-into :mod:`harness.skills_loader` and route the alphacumen
-directories in via a registry arg.
+The factory pattern keeps the framework domain-agnostic: harness
+ships the dispatch shape (parameters, error envelopes, description
+text) and the consumer plugs in the registry. The cocktails example
+in ``examples/cocktails`` shows the minimal binding; a multi-specialist
+instance (e.g. a planner + specialists pair) can create one tool per
+side by passing different loader functions.
 """
 
 from __future__ import annotations
 
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 from harness.tool import Tool
 
@@ -61,10 +54,10 @@ def _do_invoke_skill_fn(
     library and the underlying callables already do their own
     type-coercion.
     """
-    # Late import: the registry contents depend on the alphacumen-side
+    # Late import: the registry contents depend on the consumer's
     # impl modules having been imported, which only happens after the
     # folder loader runs. Import here so framework load doesn't pull
-    # the alphacumen skill folder in.
+    # any specific skill folder in.
     from harness import skill_fn as _skill_fn  # noqa: PLC0415
 
     if not isinstance(skill_id, str) or not skill_id:
@@ -118,15 +111,13 @@ INVOKE_SKILL_FN = Tool(
             "skill_id": {
                 "type": "string",
                 "description": (
-                    "Slug of the loaded skill that owns the callable, "
-                    "e.g. 'debt_refi_impact'."
+                    "Slug of the loaded skill that owns the callable."
                 ),
             },
             "fn": {
                 "type": "string",
                 "description": (
-                    "Name of the registered callable, e.g. "
-                    "'compute_debt_refi_impact'."
+                    "Name of the registered callable."
                 ),
             },
             "args": {
@@ -145,109 +136,92 @@ INVOKE_SKILL_FN = Tool(
 
 
 # ---------------------------------------------------------------------------
-# load_skills -- specialist-side (folder skills)
+# load_skills -- factory
 # ---------------------------------------------------------------------------
 
-def _do_load_skills(skill_ids: Sequence[str]) -> Any:
-    """Return the rendered ``=== LOADED SKILLS ===`` block for ``skill_ids``.
+LoadFn = Callable[[Sequence[str]], str]
+"""A function from a list of skill ids to a rendered playbook block.
 
-    Unknown ids are dropped silently (mirrors the loader's
-    ``validate_ids``); the rendered block surfaces what was loaded so
-    the model can see which of its requested ids landed.
+Typically a thin wrapper around :func:`harness.skills_loader.render_loaded`
+that closes over the caller's ``SKILLS`` dict. Returns ``""`` (empty
+string) when none of the ids resolve, so the factory can surface a
+helpful error to the model.
+"""
+
+
+def make_load_skills_tool(
+    load_fn: LoadFn,
+    *,
+    name: str = "load_skills",
+    description: Optional[str] = None,
+) -> Tool:
+    """Build a ``load_skills`` :class:`Tool` bound to ``load_fn``.
+
+    ``load_fn`` is a function from a list of skill ids to a rendered
+    block of skill bodies (the ``=== LOADED SKILLS ===`` block the
+    model reads). Most callers wire this to
+    :func:`harness.skills_loader.render_loaded` closed over their own
+    ``SKILLS`` dict::
+
+        from harness.skills_loader import load_skills, render_loaded
+        from harness.skill_tools import make_load_skills_tool
+
+        SKILLS = load_skills("./skills")
+        LOAD = make_load_skills_tool(
+            lambda ids: render_loaded(list(ids), skills=SKILLS)
+        )
+
+    ``name`` and ``description`` are overridable so a multi-side
+    harness (planner + specialist) can ship two distinct tool names
+    pointing at distinct registries.
     """
-    from alphacumen.skill_registry import render_loaded  # noqa: PLC0415
 
-    if not skill_ids:
-        return {"error": "skill_ids must be a non-empty list"}
-    block = render_loaded(list(skill_ids))
-    if not block:
-        return {
-            "error": (
-                f"no known skills in {list(skill_ids)!r} -- check the "
-                "skill index in your seed for valid ids."
-            )
-        }
-    return block
+    def _do_load(skill_ids: Sequence[str]) -> Any:
+        if not skill_ids:
+            return {"error": "skill_ids must be a non-empty list"}
+        block = load_fn(list(skill_ids))
+        if not block:
+            return {
+                "error": (
+                    f"no known skills in {list(skill_ids)!r} -- check "
+                    "the skill index in your system prompt for valid ids."
+                )
+            }
+        return block
 
-
-LOAD_SKILLS = Tool(
-    name="load_skills",
-    description=(
-        "Pull one or more skill playbook bodies into the thread so you "
-        "can read the recipe before composing retrieval. Pass a list "
-        "of skill ids from the index in your seed. Returns the "
-        "rendered `=== LOADED SKILLS ===` block; follow each loaded "
-        "playbook verbatim. For folder-shaped (callable) skills the "
-        "loaded block includes the `invoke_skill_fn` dispatch schema "
-        "for the callable -- follow that to execute."
-    ),
-    parameters={
-        "type": "object",
-        "properties": {
-            "skill_ids": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": (
-                    "Skill ids to load, drawn from the seed's skill "
-                    "index. Multi-skill loads are additive."
-                ),
+    return Tool(
+        name=name,
+        description=description or (
+            "Pull one or more skill playbook bodies into the thread so "
+            "you can read the recipe before composing the dispatch. "
+            "Pass a list of skill ids from the index in your system "
+            "prompt. Returns the rendered `=== LOADED SKILLS ===` "
+            "block; follow each loaded playbook verbatim. For "
+            "folder-shaped (callable) skills the loaded block includes "
+            "the `invoke_skill_fn` dispatch schema for the callable -- "
+            "follow that to execute."
+        ),
+        parameters={
+            "type": "object",
+            "properties": {
+                "skill_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": (
+                        "Skill ids to load, drawn from the index in "
+                        "your system prompt. Multi-skill loads are "
+                        "additive."
+                    ),
+                },
             },
+            "required": ["skill_ids"],
         },
-        "required": ["skill_ids"],
-    },
-    fn=_do_load_skills,
-)
-
-
-# ---------------------------------------------------------------------------
-# load_planner_skills -- planner-side (flat skills)
-# ---------------------------------------------------------------------------
-
-def _do_load_planner_skills(skill_ids: Sequence[str]) -> Any:
-    from alphacumen.skills import render_loaded  # noqa: PLC0415
-
-    if not skill_ids:
-        return {"error": "skill_ids must be a non-empty list"}
-    block = render_loaded(list(skill_ids))
-    if not block:
-        return {
-            "error": (
-                f"no known planner skills in {list(skill_ids)!r} -- "
-                "check your skill index for valid ids."
-            )
-        }
-    return block
-
-
-LOAD_PLANNER_SKILLS = Tool(
-    name="load_skills",
-    description=(
-        "Pull one or more planner skill playbook bodies into the "
-        "thread so you can consult dispatch / routing rules before "
-        "deciding the next round. Pass a list of skill ids from the "
-        "index in your seed. Returns the rendered `=== LOADED "
-        "SKILLS ===` block."
-    ),
-    parameters={
-        "type": "object",
-        "properties": {
-            "skill_ids": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": (
-                    "Planner skill ids to load. Multi-skill loads "
-                    "are additive."
-                ),
-            },
-        },
-        "required": ["skill_ids"],
-    },
-    fn=_do_load_planner_skills,
-)
+        fn=_do_load,
+    )
 
 
 __all__ = [
     "INVOKE_SKILL_FN",
-    "LOAD_PLANNER_SKILLS",
-    "LOAD_SKILLS",
+    "LoadFn",
+    "make_load_skills_tool",
 ]

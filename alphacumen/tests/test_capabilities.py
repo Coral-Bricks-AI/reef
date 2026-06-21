@@ -228,7 +228,7 @@ def test_tool_with_capabilities_appends_schema_to_description() -> None:
             }
         }
     }
-    bound = ac_tools.BM25_GDELT.with_capabilities(cap_map)
+    bound = ac_tools.BM25_GDELT.with_capabilities(cap_map, caps.render_index_section)
 
     assert bound is not ac_tools.BM25_GDELT  # immutability
     assert bound.description.startswith(ac_tools.BM25_GDELT.description)
@@ -240,7 +240,7 @@ def test_tool_with_capabilities_appends_schema_to_description() -> None:
 
 
 def test_tool_with_capabilities_no_op_when_caps_empty() -> None:
-    same = ac_tools.BM25_GDELT.with_capabilities({})
+    same = ac_tools.BM25_GDELT.with_capabilities({}, caps.render_index_section)
     assert same is ac_tools.BM25_GDELT
 
 
@@ -253,8 +253,18 @@ def test_tool_with_capabilities_no_op_for_unbound_tool() -> None:
         parameters={"type": "object", "properties": {}},
         fn=lambda **_: {"ok": True},
     )
-    same = standalone.with_capabilities({"any": {"bm25": {}}})
+    same = standalone.with_capabilities({"any": {"bm25": {}}}, caps.render_index_section)
     assert same is standalone
+
+
+def test_tool_with_capabilities_no_op_when_renderer_missing() -> None:
+    """Without a renderer the call is a no-op -- the framework can't
+    invent the schema text without the consumer's renderer."""
+    cap_map: caps.IndexCapabilitiesMap = {
+        ac_tools.GDELT_EVENTS_INDEX: {"bm25": {"fields": []}}
+    }
+    same = ac_tools.BM25_GDELT.with_capabilities(cap_map)
+    assert same is ac_tools.BM25_GDELT
 
 
 def test_bind_tools_applies_to_every_tool() -> None:
@@ -266,6 +276,7 @@ def test_bind_tools_applies_to_every_tool() -> None:
     bound = ac_tools.bind_tools(
         (ac_tools.BM25_GDELT, ac_tools.BM25_SEC),
         cap_map,
+        caps.render_index_section,
     )
     assert len(bound) == 2
     # First tool is bound to GDELT_EVENTS_INDEX -> should pick up the schema.

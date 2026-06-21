@@ -19,22 +19,23 @@ from __future__ import annotations
 
 _MSG = (
     "\n\n"
-    "AlphaCumen's Python executor (`run_python`) requires a sandboxed "
-    "runtime to execute model-emitted code safely.\n\n"
-    "👉 For the hosted experience, talk to the Coral Bricks team:\n"
-    "   https://coralbricks.ai/alphacumen\n\n"
-    "👉 To run locally, integrate RestrictedPython, a Docker / "
-    "containerised executor, or another sandbox of your choice.\n"
+    "The Python executor verb (`run_python`) requires a sandboxed "
+    "runtime to execute model-emitted code safely; this harness build "
+    "does not ship one.\n\n"
+    "To run locally, integrate RestrictedPython, a Docker / "
+    "containerised executor, or another sandbox of your choice and "
+    "replace this stub.\n"
 )
 
 
 class PyValidationError(Exception):
     """Raised when model-emitted Python fails the executor's static checks.
 
-    In the open-source build this class exists for ``except`` clauses in
-    ``harness.tool`` and ``alphacumen.tools`` but is not raised by any
-    stub -- the kernel-verb stubs raise :class:`NotImplementedError`
-    before the executor would have been reached.
+    In the open-source build this class exists for ``except`` clauses
+    in :mod:`harness.tool` (and any consumer that re-raises it) but is
+    not raised by any stub -- the kernel-verb stubs raise
+    :class:`NotImplementedError` before the executor would have been
+    reached.
     """
 
 
@@ -48,8 +49,9 @@ def execute(code: str, *args, **kwargs):
 
 
 # Hosted-runtime override. If the gateway's sandbox is on the path, re-import
-# the real py_executor symbols so prod runs hit the real executor and the real
-# PyValidationError type (which alphacumen.tools' except clauses match on).
+# the real py_executor symbols so prod runs hit the real executor and the
+# real :class:`PyValidationError` type (which consumer ``except`` clauses
+# match on).
 try:
     from coralbricks.sandbox.py_executor import *  # type: ignore[import-not-found]  # noqa: F401,F403
     _SANDBOX_AVAILABLE = True

@@ -26,7 +26,9 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 from harness import skills_loader as _loader
+from harness.skill_tools import make_load_skills_tool
 from harness.skills_loader import Skill
+from harness.tool import Tool
 
 
 _SKILLS_DIR = Path(__file__).resolve().parent / "skills"
@@ -77,7 +79,17 @@ def suggest_ids(
     )
 
 
+LOAD_SKILLS: Tool = make_load_skills_tool(
+    lambda ids: render_loaded(list(ids)),
+)
+"""``load_skills`` tool bound to AlphaCumen's folder-skill registry.
+
+Re-exported as :data:`alphacumen.tools.LOAD_SKILLS`.
+"""
+
+
 __all__ = [
+    "LOAD_SKILLS",
     "Skill",
     "load_skills",
     "render_index",

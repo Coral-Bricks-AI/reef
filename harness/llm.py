@@ -37,8 +37,8 @@ The envelope returned matches the gateway proxy's shape::
     {"model": "<model>",
      "response": {"id": ..., "choices": [...], "usage": {...}}}
 
-so callers (the alphacumen ReAct loop, the planner, the synthesizer)
-see the same wire shape they did before. Translation happens here
+so callers (the ReAct loop, any planner / synthesizer above it)
+see one stable wire shape regardless of provider. Translation happens here
 when a provider returns a different native shape (e.g. Anthropic's
 ``content`` blocks vs OpenAI's ``message``).
 
@@ -153,7 +153,7 @@ def _anthropic_chat(
 
     Anthropic's ``messages.create`` returns ``content`` blocks; we
     translate to the OpenAI ``{choices: [{message: {role, content,
-    tool_calls}}]}`` shape so alphacumen's ReAct loop reads the same fields
+    tool_calls}}]}`` shape so the ReAct loop reads the same fields
     regardless of provider.
     """
     try:
@@ -504,9 +504,9 @@ def embed(
 ) -> dict[str, Any]:
     """Embeddings are out of scope for the OSS LLM client.
 
-    alphacumen uses pre-built retrieval indices; embeddings are a corpus-
-    prep concern. If you need embeddings at runtime in OSS, call the
-    provider SDK directly.
+    The harness pattern assumes pre-built retrieval indices; embeddings
+    are a corpus-prep concern handled by the consumer. If you need
+    embeddings at runtime, call the provider SDK directly.
     """
     del model, dimension, texts, input_type, batch_size, socket_path, timeout_s
     raise NotImplementedError(

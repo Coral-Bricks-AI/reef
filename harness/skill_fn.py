@@ -21,8 +21,8 @@ register themselves into :data:`_REGISTRY` keyed by ``(skill_id, fn_name)``.
 At runtime the ``invoke_skill_fn`` tool looks the binding up and calls it
 with the model-supplied args.
 
-This module is domain-agnostic. The decorator does not know about finance,
-SEC filings, or any specific corpus -- those live in :mod:`alphacumen`.
+This module is domain-agnostic. The decorator does not know about
+any specific corpus or vertical -- those live in the consumer package.
 
 Why an explicit ``parameters`` dict on the decorator rather than
 introspecting type hints: a tool's per-field ``description`` prose

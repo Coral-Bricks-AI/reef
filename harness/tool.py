@@ -21,11 +21,11 @@ instance rather than mutating in place -- concurrent runs against
 different gateway snapshots can hold different stamped variants of the
 same source tool without racing.
 
-This module is domain-agnostic. The finance tool surface (~9k LOC of
-SEC/XBRL/market verbs) lives in :mod:`alphacumen.tools` (and will migrate to
-:mod:`alphacumen.tools` in a follow-up). The skill-dispatch tools
-(``INVOKE_SKILL_FN`` / ``LOAD_SKILLS`` / ``LOAD_PLANNER_SKILLS``) live
-next door in :mod:`harness.skill_tools`.
+This module is domain-agnostic. Concrete tool surfaces (retrieval
+verbs, SQL, executors, ...) live in the consumer package. The
+generic skill-dispatch tool (``INVOKE_SKILL_FN``) and the
+``make_load_skills_tool`` factory live next door in
+:mod:`harness.skill_tools`.
 """
 
 from __future__ import annotations
@@ -99,32 +99,34 @@ class Tool:
             },
         }
 
-    def with_capabilities(self, capabilities: Mapping[str, Any]) -> "Tool":
+    def with_capabilities(
+        self,
+        capabilities: Mapping[str, Any],
+        renderer: Optional[Callable[[str, tuple[str, ...], Mapping[str, Any]], str]] = None,
+    ) -> "Tool":
         """Return a copy of this tool with the per-index schema baked into the description.
 
-        For each ``(slug, verbs)`` in :attr:`bound_indices`, render the
-        registered schema fragment (field list / table list / predicate
-        list, ...) and append it to the existing description. The
-        schema rendering lives in :mod:`alphacumen.capabilities`
-        (lazy-imported here so this module stays load-time independent
-        of the finance package).
+        For each ``(slug, verbs)`` in :attr:`bound_indices`, the caller's
+        ``renderer`` is invoked with ``(slug, verbs, capabilities)`` and
+        the returned fragment (field list / table list / predicate list,
+        ...) is appended to the existing description.
+
+        ``renderer`` is supplied by the consumer package: the harness
+        owns the shape of the call, but the rendering logic lives with
+        the index backend. When ``renderer`` is ``None`` (or the tool
+        has no :attr:`bound_indices`, or ``capabilities`` is empty) this
+        is a no-op and returns ``self``.
 
         Returning a new dataclass instance (rather than mutating in
         place) keeps the original module-level ``Tool`` constants
-        immutable -- multiple swarm runs can stamp different schemas
+        immutable -- multiple runs can stamp different schemas
         onto the same source tool without cross-contamination.
         """
-        if not self.bound_indices or not capabilities:
+        if not self.bound_indices or not capabilities or renderer is None:
             return self
-        # Lazy import: framework's ``Tool`` knows the shape of a render
-        # function but not the renderer impl. Today the only renderer
-        # is alphacumen's; future framework callers can swap by passing
-        # a parameterized factory (TODO when a non-finance consumer
-        # actually needs it).
-        from alphacumen.capabilities import render_index_section  # noqa: PLC0415
         chunks: list[str] = []
         for slug, verbs in self.bound_indices:
-            section = render_index_section(slug, verbs, capabilities)
+            section = renderer(slug, verbs, capabilities)
             if section:
                 chunks.append(section)
         if not chunks:
@@ -265,17 +267,23 @@ def lookup_tool(name: str, tools: Sequence[Tool]) -> Tool:
 def bind_tools(
     tools: Sequence[Tool],
     capabilities: Mapping[str, Mapping[str, Any]],
+    renderer: Optional[Callable[[str, tuple[str, ...], Mapping[str, Any]], str]] = None,
 ) -> tuple[Tool, ...]:
     """Stamp each tool's bound-index schema into its description.
 
     Walks ``tools`` and calls :meth:`Tool.with_capabilities` with
     ``capabilities`` (the ``{slug: {verb: cfg}}`` map produced by the
-    domain package's capability fetcher). The returned tuple is what
-    the swarm hands to :func:`harness.react.run_react` -- the
-    module-level ``Tool`` constants stay untouched, so concurrent
-    runs against different gateway snapshots don't race.
+    consumer's capability fetcher) and the consumer-supplied
+    ``renderer``. The returned tuple is what the runner hands to
+    :func:`harness.react.run_react` -- the module-level ``Tool``
+    constants stay untouched, so concurrent runs against different
+    gateway snapshots don't race.
+
+    When ``renderer`` is ``None`` this returns the input tools
+    unchanged -- handy for harnesses without dynamic capability
+    schemas (cocktails, hello-world).
     """
-    return tuple(t.with_capabilities(dict(capabilities)) for t in tools)
+    return tuple(t.with_capabilities(dict(capabilities), renderer) for t in tools)
 
 
 __all__ = [

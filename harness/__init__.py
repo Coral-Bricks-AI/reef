@@ -8,12 +8,12 @@
 """``harness`` -- generic agent-harness primitives.
 
 Domain-agnostic core: ReAct loop, skill loaders, ``@skill_fn`` decorator,
-constraint declaration + enforcement, planner/specialist/swarm scaffolding.
+constraint declaration + enforcement, multi-provider LLM client. The
+framework owns the loop, the dispatch contract, and the trajectory; the
+consumer owns the corpus, the tools, and the personas.
 
-The finance-specific layer that composes on top of this lives in
-:mod:`alphacumen`. The split lets a non-finance harness reuse the
-machinery here without dragging in SEC/XBRL tools, finance prompts, or the
-issuer-analyst roster.
+See ``examples/cocktails`` for the minimal end-to-end binding (one
+specialist, two skills, ~50 lines of glue).
 
 Public surface ergonomics::
 

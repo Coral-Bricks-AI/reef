@@ -19,10 +19,10 @@ This module owns the *loader*: given a directory containing flat
 registers the callables for :mod:`harness.skill_tools` to
 dispatch on.
 
-Domain-agnostic. Pass ``skills_dir`` and ``module_prefix`` at the
-loader call; the alphacumen wrapper at :mod:`alphacumen.skills`
-binds those defaults. A non-finance harness binds its own paths the
-same way.
+Domain-agnostic. Each consumer passes ``skills_dir`` and
+``module_prefix`` at the loader call; the framework owns no
+default registry. See ``examples/cocktails`` for the minimal
+binding.
 
 Two on-disk shapes are supported:
 
@@ -178,15 +178,13 @@ def load_skills(
     Parameters
     ----------
     skills_dir : Path
-        Directory containing the skill files. The alphacumen wrapper
-        passes ``alphacumen/skills``; a non-finance harness
-        passes its own directory.
+        Directory containing the skill files. Each consumer passes
+        its own directory.
     module_prefix : str
         Synthetic-module-name prefix used when importing each
-        folder's ``impl.py``. Default keeps things namespaced under
-        the framework; the alphacumen wrapper overrides to
-        ``alphacumen.skills._loaded`` so multiple registries
-        coexist without collisions.
+        folder's ``impl.py``. Defaults to a framework-namespaced
+        prefix; consumers with multiple registries should override
+        so the registries coexist without collisions.
 
     Cached for the process lifetime, keyed by
     ``(resolve(skills_dir), module_prefix)``. Call :func:`clear_cache`

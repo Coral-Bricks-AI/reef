@@ -5,24 +5,24 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.react`` -- framework-free ReAct loop over the platform LLM proxy.
+"""``harness.react`` -- framework-free ReAct loop over a direct LLM client.
 
-alphacumen used to drag in LangChain + LangGraph just to run a ReAct
-agent. That worked, but coupled the IA package to a specific agent
-framework version, made the ground-truth eval set hard to re-run
-when LangChain shifted, and meant the platform's ``llm.chat`` proxy
-was wrapped by yet another ChatModel adapter that translated wire
-shapes back and forth.
-
-This module is the slice 5c.5 replacement: a small, transparent,
-no-deps ReAct loop that talks the OpenAI tool-calling shape
-:func:`coralbricks.sandbox.llm.chat` already speaks. The whole run
-is one function (:func:`run_react`) and one transcript shape
+A small, transparent, no-deps ReAct loop that talks the OpenAI
+tool-calling shape :func:`harness.llm.chat` already speaks. The whole
+run is one function (:func:`run_react`) and one transcript shape
 (:class:`Trajectory`); there is no inheritance hierarchy and no
-graph compilation step. The model authors a tool call, we
-dispatch via :class:`alphacumen.tools.Tool.fn`, append the result back
-to the messages, repeat until the model emits an assistant message
-without ``tool_calls``.
+graph compilation step. The model authors a tool call, we dispatch
+via :attr:`harness.tool.Tool.fn`, append the result back to the
+messages, repeat until the model emits an assistant message without
+``tool_calls``.
+
+The rationale for not depending on LangChain / LangGraph: an agent
+loop is forty lines of control flow plus retry, watchdog, and
+trajectory recording. Coupling to a framework version locks the
+ground-truth eval set to that version's tool-calling adapter and
+wraps the direct provider client in yet another ChatModel
+indirection. Owning the loop ourselves keeps the wire shape
+inspectable and the model upgrade path one provider import away.
 
 Why this shape
 --------------
@@ -602,10 +602,10 @@ class Trajectory:
 
     ``final_message`` is set when the loop terminates with an
     assistant message that has no ``tool_calls``; ``token_usage`` is
-    accumulated across every LLM call. We use the prod-IA naming
+    accumulated across every LLM call. Field names
     (``input_tokens`` / ``output_tokens`` / ``cached_tokens`` /
-    ``tool_calls``) so the platform's existing UI / accounting
-    consumers don't have to special-case alphacumen.
+    ``tool_calls``) mirror the OpenAI usage shape so downstream
+    accounting consumers don't have to special-case this loop.
     """
 
     steps: list[Step] = field(default_factory=list)
@@ -1665,9 +1665,9 @@ def _try_repair_truncated_json(cand: str) -> Optional[dict[str, Any]]:
 def extract_json_payload(text: str) -> Optional[dict[str, Any]]:
     """Best-effort parse of the structured JSON personas are asked to emit.
 
-    The persona prompts (see :mod:`alphacumen.roster`) tell the
-    model to reply with one JSON object. Most providers comply, but
-    a few wrap it in a ```json fence anyway; we handle both cases.
+    A persona prompt asks the model to reply with one JSON object.
+    Most providers comply, but a few wrap it in a ```json fence
+    anyway; we handle both cases.
 
     When the strict pass fails (most commonly because the model hit
     its ``max_tokens`` cap mid-emission, leaving an unbalanced
