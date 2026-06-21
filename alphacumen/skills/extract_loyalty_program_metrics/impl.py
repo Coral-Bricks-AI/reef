@@ -27,7 +27,7 @@ from __future__ import annotations
 import re
 from typing import Any, Optional
 
-from harness.skill_fn import skill_fn
+from reef.skill_fn import skill_fn
 from alphacumen.tools import (
     _BIND_AS_PARAM_SCHEMA,
     _apply_binding,

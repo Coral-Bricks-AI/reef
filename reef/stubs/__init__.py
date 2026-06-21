@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.stubs`` -- runtime-side stubs for the platform integrations.
+"""``reef.stubs`` -- runtime-side stubs for the platform integrations.
 
 The open-source ``harness`` ships with stubs for the kernel retrieval verbs
 (BM25, ANN, SQL, multihop, get, Python executor) and the Python executor's

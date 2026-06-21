@@ -7,7 +7,7 @@
 
 """``alphacumen.prompts`` -- prompt templates shipped as package data.
 
-Loaded by :mod:`alphacumen.roster` and :mod:`harness.synthesizer (legacy, removed)` via
+Loaded by :mod:`alphacumen.roster` and :mod:`reef.synthesizer (legacy, removed)` via
 :func:`importlib.resources.files`. The setuptools ``package-data``
 declaration in ``pyproject.toml`` ensures the ``.md`` files travel
 inside the wheel.

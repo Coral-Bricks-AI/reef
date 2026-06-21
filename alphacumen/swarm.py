@@ -21,7 +21,7 @@ adapters):
   more specialists with focused per-task instructions or sets
   ``converged=true`` and emits a ``final_answer``.
 - Specialists run in parallel for each round. Each one is one
-  :func:`harness.react.run_react` call against its own roster of
+  :func:`reef.react.run_react` call against its own roster of
   tools; the final ``answer_summary`` (or first-4000-chars raw if no
   JSON) gets posted back onto the common thread for the next GP turn.
 - The GP can re-invoke the same specialist across rounds with new
@@ -30,7 +30,7 @@ adapters):
   hitting ``max_rounds`` (forced final round in the prompt).
 - Tools dispatch to the seven generic kernel verbs (see
   :mod:`alphacumen.tools`); LLM calls go through
-  ``coralbricks.sandbox.llm.chat`` (see :mod:`harness.react`); both
+  ``coralbricks.sandbox.llm.chat`` (see :mod:`reef.react`); both
   layers are bounded-retry on transient 429 / CUDA hiccups.
 - Cancellation = gateway terminate. We do not poll an in-process
   ``cancel_event``; ``POST /runs/{id}/terminate`` kills the sandbox
@@ -55,12 +55,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Optional, Sequence
 
-from harness import _langfuse
-from harness import (
+from reef import _langfuse
+from reef import (
     ConstraintEnforcer,
     HarnessConstraints,
 )
-from harness.context import begin_run, end_run
+from reef.context import begin_run, end_run
 from alphacumen.capabilities import (
     IndexCapabilitiesMap,
     fetch_index_capabilities,
@@ -72,7 +72,7 @@ from alphacumen.roster import (
     specialists_for,
 )
 from alphacumen.postprocessor import postprocess
-from harness.react import (
+from reef.react import (
     Trajectory,
     chat_with_retry,
     extract_json_payload,
@@ -90,7 +90,7 @@ logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Per-round planner decision (inlined from the retired
-# harness.synthesizer module; only the swarm consumes this shape now)
+# reef.synthesizer module; only the swarm consumes this shape now)
 # ---------------------------------------------------------------------------
 
 
@@ -1313,7 +1313,7 @@ _THREAD_POST_MAX_CHARS = 4_000
 # figure-extraction specialist (see specialists.py). Its persona
 # prompt is short and laser-focused on retrieve-then-answer; its
 # SpecialistConfig sets ``min_tool_calls_before_final=1`` which the
-# ReAct loop in ``harness.react.run_react`` uses as a coercion gate:
+# ReAct loop in ``reef.react.run_react`` uses as a coercion gate:
 # if the model tries to emit a final answer with zero tool calls, the
 # loop injects a system reminder and continues instead of
 # terminating. That's the primary defense.

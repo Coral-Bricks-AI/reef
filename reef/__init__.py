@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness`` -- generic agent-harness primitives.
+"""``reef`` -- generic agent-harness primitives.
 
 Domain-agnostic core: ReAct loop, skill loaders, ``@skill_fn`` decorator,
 constraint declaration + enforcement, multi-provider LLM client. The
@@ -17,7 +17,7 @@ specialist, two skills, ~50 lines of glue).
 
 Public surface ergonomics::
 
-    from harness import (
+    from reef import (
         HarnessConstraints,
         LocalEnforcer,
         time_bounded,
@@ -34,17 +34,17 @@ Public surface ergonomics::
 
 __version__ = "0.1.0"
 
-from harness.constraints import (
+from reef.constraints import (
     AsofLike,
     HarnessConstraints,
 )
-from harness.context import (
+from reef.context import (
     current_constraints,
     current_enforcer,
     harness_context,
 )
-from harness.decorators import time_bounded
-from harness.enforcement import (
+from reef.decorators import time_bounded
+from reef.enforcement import (
     AsofViolation,
     AuditingEnforcer,
     BudgetExceeded,

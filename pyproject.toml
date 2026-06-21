@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cb-ia"
-version = "0.0.591"
-description = "Coral harness framework + AlphaCumen finance instance"
+version = "0.0.592"
+description = "Reef agent-harness framework + AlphaCumen finance instance"
 requires-python = ">=3.11"
 authors = [{ name = "Coral Bricks AI" }]
 readme = "README.md"
@@ -19,7 +19,7 @@ classifiers = [
 
 dependencies = [
     # Direct-provider LLM client (replaces the gateway-side proxy).
-    # The chat() function in harness/llm.py uses the openai SDK for
+    # The chat() function in reef/llm.py uses the openai SDK for
     # OpenAI-compatible providers (Lilac, Together, OpenRouter, Cerebras,
     # DeepInfra), the anthropic SDK for direct Anthropic, and boto3 for
     # Bedrock. Install at least one to call models.
@@ -40,7 +40,7 @@ dependencies = [
 Homepage = "https://github.com/Coral-Bricks-AI/coral-ai"
 Blog = "https://coralbricks.ai/blog/write-your-own-harness"
 
-# Flat package layout: harness/ and alphacumen/ are both top-level
+# Flat package layout: reef/ and alphacumen/ are both top-level
 # importable packages bundled together in the cb-ia wheel.
 # - alphacumen.tools is a single MODULE (alphacumen/tools.py), not a package
 # - alphacumen/planner_skills/ and alphacumen/skills/ are data dirs with
@@ -52,8 +52,8 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["harness*", "alphacumen", "alphacumen.planner", "alphacumen.prompts"]
-exclude = ["harness.examples*", "alphacumen.examples*", "*.tests*", "*tests*"]
+include = ["reef*", "alphacumen", "alphacumen.planner", "alphacumen.prompts"]
+exclude = ["reef.examples*", "alphacumen.examples*", "*.tests*", "*tests*"]
 
 [tool.setuptools.package-data]
 "alphacumen.prompts" = ["*.md"]

@@ -5,14 +5,14 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.stubs.py_executor`` -- stub for the Python execution surface.
+"""``reef.stubs.py_executor`` -- stub for the Python execution surface.
 
 Drop-in replacement for ``coralbricks.sandbox.py_executor``. The hosted
 runtime ships a sandboxed Python executor that runs model-emitted code
 safely under resource limits and an import allowlist. The open-source
-build exposes :class:`PyValidationError` (used by ``harness.tool`` for
+build exposes :class:`PyValidationError` (used by ``reef.tool`` for
 exception-type matching) but does not provide an execution path -- the
-:func:`harness.stubs.tools.py` stub is what raises on a real dispatch.
+:func:`reef.stubs.tools.py` stub is what raises on a real dispatch.
 """
 
 from __future__ import annotations
@@ -32,7 +32,7 @@ class PyValidationError(Exception):
     """Raised when model-emitted Python fails the executor's static checks.
 
     In the open-source build this class exists for ``except`` clauses
-    in :mod:`harness.tool` (and any consumer that re-raises it) but is
+    in :mod:`reef.tool` (and any consumer that re-raises it) but is
     not raised by any stub -- the kernel-verb stubs raise
     :class:`NotImplementedError` before the executor would have been
     reached.

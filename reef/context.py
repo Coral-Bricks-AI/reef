@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.context`` -- per-run constraints/enforcer propagation.
+"""``reef.context`` -- per-run constraints/enforcer propagation.
 
 Threading :class:`HarnessConstraints` + :class:`ConstraintEnforcer`
 explicitly through every signature in a large tool surface would be a
@@ -38,8 +38,8 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Iterator, Optional
 
-from harness.constraints import HarnessConstraints
-from harness.enforcement import ConstraintEnforcer, LocalEnforcer
+from reef.constraints import HarnessConstraints
+from reef.enforcement import ConstraintEnforcer, LocalEnforcer
 
 
 _CURRENT_CONSTRAINTS: ContextVar[Optional[HarnessConstraints]] = ContextVar(

@@ -1,6 +1,6 @@
-# harness
+# Reef
 
-**Build agents that run on your laptop, with skills you write and own.**
+**Reef is an open agent-harness framework — build agents that run on your laptop, with skills you write and own.**
 
 Clone the repo, install one package, set your provider key, and ask a question:
 
@@ -9,15 +9,15 @@ git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai && pip install -e .
 export LLM_API_KEY=sk-...
 
-python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
+python reef/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 ```
 
 The runner under the hood:
 
 ```python
-from harness.react import run_react
-from harness.skills_loader import load_skills, render_index, render_loaded
-from harness.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
+from reef.react import run_react
+from reef.skills_loader import load_skills, render_index, render_loaded
+from reef.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
 
 SKILLS = load_skills("./skills")  # discovers SKILL.md + impl.py folders
 LOAD_SKILL = make_load_skill_tool(
@@ -49,9 +49,9 @@ An agent harness composed of three primitives:
 
 We extended this harness to build [AlphaCumen](../alphacumen), a finance agent harness that scores **82.6% on Vals AI Finance Agent v2** — a 38-point gain over a vanilla harness on the same model, at $0.13/query.
 
-The runtime is ~1,900 lines of Python with no agent-framework dependency. Provider-neutral: OpenAI, Anthropic, Bedrock, plus OpenAI-compatible proxies (Together, OpenRouter, Cerebras, DeepInfra, Lilac). Apache 2.0. Standalone — zero `alphacumen` imports — so you can vendor just `harness/` into your own repo.
+The runtime is ~1,900 lines of Python with no agent-framework dependency. Provider-neutral: OpenAI, Anthropic, Bedrock, plus OpenAI-compatible proxies (Together, OpenRouter, Cerebras, DeepInfra, Lilac). Apache 2.0. Standalone — zero `alphacumen` imports — so you can vendor just `reef/` into your own repo.
 
-The long-form design rationale is in the blog post: [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-harness) — one section per primitive.
+The long-form design rationale is in the blog post: [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-reef) — one section per primitive.
 
 ### Module map
 
@@ -107,7 +107,7 @@ Use this BEFORE <other skill> when the user asks about <X>.
 `impl.py`:
 
 ```python
-from harness.skill_fn import skill_fn
+from reef.skill_fn import skill_fn
 
 @skill_fn(
     skill_id="my_skill",
@@ -149,9 +149,9 @@ questions accurately, quoting source data faithfully.
 ### 4. Wire it up — the 20-line runner
 
 ```python
-from harness.react import run_react
-from harness.skills_loader import load_skills, render_index, render_loaded
-from harness.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
+from reef.react import run_react
+from reef.skills_loader import load_skills, render_index, render_loaded
+from reef.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
 
 SKILLS = load_skills("./skills")
 LOAD_SKILL = make_load_skill_tool(
@@ -198,9 +198,9 @@ A: A Negroni is 30 ml gin, 30 ml sweet vermouth, and 30 ml Campari, stirred
 More sample queries:
 
 ```bash
-python harness/examples/cocktails/ask.py "Find me a refreshing rum cocktail without mint"
-python harness/examples/cocktails/ask.py "Which classic gin cocktails are stirred?"
-python harness/examples/cocktails/ask.py "How strong is an Espresso Martini?"
+python reef/examples/cocktails/ask.py "Find me a refreshing rum cocktail without mint"
+python reef/examples/cocktails/ask.py "Which classic gin cocktails are stirred?"
+python reef/examples/cocktails/ask.py "How strong is an Espresso Martini?"
 ```
 
 ### What's on disk
@@ -243,7 +243,7 @@ After search, if the question is quantitative, follow up with
 `skills/search_cocktails/impl.py`:
 
 ```python
-from harness.skill_fn import skill_fn
+from reef.skill_fn import skill_fn
 
 @skill_fn(
     skill_id="search_cocktails",
@@ -320,7 +320,7 @@ A tool is one callable. A skill is a unit of *reusable competence* — a markdow
 Yes. `llm.chat` dispatches by the model-string prefix: `openai/`, `anthropic/`, `aws/` (Bedrock), plus OpenAI-compatible proxies (`together/`, `openrouter/`, `cerebras/`, `deepinfra/`, `lilac/`). If your provider speaks the OpenAI chat-completions shape, add it in a dozen lines. If it doesn't, fork `_chat_anthropic` as a template.
 
 **Can I bring my own retrieval backend?**
-Yes. `harness/stubs/tools.py` is where the kernel verbs (`bm25`, `ann`, `sql`, `multihop`, `get`, `py`) live as stubs. Replace them with your own backend (OpenSearch, Pinecone, DuckDB, whatever) and the rest of the harness keeps working. Skills don't know what's behind the verb — they just call it.
+Yes. `reef/stubs/tools.py` is where the kernel verbs (`bm25`, `ann`, `sql`, `multihop`, `get`, `py`) live as stubs. Replace them with your own backend (OpenSearch, Pinecone, DuckDB, whatever) and the rest of the harness keeps working. Skills don't know what's behind the verb — they just call it.
 
 **Does it persist sessions / memory across runs?**
 Not in this build. The `Trajectory` is a per-run record; persistence is a layer you wire on top.

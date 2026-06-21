@@ -10,11 +10,11 @@
 Each specialist is a ``SpecialistConfig`` bundle (key, label, persona
 prompt file, tools, max_steps, ...). :func:`alphacumen.swarm.run` loads
 :data:`INVESTMENT_ANALYST_ROSTER`, fans out one
-:func:`harness.react.run_react` per specialist in parallel, and hands
+:func:`reef.react.run_react` per specialist in parallel, and hands
 the JSON-shaped outputs to the planner/postprocessor for synthesis.
 
 This is the **finance impl** of the specialist concept; the framework
-side (:mod:`harness`) doesn't define a generic SpecialistConfig
+side (:mod:`reef`) doesn't define a generic SpecialistConfig
 yet -- once a non-finance harness needs to share orchestration code
 with AlphaCumen, the data-only fields of SpecialistConfig lift to a
 framework Protocol and the finance-specific bits (the sector_analyst
@@ -27,7 +27,7 @@ code embedded persona text in Python string literals; keeping them as
 data-files lets the Console render them verbatim and makes prompt
 iteration a non-code-review change.
 
-Moved from ``alphacumen.roster`` during the harness/alphacumen split;
+Moved from ``alphacumen.roster`` during the reef/alphacumen split;
 ``alphacumen.roster`` is now a back-compat shim that re-exports the
 public surface.
 """
@@ -50,7 +50,7 @@ def _load_sector_seed() -> str:
     """Read the slim sector seed prompt.
 
     The seed used to live next to its on-demand skills folder under
-    ``alphacumen.sector``. After the harness/alphacumen split it ships
+    ``alphacumen.sector``. After the reef/alphacumen split it ships
     inside ``alphacumen.prompts`` alongside the other finance
     persona prompts -- one home for everything the model reads at
     system-prompt-build time, while the skill data dirs sit next to
@@ -178,7 +178,7 @@ class SpecialistConfig:
 
     Frozen: instances are shared across runs and cached at the
     module level, so any per-run state belongs in
-    :class:`harness.react.Trajectory`, not here.
+    :class:`reef.react.Trajectory`, not here.
 
     ``persona_prompt`` and ``supplement`` are the two halves of the
     specialist's system message: the persona sets identity / mandate
@@ -208,7 +208,7 @@ class SpecialistConfig:
     # Must-retrieve gate. When set to N >= 1 the specialist's ReAct
     # loop refuses to accept a no-tool-call assistant message as the
     # final answer until N tool dispatches have happened. See
-    # :func:`harness.react.run_react`'s ``min_tool_calls_before_final``
+    # :func:`reef.react.run_react`'s ``min_tool_calls_before_final``
     # docstring for the failure mode this prevents (Vals AI row 5
     # vc_analyst quant-extract: model emitted confident answer with
     # zero tool calls, fabricated citations from training memory).
@@ -393,7 +393,7 @@ SPECIALIST_CONFIGS: dict[str, SpecialistConfig] = {
         # which can run long for 3+ entity questions.
         max_tokens=6144,
         # The must-retrieve gate. With this set to 1 the runtime
-        # ReAct loop (harness.react.run_react) refuses to accept a
+        # ReAct loop (reef.react.run_react) refuses to accept a
         # no-tool-call assistant message as the final answer until
         # at least 1 tool dispatch has happened. Capped coercion
         # turns inside run_react prevent a stubborn model from
@@ -453,7 +453,7 @@ SPECIALIST_BRIEFS: dict[str, str] = {
 """One-line summary of each specialist's domain + tool surface.
 
 Rendered into the orchestrator system prompt's ``{roster_brief}``
-block by :mod:`harness.synthesizer (legacy, removed)`. Kept here -- next to the
+block by :mod:`reef.synthesizer (legacy, removed)`. Kept here -- next to the
 :data:`SPECIALIST_CONFIGS` they describe -- so adding a specialist is
 a single file edit instead of a cross-module dance.
 """

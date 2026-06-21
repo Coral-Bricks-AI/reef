@@ -40,7 +40,7 @@ A planner LLM picks specialists and loads skills; specialists run in parallel as
 
 ## The headline numbers
 
-| Benchmark | Top frontier (generic harness) | **AlphaCumen** | Gain |
+| Benchmark | Top frontier (generic reef) | **AlphaCumen** | Gain |
 |---|--:|--:|--:|
 | Vals AI Finance Agent **v2** (27 questions, 239 atoms) | 57.86% (Gemini 3.5 Flash) | **82.6%** | **+24.7pp** |
 | Vals AI Finance Agent **v1.1** (50 questions) | 64.4% (Opus 4.7) | **90.0%** | **+25.6pp** |
@@ -157,9 +157,9 @@ Coral Bricks runs AlphaCumen over a **~4.5 TB pre-processed finance corpus** —
 
 ### Path B — Bring your own data
 
-Read the code top-down — `swarm.py` → a specialist `persona_file` → `skills/<slug>/` — and replace the kernel-verb stubs in [`harness/stubs/`](../harness/stubs) with calls against your own backend (OpenSearch / Pinecone / DuckDB / your graph DB / your Python sandbox). The framework primitives and the finance conventions transfer; only the data plane is yours.
+Read the code top-down — `swarm.py` → a specialist `persona_file` → `skills/<slug>/` — and replace the kernel-verb stubs in [`reef/stubs/`](../reef/stubs) with calls against your own backend (OpenSearch / Pinecone / DuckDB / your graph DB / your Python sandbox). The framework primitives and the finance conventions transfer; only the data plane is yours.
 
-The framework primitives — skills, agent types, runtime constraints — are walked one section each in [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-harness). For a minimal end-to-end use of the harness without the finance scaffolding, see [`harness/examples/cocktails/`](../harness/examples/cocktails) — one specialist, two skills, ~50 lines of glue.
+The framework primitives — skills, agent types, runtime constraints — are walked one section each in [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-reef). For a minimal end-to-end use of the harness without the finance scaffolding, see [`reef/examples/cocktails/`](../reef/examples/cocktails) — one specialist, two skills, ~50 lines of glue.
 
 ---
 
@@ -178,9 +178,9 @@ The framework primitives — skills, agent types, runtime constraints — are wa
 | [`planner/`](planner/) | Planner-side prompt variants |
 | `capabilities.py`, `skill_registry.py`, `_langfuse.py`, `index_map.py` | Registry + observability glue |
 
-### Depends on `harness/`
+### Depends on `reef/`
 
-`alphacumen` imports from [`harness/`](../harness) for the ReAct loop, skill primitives, constraints, and the LLM client. They ship as one wheel (`cb-ia`) for now; nothing prevents `harness/` from being installed alone if you're building a non-finance harness.
+`alphacumen` imports from [`reef/`](../reef) for the ReAct loop, skill primitives, constraints, and the LLM client. They ship as one wheel (`cb-ia`) for now; nothing prevents `reef/` from being installed alone if you're building a non-finance harness.
 
 ### Benchmark queries + runnable example
 
@@ -203,7 +203,7 @@ If AlphaCumen is useful to you — or if you just want to follow along — **sta
 
 Issues and PRs welcome. We're particularly interested in:
 - New domain instances (legal, medical, scientific) that adapt the swarm pattern outside finance
-- Additional kernel-verb backends in [`harness/stubs/`](../harness/stubs)
+- Additional kernel-verb backends in [`reef/stubs/`](../reef/stubs)
 - New finance skills under [`skills/`](skills/) — especially convention-encoded `compute_*` tools
 
 ---

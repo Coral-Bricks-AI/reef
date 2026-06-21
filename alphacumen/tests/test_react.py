@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""Unit tests for :mod:`harness.react`.
+"""Unit tests for :mod:`reef.react`.
 
 The goal here is to exercise every branch of :func:`run_react`
 (natural exit, multi-round tool dispatch, parallel tool_calls, tool
@@ -15,7 +15,7 @@ provider exception, no-choices response) plus
 hard-fail on anything else) without touching the platform LLM
 proxy. We do that by patching ``coralbricks.sandbox.llm.chat`` with
 a deterministic scripted fake that pulls the next response off a
-list. This is the same patch surface :mod:`harness.synthesizer (legacy, removed)` uses,
+list. This is the same patch surface :mod:`reef.synthesizer (legacy, removed)` uses,
 so the synthesizer tests benefit from the same harness.
 """
 
@@ -28,8 +28,8 @@ from unittest.mock import patch
 
 import pytest
 
-from harness import react as cb_runtime
-from harness.react import (
+from reef import react as cb_runtime
+from reef.react import (
     Step,
     Trajectory,
     chat_with_retry,

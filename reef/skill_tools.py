@@ -5,17 +5,17 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.skill_tools`` -- model-facing tools for skill dispatch.
+"""``reef.skill_tools`` -- model-facing tools for skill dispatch.
 
 A SKILL in this harness is ``SKILL.md`` (markdown instructions the
 model reads) + Python bindings registered via ``@skill_fn`` (see
-:mod:`harness.skill_fn`). The tools in this module are the model's
+:mod:`reef.skill_fn`). The tools in this module are the model's
 interface to that machinery:
 
 - :data:`INVOKE_SKILL_FN` -- dispatch to a ``@skill_fn``-decorated
   callable by ``(skill_id, fn)``, passing model-supplied args.
 - :func:`make_load_skill_tool` -- factory that returns a
-  ``load_skill`` :class:`~harness.tool.Tool` bound to a caller-supplied
+  ``load_skill`` :class:`~reef.tool.Tool` bound to a caller-supplied
   loader (a function from a list of skill ids to the rendered playbook
   block). Each harness instance constructs its own ``load_skill`` tool
   this way -- no global registry, no hidden coupling between instances.
@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Mapping, Optional, Sequence
 
-from harness.tool import Tool
+from reef.tool import Tool
 
 
 # ---------------------------------------------------------------------------
@@ -58,7 +58,7 @@ def _do_invoke_skill_fn(
     # impl modules having been imported, which only happens after the
     # folder loader runs. Import here so framework load doesn't pull
     # any specific skill folder in.
-    from harness import skill_fn as _skill_fn  # noqa: PLC0415
+    from reef import skill_fn as _skill_fn  # noqa: PLC0415
 
     if not isinstance(skill_id, str) or not skill_id:
         return {"error": "skill_id must be a non-empty string"}
@@ -142,7 +142,7 @@ INVOKE_SKILL_FN = Tool(
 LoadFn = Callable[[Sequence[str]], str]
 """A function from a list of skill ids to a rendered playbook block.
 
-Typically a thin wrapper around :func:`harness.skills_loader.render_loaded`
+Typically a thin wrapper around :func:`reef.skills_loader.render_loaded`
 that closes over the caller's ``SKILLS`` dict. Returns ``""`` (empty
 string) when none of the ids resolve, so the factory can surface a
 helpful error to the model.
@@ -160,11 +160,11 @@ def make_load_skill_tool(
     ``load_fn`` is a function from a list of skill ids to a rendered
     block of skill bodies (the ``=== LOADED SKILLS ===`` block the
     model reads). Most callers wire this to
-    :func:`harness.skills_loader.render_loaded` closed over their own
+    :func:`reef.skills_loader.render_loaded` closed over their own
     ``SKILLS`` dict::
 
-        from harness.skills_loader import load_skills, render_loaded
-        from harness.skill_tools import make_load_skill_tool
+        from reef.skills_loader import load_skills, render_loaded
+        from reef.skill_tools import make_load_skill_tool
 
         SKILLS = load_skills("./skills")
         LOAD_SKILL = make_load_skill_tool(

@@ -15,7 +15,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from harness.skill_fn import skill_fn
+from reef.skill_fn import skill_fn
 
 _DATA_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "cocktails.json"
 _TOKEN_RE = re.compile(r"[a-z0-9]+")

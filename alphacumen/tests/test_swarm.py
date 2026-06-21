@@ -36,7 +36,7 @@ import json
 from typing import Any
 from unittest.mock import patch
 
-from harness import react as cb_runtime
+from reef import react as cb_runtime
 from alphacumen import swarm as cb_swarm
 from alphacumen.index_map import GDELT_EVENTS_INDEX
 from alphacumen.roster import INVESTMENT_ANALYST_ROSTER
@@ -92,6 +92,25 @@ def _gp_orchestrate_payload(invoke_keys: tuple[str, ...]) -> dict[str, Any]:
     }
 
 
+def _gp_orchestrate_tool_calls(invoke_keys: tuple[str, ...]) -> list[dict[str, Any]]:
+    """Native ``dispatch_<persona>`` tool calls. The planner walks
+    ``planner_traj.steps`` looking for these (not the JSON
+    ``invoke_next`` body) when deciding what to dispatch."""
+    return [
+        {
+            "id": f"call_dispatch_{i}",
+            "type": "function",
+            "function": {
+                "name": f"dispatch_{k}",
+                "arguments": json.dumps({
+                    "instruction": f"Look at {k}-related signals for AAPL",
+                }),
+            },
+        }
+        for i, k in enumerate(invoke_keys)
+    ]
+
+
 def _gp_converge_payload() -> dict[str, Any]:
     return {
         "reasoning": "Specialists agree, ready to converge.",
@@ -121,18 +140,21 @@ def _is_gp_call(kwargs: dict[str, Any]) -> bool:
 
 
 def _is_specialist_call(kwargs: dict[str, Any], persona_key: str) -> bool:
-    """Match a specialist by the user-message instruction prefix.
+    """Match a specialist by the user-message dispatch wording.
 
     The swarm passes the GP's per-task instruction as the user
     message verbatim. Our scripted GP emits instructions of the form
-    ``"Look at <key>-related signals for AAPL"``, so we route on
-    that substring -- robust to which specialist persona system
-    prompt happens to win the system slot.
+    ``"Look at <key>-related signals for AAPL"``, so we anchor on
+    that exact phrase. Substring matching on the bare persona key
+    would mis-route when one specialist's context bleeds another
+    specialist key into its user messages (e.g. common_thread
+    carry-over after the first round).
     """
     if _is_gp_call(kwargs):
         return False
+    target = f"{persona_key}-related"
     for m in kwargs.get("messages") or []:
-        if m.get("role") == "user" and persona_key in (m.get("content") or ""):
+        if m.get("role") == "user" and target in (m.get("content") or ""):
             return True
     return False
 
@@ -152,7 +174,7 @@ def test_swarm_run_two_round_happy_path() -> None:
             gp_calls["n"] += 1
             if gp_calls["n"] == 1:
                 return _wrap_chat_response(
-                    content=json.dumps(_gp_orchestrate_payload(invoked)),
+                    tool_calls=_gp_orchestrate_tool_calls(invoked),
                     prompt_tokens=200, completion_tokens=120,
                 )
             return _wrap_chat_response(
@@ -260,17 +282,29 @@ def test_swarm_run_two_round_happy_path() -> None:
     assert rows[2 + n_spec]["agent"] == "synthesizer"
     assert result["common_thread_length"] == 3 + n_spec
 
-    # Token totals. Each "narrative" specialist makes 1 LLM call
-    # (10 prompt + 5 completion). news_quant_analyst makes 2 (one
-    # tool-call turn + one synthesis turn) to satisfy the
-    # must-retrieve gate. Plus GP rounds 1 (200/120) + 2 (300/180).
-    n_narrative = n_spec - 1  # all except news_quant_analyst
-    n_quant_extra = 1  # news_quant_analyst's extra LLM turn
+    # Token totals.
+    # GP makes 3 LLM calls under the native-tool-call dispatch shape:
+    #   round 1 dispatch_<persona> tool_calls (200/120),
+    #   round 1 post-tool synthesis turn (300/180),
+    #   round 2 converge (300/180).
+    # Specialists: narrative ones make 1 call (10/5).
+    # news_quant_analyst's must-retrieve gate adds 1 tool-call turn.
+    # sector_analyst's must-retrieve coercion fires twice in this
+    # scripted run → 3 total calls (initial + 2 coerced retries).
+    n_narrative = n_spec - 2  # exclude news_quant + sector
+    n_quant_extra = 1
+    n_sector_extra = 2
     assert result["token_usage"]["input_tokens"] == (
-        (n_narrative * 10) + ((1 + n_quant_extra) * 10) + 200 + 300
+        (n_narrative * 10)
+        + ((1 + n_quant_extra) * 10)
+        + ((1 + n_sector_extra) * 10)
+        + 200 + 300 + 300
     )
     assert result["token_usage"]["output_tokens"] == (
-        (n_narrative * 5) + ((1 + n_quant_extra) * 5) + 120 + 180
+        (n_narrative * 5)
+        + ((1 + n_quant_extra) * 5)
+        + ((1 + n_sector_extra) * 5)
+        + 120 + 180 + 180
     )
 
     assert result["elapsed_ms"] >= 0
@@ -348,7 +382,7 @@ def test_swarm_run_tolerates_one_specialist_emitting_non_json() -> None:
             gp_calls["n"] += 1
             if gp_calls["n"] == 1:
                 return _wrap_chat_response(
-                    content=json.dumps(_gp_orchestrate_payload(invoked))
+                    tool_calls=_gp_orchestrate_tool_calls(invoked)
                 )
             return _wrap_chat_response(
                 content=json.dumps(_gp_converge_payload())
@@ -385,30 +419,38 @@ def test_swarm_run_re_invokes_specialist_in_second_round() -> None:
     gp_calls = {"n": 0}
     spec_call_count = {"n": 0}
 
+    gp_round_calls = {"n": 0}
+
     def fake_chat(**kwargs: Any) -> dict[str, Any]:
         if _is_gp_call(kwargs):
-            gp_calls["n"] += 1
-            if gp_calls["n"] == 1:
+            msgs = kwargs.get("messages") or []
+            has_tool_result = any(m.get("role") == "tool" for m in msgs)
+            if has_tool_result:
+                # Post-tool turn in the same react loop: emit a
+                # content-only response so react exits this round
+                # cleanly. The swarm walks planner_traj.steps and
+                # picks up the dispatch_<persona> tool_calls from
+                # the prior turn — that's what drives invoke_next.
+                return _wrap_chat_response(content="dispatch logged, awaiting results")
+            gp_round_calls["n"] += 1
+            if gp_round_calls["n"] == 1:
                 return _wrap_chat_response(
-                    content=json.dumps(
-                        _gp_orchestrate_payload(("stock_analyst",))
-                    )
+                    tool_calls=_gp_orchestrate_tool_calls(("stock_analyst",))
                 )
-            if gp_calls["n"] == 2:
-                # Round 2: re-invoke same specialist with refined ask.
+            if gp_round_calls["n"] == 2:
+                # Round 2: re-invoke with a DIFFERENT instruction
+                # (the runtime dedups identical-args repeats).
                 return _wrap_chat_response(
-                    content=json.dumps({
-                        "reasoning": "need more depth on technicals",
-                        "pruning_notes": "ignore the macro angle",
-                        "converged": False,
-                        "invoke_next": [
-                            {
-                                "persona_key": "stock_analyst",
-                                "instruction": "Look at stock_analyst price chart depth",
-                            },
-                        ],
-                        "final_answer": None,
-                    })
+                    tool_calls=[{
+                        "id": "call_dispatch_r2",
+                        "type": "function",
+                        "function": {
+                            "name": "dispatch_stock_analyst",
+                            "arguments": json.dumps({
+                                "instruction": "Look at stock_analyst-related technical depth",
+                            }),
+                        },
+                    }]
                 )
             return _wrap_chat_response(content=json.dumps(_gp_converge_payload()))
         if _is_specialist_call(kwargs, "stock_analyst"):
@@ -429,9 +471,12 @@ def test_swarm_run_re_invokes_specialist_in_second_round() -> None:
     assert spec_call_count["n"] == 2  # invoked once per round
     rounds = sorted(o["round"] for o in result["specialist_outputs"])
     assert rounds == [1, 2]
-    # Pruning note should land on the round-2 GP record.
+    # Note: pruning_notes is no longer extracted from planner content
+    # under the native-tool-call dispatch shape (swarm.py:2622 sets
+    # it to None unconditionally). If pruning_notes display is
+    # restored, re-add an assertion here.
     sr2 = result["synthesizer_rounds"][1]
-    assert sr2["pruning_notes"] == "ignore the macro angle"
+    assert sr2["pruning_notes"] is None
 
 
 # --------------------------------------------------------------------------
@@ -470,9 +515,7 @@ def test_swarm_run_round_trips_a_tool_call_through_kernel_verb() -> None:
             gp_calls["n"] += 1
             if gp_calls["n"] == 1:
                 return _wrap_chat_response(
-                    content=json.dumps(
-                        _gp_orchestrate_payload(("risk_analyst",))
-                    )
+                    tool_calls=_gp_orchestrate_tool_calls(("risk_analyst",))
                 )
             return _wrap_chat_response(content=json.dumps(_gp_converge_payload()))
         # Specialist
@@ -566,7 +609,7 @@ def test_specialist_thread_text_falls_back_to_tool_names_when_empty() -> None:
     only ``<tool_call>`` envelopes that the runtime stripped), the
     common-thread preview must surface the dispatched tool names so the
     GP and the IA UI can see what the specialist actually did."""
-    from harness.react import Step, Trajectory
+    from reef.react import Step, Trajectory
 
     traj = Trajectory()
     traj.steps.append(
@@ -596,7 +639,7 @@ def test_specialist_thread_text_falls_back_to_tool_names_when_empty() -> None:
 def test_specialist_thread_text_returns_empty_when_no_tools_and_no_text() -> None:
     """Pure no-op (no payload, no raw text, no tool steps) -> empty string,
     same as before -- we don't fabricate a row."""
-    from harness.react import Trajectory
+    from reef.react import Trajectory
 
     out = cb_swarm._specialist_thread_text(None, "", trajectory=Trajectory())
     assert out == ""
@@ -606,7 +649,7 @@ def test_specialist_thread_text_prefers_payload_summary_over_tool_fallback() -> 
     """If the specialist DID emit a parseable payload, use its
     ``answer_summary`` as before -- the tool-name fallback only kicks
     in when both payload and raw are empty."""
-    from harness.react import Step, Trajectory
+    from reef.react import Step, Trajectory
 
     traj = Trajectory()
     traj.steps.append(

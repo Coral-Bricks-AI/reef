@@ -43,7 +43,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Mapping, Optional
 
-from harness.stubs import tools as cb_tools
+from reef.stubs import tools as cb_tools
 
 logger = logging.getLogger(__name__)
 

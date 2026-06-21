@@ -11,10 +11,10 @@
 Usage::
 
     export LLM_API_KEY=sk-...
-    python harness/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
+    python reef/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
 
 The framework hello-world. No planner, no synthesizer, no
-SpecialistConfig -- just :func:`harness.react.run_react` wired to a
+SpecialistConfig -- just :func:`reef.react.run_react` wired to a
 persona prompt and two skill-dispatch tools.
 
 ``make_load_skill_tool`` is the factory the framework ships for the
@@ -31,18 +31,18 @@ import os
 import sys
 from pathlib import Path
 
-from harness.react import run_react
-from harness.skills_loader import load_skills, render_index, render_loaded
-from harness.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
+from reef.react import run_react
+from reef.skills_loader import load_skills, render_index, render_loaded
+from reef.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
 
 HERE = Path(__file__).resolve().parent
 
 # Load this example's skills and import their impl.py modules. The import
 # pass registers the @skill_fn-decorated callables with the global registry
-# that harness.skill_tools.INVOKE_SKILL_FN dispatches against.
+# that reef.skill_tools.INVOKE_SKILL_FN dispatches against.
 SKILLS = load_skills(
     HERE / "skills",
-    module_prefix="harness.examples.cocktails._skills",
+    module_prefix="reef.examples.cocktails._skills",
 )
 
 

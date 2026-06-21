@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from importlib import resources
 from typing import Any, Mapping, Optional, Sequence
 
-from harness.react import format_common_thread, json_llm_call
+from reef.react import format_common_thread, json_llm_call
 from alphacumen.roster import _apply_tokens, _date_tokens, _resolve_today
 
 logger = logging.getLogger(__name__)

@@ -8,7 +8,7 @@
 """``alphacumen.skill_registry`` -- AlphaCumen's folder-skill registry.
 
 Thin wrapper over the framework loader at
-:mod:`harness.skills_loader` that defaults to AlphaCumen's own
+:mod:`reef.skills_loader` that defaults to AlphaCumen's own
 ``skills/`` directory and a finance-namespaced module prefix.
 
 The public surface (``load_skills``, ``render_index``, ``render_loaded``,
@@ -16,7 +16,7 @@ The public surface (``load_skills``, ``render_index``, ``render_loaded``,
 API so the back-compat shim at the old path is a one-line re-export.
 
 A non-finance harness that builds on the same SKILL contract uses
-:mod:`harness.skills_loader` directly, passing its own
+:mod:`reef.skills_loader` directly, passing its own
 ``skills_dir`` + ``module_prefix``.
 """
 
@@ -25,10 +25,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from harness import skills_loader as _loader
-from harness.skill_tools import make_load_skill_tool
-from harness.skills_loader import Skill
-from harness.tool import Tool
+from reef import skills_loader as _loader
+from reef.skill_tools import make_load_skill_tool
+from reef.skills_loader import Skill
+from reef.tool import Tool
 
 
 _SKILLS_DIR = Path(__file__).resolve().parent / "skills"

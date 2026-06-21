@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.constraints`` -- first-class harness constraints.
+"""``reef.constraints`` -- first-class harness constraints.
 
 LLMs are notoriously bad at time. They confidently quote a price that's a
 day past the asof, paraphrase a filing into the wrong fiscal year, or
@@ -25,8 +25,8 @@ A :class:`HarnessConstraints` value is the public contract for one run:
         token_budget=200_000,                    # cost ceiling
     )
 
-The enforcement venue is decoupled (see :mod:`harness.enforcement`).
-A local :class:`~harness.enforcement.LocalEnforcer` runs the same
+The enforcement venue is decoupled (see :mod:`reef.enforcement`).
+A local :class:`~reef.enforcement.LocalEnforcer` runs the same
 contract a multi-tenant sandbox runtime would -- the constraints object
 is the seam that lets you swap one for the other without changing the
 harness, the skills, or the tools.
@@ -88,7 +88,7 @@ class HarnessConstraints:
     domain actually constrains. The runtime threads this object through
     the planner, the specialists, every tool dispatch, and the
     synthesizer -- it's the single source of truth a
-    :class:`~harness.enforcement.ConstraintEnforcer` checks against.
+    :class:`~reef.enforcement.ConstraintEnforcer` checks against.
 
     Fields:
 

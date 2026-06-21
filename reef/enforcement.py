@@ -5,9 +5,9 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.enforcement`` -- run-time enforcement of harness constraints.
+"""``reef.enforcement`` -- run-time enforcement of harness constraints.
 
-The harness threads :class:`~harness.constraints.HarnessConstraints`
+The harness threads :class:`~reef.constraints.HarnessConstraints`
 through every layer, but the *enforcement venue* is decoupled: an
 implementation of :class:`ConstraintEnforcer` is what actually rejects an
 asof-violating tool call, decrements the per-call tool budget, or filters
@@ -56,7 +56,7 @@ from typing import (
     runtime_checkable,
 )
 
-from harness.constraints import HarnessConstraints, _coerce_asof
+from reef.constraints import HarnessConstraints, _coerce_asof
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ class TimeBound:
     """Declares the temporal contract of one tool.
 
     A tool author attaches this via :func:`@time_bounded` (see
-    :mod:`harness.decorators`, Pass 7). The enforcer reads it off
+    :mod:`reef.decorators`, Pass 7). The enforcer reads it off
     the tool's ``fn`` attribute to know:
 
     - ``asof_arg`` -- the parameter name to inject ``constraints.asof``

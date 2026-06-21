@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.decorators`` -- declarative tool-side constraint contracts.
+"""``reef.decorators`` -- declarative tool-side constraint contracts.
 
 A tool author declares *what their tool reads from time* by decorating
 the implementation; the enforcer reads the declaration and stops the
@@ -17,9 +17,9 @@ points at: a one-line decoration that says
     ``filing_date`` after asof get dropped."
 
 The decorator does no enforcement itself. It only **declares** -- it
-stamps a :class:`~harness.enforcement.TimeBound` onto the function
+stamps a :class:`~reef.enforcement.TimeBound` onto the function
 as ``fn.__time_bound__``. The runtime enforcer
-(:class:`~harness.enforcement.LocalEnforcer`) is what reads the
+(:class:`~reef.enforcement.LocalEnforcer`) is what reads the
 stamp and acts on it. Decoupling declaration from enforcement is what
 lets the closed Coral sandbox plug in its own enforcer for prod runs --
 same decorators, different enforcement venue.
@@ -49,7 +49,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Optional, TypeVar
 
-from harness.enforcement import TimeBound
+from reef.enforcement import TimeBound
 
 
 F = TypeVar("F", bound=Callable[..., Any])

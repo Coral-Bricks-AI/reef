@@ -93,7 +93,7 @@ Tool surface
 
 Each tool is a :class:`Tool` dataclass carrying its name,
 human-readable description, OpenAI-shaped JSON parameters schema,
-and the Python callable. The runtime (:mod:`harness.react`) feeds
+and the Python callable. The runtime (:mod:`reef.react`) feeds
 the schemas into ``llm.chat(tools=[...])`` and dispatches by name
 when the model returns ``tool_calls``. Personas pick subsets via
 :data:`STOCK_ANALYST_TOOLS` / :data:`SECTOR_ANALYST_TOOLS` /
@@ -125,8 +125,8 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Optional, Sequence
 
-from harness.stubs import tools as cb_tools
-from harness.stubs.py_executor import PyValidationError
+from reef.stubs import tools as cb_tools
+from reef.stubs.py_executor import PyValidationError
 
 from alphacumen.capabilities import (
     IndexCapabilitiesMap,
@@ -134,9 +134,9 @@ from alphacumen.capabilities import (
 )
 from alphacumen.skill_registry import LOAD_SKILL
 from alphacumen.skills import LOAD_PLANNER_SKILL
-from harness.decorators import time_bounded
-from harness.skill_tools import INVOKE_SKILL_FN
-from harness.tool import (
+from reef.decorators import time_bounded
+from reef.skill_tools import INVOKE_SKILL_FN
+from reef.tool import (
     _BIND_AS_PARAM_SCHEMA,
     _TOOL_RESULT_MAX_CHARS,
     Tool,
@@ -144,7 +144,7 @@ from harness.tool import (
     _truncate_for_model,
     bind_tools,
 )
-from harness.tool import (
+from reef.tool import (
     lookup_tool as _harness_lookup_tool,
 )
 from alphacumen.index_map import (
@@ -258,7 +258,7 @@ def _expand_tickers_for_gdelt(query: str) -> str:
 
 # Tool dataclass, lookup_tool, bind_tools, _truncate_for_model,
 # _TOOL_RESULT_MAX_CHARS, _apply_binding, and _BIND_AS_PARAM_SCHEMA are
-# now defined in :mod:`harness.tool` and imported at the top of
+# now defined in :mod:`reef.tool` and imported at the top of
 # this module. The finance verbs below splice _BIND_AS_PARAM_SCHEMA into
 # their parameter schemas and call _apply_binding to side-effect the
 # bind_as variable into the runner globals; the call sites are
@@ -394,7 +394,7 @@ def _project_bm25_envelope(
 # only remaining heavy field) the model usually wants to read
 # inline anyway.
 # _BIND_AS_PARAM_SCHEMA and _apply_binding moved to
-# :mod:`harness.tool` and are imported at the top of this module.
+# :mod:`reef.tool` and are imported at the top of this module.
 # Splice sites and call sites below are unchanged.
 
 
@@ -2547,7 +2547,7 @@ def _extract_deck_text_via_vision(
     instruction so the model prioritises content relevant to the
     caller's question.
     """
-    from harness import llm as cb_llm  # noqa: PLC0415
+    from reef import llm as cb_llm  # noqa: PLC0415
     import base64  # noqa: PLC0415
 
     # Vision-model selection. Qwen2.5-VL-72B via DeepInfra is the
@@ -9018,7 +9018,7 @@ GROK_ANALYST_TOOLS: tuple[Tool, ...] = (ASK_GROK,)
 
 
 # INVOKE_SKILL_FN, LOAD_SKILL, LOAD_PLANNER_SKILL (and their
-# _do_* executors) moved to :mod:`harness.skill_tools` and
+# _do_* executors) moved to :mod:`reef.skill_tools` and
 # are imported at the top of this module. The rosters below pick
 # up the same Tool instances from there.
 
@@ -9206,14 +9206,14 @@ def lookup_tool(name: str, tools: Sequence[Tool] = ALL_TOOLS) -> Tool:
     """Find a :class:`Tool` by name within a roster.
 
     Convenience wrapper over the framework-level
-    :func:`harness.tool.lookup_tool` that defaults ``tools`` to
+    :func:`reef.tool.lookup_tool` that defaults ``tools`` to
     :data:`ALL_TOOLS` (the finance roster) -- existing callers and the
     test suite rely on the default.
     """
     return _harness_lookup_tool(name, tools)
 
 
-# bind_tools is re-exported from harness.tool at the top of this
+# bind_tools is re-exported from reef.tool at the top of this
 # module so existing importers (``from alphacumen.tools import bind_tools``)
 # resolve through here unchanged.
 

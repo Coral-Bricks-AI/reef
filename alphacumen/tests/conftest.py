@@ -7,7 +7,7 @@
 
 """``alphacumen`` test bootstrap.
 
-Puts the coral-ai repo root on ``sys.path`` so ``import harness`` and
+Puts the coral-ai repo root on ``sys.path`` so ``import reef`` and
 ``import alphacumen`` resolve from a clean checkout without ``pip install
 -e .``.
 """

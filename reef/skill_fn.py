@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.skill_fn`` -- Semantic-Kernel-style per-skill callables.
+"""``reef.skill_fn`` -- Semantic-Kernel-style per-skill callables.
 
 A **SKILL** is the unit of reusable domain competence in this harness:
 

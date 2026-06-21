@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.skills_loader`` -- generic folder-skill loader.
+"""``reef.skills_loader`` -- generic folder-skill loader.
 
 The framework half of the SKILL contract:
 
@@ -16,7 +16,7 @@ This module owns the *loader*: given a directory containing flat
 ``<slug>.md`` files and/or folder-shaped ``<slug>/SKILL.md`` (+ optional
 ``impl.py``) trees, it parses each into a :class:`Skill` and -- when an
 ``impl.py`` is present -- imports it so the ``@skill_fn`` decorator
-registers the callables for :mod:`harness.skill_tools` to
+registers the callables for :mod:`reef.skill_tools` to
 dispatch on.
 
 Domain-agnostic. Each consumer passes ``skills_dir`` and
@@ -47,7 +47,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from harness import skill_fn as _skill_fn
+from reef import skill_fn as _skill_fn
 
 
 # Tokens we don't want polluting the keyword-overlap heuristic.
@@ -167,7 +167,7 @@ _LOADER_CACHE: dict[tuple[str, str], dict[str, Skill]] = {}
 def load_skills(
     skills_dir: Path,
     *,
-    module_prefix: str = "harness._skills_impl",
+    module_prefix: str = "reef._skills_impl",
 ) -> dict[str, Skill]:
     """Return ``{id: Skill}`` for every skill file under ``skills_dir``.
 

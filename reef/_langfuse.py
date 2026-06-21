@@ -10,7 +10,7 @@
 Owned by the framework so any domain instance can emit run-level
 traces without re-implementing the wiring. Callers that want a
 domain-specific attribution (e.g. a custom trace name in place of
-the default ``harness.run``) call :func:`configure` once at import
+the default ``reef.run``) call :func:`configure` once at import
 time before the first :class:`RunTrace` is constructed.
 
 Envelope
@@ -428,7 +428,7 @@ class RunTrace:
                 "pipeline": self._pipeline,
                 "model": model,
                 "latency_ms": latency_ms,
-                "source": "harness.react",
+                "source": "reef.react",
             }
         )
         try:
@@ -482,7 +482,7 @@ class RunTrace:
                 "pipeline": self._pipeline,
                 "tool": name,
                 "latency_ms": latency_ms,
-                "source": "harness.react",
+                "source": "reef.react",
             }
         )
         try:

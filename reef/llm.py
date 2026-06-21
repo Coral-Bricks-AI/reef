@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.llm`` -- direct-provider LLM client.
+"""``reef.llm`` -- direct-provider LLM client.
 
 Drop-in replacement for ``coralbricks.sandbox.llm`` that talks to
 providers directly via their SDKs. Same envelope shape as the

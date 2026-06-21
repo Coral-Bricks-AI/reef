@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""Integration tests for :mod:`harness` constraints + enforcement.
+"""Integration tests for :mod:`reef` constraints + enforcement.
 
 Pins the contract that the rest of alphacumen + alphacumen depends on:
 
@@ -28,7 +28,7 @@ from datetime import date
 
 import pytest
 
-from harness import (
+from reef import (
     AsofViolation,
     AuditingEnforcer,
     BudgetExceeded,
@@ -43,7 +43,7 @@ from harness import (
     harness_context,
     time_bounded,
 )
-from harness.context import begin_run, end_run
+from reef.context import begin_run, end_run
 
 
 # ---------------------------------------------------------------------------
@@ -336,7 +336,7 @@ class TestBackCompat:
         assert args["as_of_iso"] == "2025-01-15"  # untouched
 
     def test_runtime_skips_enforcement_when_context_empty(self) -> None:
-        # The harness.react layer reads current_constraints() /
+        # The reef.react layer reads current_constraints() /
         # current_enforcer() at dispatch. With no context bound,
         # both return None and the runtime falls through to the
         # legacy dispatch path.
@@ -365,8 +365,8 @@ class TestEndToEndConstraintPropagationViaRunReact:
         import json
         from unittest.mock import patch
 
-        from harness import react as cb_runtime
-        from harness.react import run_react
+        from reef import react as cb_runtime
+        from reef.react import run_react
         from alphacumen.tools import FIND_SEC_FILING_EDGAR, Tool
 
         fn_seen: list[str | None] = []

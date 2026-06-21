@@ -5,14 +5,14 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.react`` -- framework-free ReAct loop over a direct LLM client.
+"""``reef.react`` -- framework-free ReAct loop over a direct LLM client.
 
 A small, transparent, no-deps ReAct loop that talks the OpenAI
-tool-calling shape :func:`harness.llm.chat` already speaks. The whole
+tool-calling shape :func:`reef.llm.chat` already speaks. The whole
 run is one function (:func:`run_react`) and one transcript shape
 (:class:`Trajectory`); there is no inheritance hierarchy and no
 graph compilation step. The model authors a tool call, we dispatch
-via :attr:`harness.tool.Tool.fn`, append the result back to the
+via :attr:`reef.tool.Tool.fn`, append the result back to the
 messages, repeat until the model emits an assistant message without
 ``tool_calls``.
 
@@ -74,11 +74,11 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Optional, Sequence
 
-from harness import llm as cb_llm
-from harness import _langfuse
-from harness.context import current_constraints, current_enforcer
-from harness.enforcement import ConstraintViolation
-from harness.tool import Tool, lookup_tool
+from reef import llm as cb_llm
+from reef import _langfuse
+from reef.context import current_constraints, current_enforcer
+from reef.enforcement import ConstraintViolation
+from reef.tool import Tool, lookup_tool
 
 logger = logging.getLogger(__name__)
 

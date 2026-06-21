@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.stubs.tools`` -- kernel retrieval verbs (sandbox-backed or stubs).
+"""``reef.stubs.tools`` -- kernel retrieval verbs (sandbox-backed or stubs).
 
 Two modes, selected automatically at import time:
 
@@ -131,12 +131,12 @@ def bind_py_global(name: str, value: Any) -> None:
     No-op for valid identifiers (there's no executor namespace to bind
     into in the open-source build -- ``py()`` raises before any bound
     global would be reachable). For *invalid* identifiers we still raise
-    :class:`harness.stubs.py_executor.PyValidationError`, mirroring the
-    hosted runtime's contract -- ``harness.tool.apply_binding`` relies on
+    :class:`reef.stubs.py_executor.PyValidationError`, mirroring the
+    hosted runtime's contract -- ``reef.tool.apply_binding`` relies on
     the exception to attach a ``bind_error`` marker so the model can
     self-correct rather than silently believing the bind succeeded.
     """
-    from harness.stubs.py_executor import PyValidationError
+    from reef.stubs.py_executor import PyValidationError
 
     if not isinstance(name, str) or not name.isidentifier() or name.startswith("__"):
         raise PyValidationError(

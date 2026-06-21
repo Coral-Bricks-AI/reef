@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``alphacumen`` -- finance implementation on top of :mod:`harness`.
+"""``alphacumen`` -- finance implementation on top of :mod:`reef`.
 
 Composes the generic harness with:
 
@@ -28,7 +28,7 @@ __version__ = "0.1.0"
 
 # Tell the harness's langfuse primitive to attribute traces to alphacumen.
 # Must run before any RunTrace is constructed.
-from harness import _langfuse as _harness_langfuse
+from reef import _langfuse as _harness_langfuse
 _harness_langfuse.configure(source="alphacumen", pipeline_default="investment_analyst")
 del _harness_langfuse
 
@@ -61,11 +61,11 @@ try:
 
     # Reroute the harness chat client through the sandbox proxy. Same envelope
     # shape, gateway-managed auth.
-    import harness.llm as _harness_llm
+    import reef.llm as _harness_llm
     _harness_llm.chat = _sandbox_llm.chat
 
     # Replace the kernel-verb stubs with real sandbox tool dispatches.
-    import harness.stubs.tools as _stub_tools
+    import reef.stubs.tools as _stub_tools
     for _name in getattr(_sandbox_tools, "__all__", ()):
         _val = getattr(_sandbox_tools, _name, None)
         if _val is not None:

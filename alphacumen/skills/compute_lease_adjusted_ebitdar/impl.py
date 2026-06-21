@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 from typing import Any, Optional
-from harness.skill_fn import skill_fn
+from reef.skill_fn import skill_fn
 from alphacumen.index_map import SEC_FILINGS_INDEX
 from alphacumen.tools import (
     _BIND_AS_PARAM_SCHEMA,
@@ -31,7 +31,7 @@ from alphacumen.tools import (
     _strip_chunk_suffix,
     _table_rows_from_extract,
 )
-from harness.stubs import tools as cb_tools
+from reef.stubs import tools as cb_tools
 
 
 # REITs that act as master-lease landlords for failed-sale-leaseback

@@ -41,8 +41,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from harness.skill_tools import make_load_skill_tool
-from harness.tool import Tool
+from reef.skill_tools import make_load_skill_tool
+from reef.tool import Tool
 
 _SKILLS_DIR = Path(__file__).resolve().parent / "planner_skills"
 

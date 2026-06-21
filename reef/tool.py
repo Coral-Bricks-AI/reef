@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""``harness.tool`` -- the ``Tool`` dataclass + dispatch primitives.
+"""``reef.tool`` -- the ``Tool`` dataclass + dispatch primitives.
 
 A :class:`Tool` is the framework's atomic unit of capability: ``name`` +
 ``description`` + JSON Schema for ``parameters`` + the Python callable
@@ -25,7 +25,7 @@ This module is domain-agnostic. Concrete tool surfaces (retrieval
 verbs, SQL, executors, ...) live in the consumer package. The
 generic skill-dispatch tool (``INVOKE_SKILL_FN``) and the
 ``make_load_skill_tool`` factory live next door in
-:mod:`harness.skill_tools`.
+:mod:`reef.skill_tools`.
 """
 
 from __future__ import annotations
@@ -34,8 +34,8 @@ import copy
 from dataclasses import dataclass, field
 from typing import Any, Callable, Mapping, Optional, Sequence
 
-from harness.stubs import tools as cb_tools
-from harness.stubs.py_executor import PyValidationError
+from reef.stubs import tools as cb_tools
+from reef.stubs.py_executor import PyValidationError
 
 
 _TOOL_RESULT_MAX_CHARS = 32_000
@@ -275,7 +275,7 @@ def bind_tools(
     ``capabilities`` (the ``{slug: {verb: cfg}}`` map produced by the
     consumer's capability fetcher) and the consumer-supplied
     ``renderer``. The returned tuple is what the runner hands to
-    :func:`harness.react.run_react` -- the module-level ``Tool``
+    :func:`reef.react.run_react` -- the module-level ``Tool``
     constants stay untouched, so concurrent runs against different
     gateway snapshots don't race.
 
