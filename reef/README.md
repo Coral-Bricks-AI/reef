@@ -134,14 +134,18 @@ questions accurately, quoting source data faithfully.
 - Tight answers — one short paragraph unless the question demands more.
 ```
 
-### 4. Wire it up — the 20-line runner
+### 4. Wire it up
 
 ```python
 from reef.react import run_react
 from reef.skills_loader import load_skills, render_index, render_loaded
 from reef.skill_tools import INVOKE_SKILL_FN, make_load_skill_tool
 
+# load your skills from your skills folder
 SKILLS = load_skills("./skills")
+# Wraps your skills into an LLM tool. The model passes skill_ids
+# at call time; the runtime looks them up in the SKILLS registry and
+# returns the rendered bodies into the model's thread for the rest of the run.
 LOAD_SKILL = make_load_skill_tool(
     lambda ids: render_loaded(list(ids), skills=SKILLS),
 )
