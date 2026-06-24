@@ -143,17 +143,18 @@ Full experiment, including the per-row failure-mode breakdown and the six retrie
 ```bash
 git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai
-export LLM_API_KEY=sk-...
-python alphacumen/examples/ask_alphacumen.py
+pip install -e .
+export CORAL_API_KEY=ak_...
+python -m alphacumen.examples.ask_hosted_alphacumen "What was Apple's FY2024 total revenue?"
 ```
 
-Out of the box the kernel retrieval verbs are stubbed — the first call raises `NotImplementedError` with a redirect message. That's the demo, not a bug. Two paths to a real answer:
+This submits to the **hosted AlphaCumen pipeline** on the Coral platform — the same runtime that produced the published benchmark numbers, over a **~4.5 TB pre-processed finance corpus** (SEC filings, equity bars, news, knowledge graph). Get an API key at **[coralbricks.ai/alphacumen](https://coralbricks.ai/alphacumen)**.
+
+Two paths to a real answer:
 
 ### Path A — Hosted (reproduce the benchmark numbers)
 
-Coral Bricks runs AlphaCumen over a **~4.5 TB pre-processed finance corpus** — SEC filings, equity bars, news, knowledge graph — via the hosted runtime.
-
-→ **[coralbricks.ai/alphacumen](https://coralbricks.ai/alphacumen)**
+The quickstart above. The same hosted pipeline is what the reproducible evals in [`evals/`](evals) submit to.
 
 ### Path B — Bring your own data
 
@@ -182,9 +183,9 @@ The framework primitives — skills, agent types, runtime constraints — are wa
 
 `alphacumen` imports from [`reef/`](../reef) for the ReAct loop, skill primitives, constraints, and the LLM client. They ship as one wheel (`cb-ia`) for now; nothing prevents `reef/` from being installed alone if you're building a non-finance harness.
 
-### Benchmark queries + runnable example
+### Benchmark queries + runnable examples
 
-The benchmark queries (Vals AI Finance Agent v2, FinanceBench) and the in-process example runner live in [`examples/`](examples) (runner) and [`benchmarks/`](benchmarks) (queries). Start with [`examples/ask_alphacumen.py`](examples/ask_alphacumen.py).
+The single-question runner lives in [`examples/`](examples) (start with [`examples/ask_hosted_alphacumen.py`](examples/ask_hosted_alphacumen.py)). The reproducible end-to-end Vals AI v1.1 and FinanceBench benchmark runners live in [`evals/`](evals) with the public datasets and a Claude judge — see [`evals/README.md`](evals/README.md). A separate set of 50 sample IA queries lives in [`benchmarks/queries.md`](benchmarks/queries.md).
 
 ---
 
