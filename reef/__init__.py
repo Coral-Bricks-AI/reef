@@ -12,7 +12,7 @@ constraint declaration + enforcement, multi-provider LLM client. The
 framework owns the loop, the dispatch contract, and the trajectory; the
 consumer owns the corpus, the tools, and the personas.
 
-See ``examples/cocktails`` for the minimal end-to-end binding (one
+See ``examples/equities`` for the minimal end-to-end binding (one
 specialist, two skills, ~50 lines of glue).
 
 Public surface ergonomics::

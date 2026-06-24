@@ -6,12 +6,12 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""Skinny end-to-end example: one specialist, two skills, BM25 + ABV math.
+"""Skinny end-to-end example: one specialist, two skills, BM25 + 1y return math.
 
 Usage::
 
     export LLM_API_KEY=sk-...
-    python reef/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
+    python reef/examples/equities/ask.py "How has NVDA performed over the last year?"
 
 The framework hello-world. No planner, no synthesizer, no
 SpecialistConfig -- just :func:`reef.react.run_react` wired to a
@@ -23,6 +23,10 @@ persona prompt and two skill-dispatch tools.
 ``@skill_fn`` decorator registers into a process-global registry that
 this example's ``impl.py`` modules populate when ``load_skills(...)``
 imports them).
+
+The data in ``data/companies.json`` is **mock and illustrative** — ~20
+well-known tickers with fabricated point-in-time prices. Do not mistake
+this for live market data.
 """
 
 from __future__ import annotations
@@ -42,7 +46,7 @@ HERE = Path(__file__).resolve().parent
 # that reef.skill_tools.INVOKE_SKILL_FN dispatches against.
 SKILLS = load_skills(
     HERE / "skills",
-    module_prefix="reef.examples.cocktails._skills",
+    module_prefix="reef.examples.equities._skills",
 )
 
 
@@ -53,20 +57,20 @@ LOAD_SKILL = make_load_skill_tool(
 
 # Render the skill index once at module load and stitch it into the persona.
 _INDEX = render_index(SKILLS)
-_PROMPT = (HERE / "bartender.md").read_text(encoding="utf-8").replace(
+_PROMPT = (HERE / "analyst.md").read_text(encoding="utf-8").replace(
     "{skill_index}", _INDEX
 )
 
 
 def ask(question: str, model: str = "openai/gpt-4o-mini") -> str | None:
-    """Run the bartender on one question; return its final natural-language answer."""
+    """Run the equity analyst on one question; return its final natural-language answer."""
     traj = run_react(
         model=model,
         system_prompt=_PROMPT,
         user_message=question,
         tools=[LOAD_SKILL, INVOKE_SKILL_FN],
         max_steps=6,
-        log_label="cocktails.bartender",
+        log_label="equities.analyst",
     )
     if traj.final_message is None:
         return None
@@ -81,7 +85,7 @@ if __name__ == "__main__":
             file=sys.stderr,
         )
         sys.exit(2)
-    q = " ".join(sys.argv[1:]) or "What's in a Negroni and how strong is it?"
+    q = " ".join(sys.argv[1:]) or "How has NVDA performed over the last year?"
     print(f"Q: {q}\n")
     answer = ask(q)
     print(f"A: {answer}")

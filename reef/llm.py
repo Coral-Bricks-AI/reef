@@ -55,6 +55,7 @@ new pair of env vars.
 
 from __future__ import annotations
 
+import json
 import os
 import time
 from typing import Any, Mapping, Optional, Sequence
@@ -65,7 +66,7 @@ from typing import Any, Mapping, Optional, Sequence
 _OPENAI_SHAPE_PROVIDERS: dict[str, tuple[str, str, str]] = {
     # prefix -> (base_url_env, api_key_env, default_base_url)
     "openai": ("OPENAI_BASE_URL", "OPENAI_API_KEY", "https://api.openai.com/v1"),
-    "lilac": ("LILAC_BASE_URL", "LILAC_API_KEY", "https://console.getlilac.com/v1"),
+    "lilac": ("LILAC_BASE_URL", "LILAC_API_KEY", "https://api.getlilac.com/v1"),
     "together": ("TOGETHER_BASE_URL", "TOGETHER_API_KEY", "https://api.together.xyz/v1"),
     "openrouter": (
         "OPENROUTER_BASE_URL",
@@ -172,21 +173,78 @@ def _anthropic_chat(
 
     client = Anthropic(api_key=api_key, timeout=timeout_s)
 
-    # Anthropic separates system from messages.
+    # Anthropic separates system from messages, and uses content-block
+    # arrays for tool_use / tool_result instead of OpenAI's flat
+    # tool_calls field and tool-role messages. Translate both shapes.
     messages = list(params.get("messages") or [])
     system_parts: list[str] = []
-    filtered_messages: list[dict[str, Any]] = []
+    translated_messages: list[dict[str, Any]] = []
+    pending_tool_results: list[dict[str, Any]] = []
+
+    def _flush_tool_results() -> None:
+        if pending_tool_results:
+            translated_messages.append(
+                {"role": "user", "content": list(pending_tool_results)}
+            )
+            pending_tool_results.clear()
+
     for msg in messages:
-        if msg.get("role") == "system":
+        role = msg.get("role")
+        if role == "system":
             content = msg.get("content")
             if isinstance(content, str):
                 system_parts.append(content)
             continue
-        filtered_messages.append(dict(msg))
+        if role == "tool":
+            # OpenAI tool-role message -> Anthropic tool_result block,
+            # batched into the next synthetic user message. Anthropic
+            # requires consecutive tool_results to share one user turn.
+            result_content = msg.get("content")
+            if not isinstance(result_content, str):
+                result_content = _json_dumps(result_content)
+            pending_tool_results.append({
+                "type": "tool_result",
+                "tool_use_id": msg.get("tool_call_id") or "",
+                "content": result_content,
+            })
+            continue
+        # Any non-tool message terminates a pending tool_result batch.
+        _flush_tool_results()
+        if role == "assistant":
+            blocks: list[dict[str, Any]] = []
+            text = msg.get("content")
+            if isinstance(text, str) and text:
+                blocks.append({"type": "text", "text": text})
+            for tc in msg.get("tool_calls") or []:
+                fn = tc.get("function") or {}
+                raw_args = fn.get("arguments")
+                if isinstance(raw_args, str):
+                    try:
+                        parsed_args = json.loads(raw_args) if raw_args else {}
+                    except json.JSONDecodeError:
+                        parsed_args = {"_raw": raw_args}
+                else:
+                    parsed_args = raw_args or {}
+                blocks.append({
+                    "type": "tool_use",
+                    "id": tc.get("id") or "",
+                    "name": fn.get("name") or "",
+                    "input": parsed_args,
+                })
+            if not blocks:
+                # An assistant message with neither text nor tool_calls
+                # would be illegal; emit an empty text block so the
+                # turn order is preserved.
+                blocks.append({"type": "text", "text": ""})
+            translated_messages.append({"role": "assistant", "content": blocks})
+            continue
+        # user / other -> pass content through as-is.
+        translated_messages.append(dict(msg))
+    _flush_tool_results()
 
     anthropic_kwargs: dict[str, Any] = {
         "model": model_for_provider,
-        "messages": filtered_messages,
+        "messages": translated_messages,
         "max_tokens": params.get("max_tokens") or params.get(
             "max_completion_tokens"
         ) or 4096,
@@ -201,10 +259,27 @@ def _anthropic_chat(
         anthropic_kwargs["stop_sequences"] = (
             params["stop"] if isinstance(params["stop"], list) else [params["stop"]]
         )
-    # Anthropic tool calling -- pass-through; SDK accepts a similar
-    # tools-list shape.
+    # Anthropic tool calling -- translate OpenAI's
+    # {type:function, function:{name, description, parameters}} shape
+    # to Anthropic's flat {name, description, input_schema} custom-tool
+    # shape. Anthropic also accepts built-in tool types (bash_*,
+    # text_editor_*, etc.) keyed by type, so we only rewrite entries
+    # that explicitly opt into the OpenAI function wrapper.
     if params.get("tools") is not None:
-        anthropic_kwargs["tools"] = params["tools"]
+        translated_tools: list[dict[str, Any]] = []
+        for t in params["tools"]:
+            if isinstance(t, dict) and t.get("type") == "function" and "function" in t:
+                fn_spec = t["function"] or {}
+                translated_tools.append({
+                    "name": fn_spec.get("name") or "",
+                    "description": fn_spec.get("description") or "",
+                    "input_schema": fn_spec.get("parameters")
+                    or {"type": "object", "properties": {}},
+                })
+            else:
+                # Already in Anthropic shape (built-in tool or pre-translated).
+                translated_tools.append(t)
+        anthropic_kwargs["tools"] = translated_tools
 
     msg = client.messages.create(**anthropic_kwargs)
 

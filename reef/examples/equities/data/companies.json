@@ -1,0 +1,162 @@
+[
+  {
+    "ticker": "NVDA",
+    "name": "NVIDIA",
+    "sector": "Semiconductors",
+    "description": "Designs GPUs and accelerators for AI training and inference; data-center segment dominates revenue.",
+    "price_now": 145.20,
+    "price_1y_ago": 89.10
+  },
+  {
+    "ticker": "AAPL",
+    "name": "Apple",
+    "sector": "Consumer Electronics",
+    "description": "iPhone hardware franchise plus a growing services segment (App Store, iCloud, advertising).",
+    "price_now": 228.40,
+    "price_1y_ago": 194.30
+  },
+  {
+    "ticker": "MSFT",
+    "name": "Microsoft",
+    "sector": "Software",
+    "description": "Productivity (Office, Teams), cloud (Azure), and an emerging AI platform business.",
+    "price_now": 445.10,
+    "price_1y_ago": 410.50
+  },
+  {
+    "ticker": "GOOGL",
+    "name": "Alphabet",
+    "sector": "Internet",
+    "description": "Search advertising dominant; YouTube, Google Cloud, and Waymo as growth optionalities.",
+    "price_now": 185.20,
+    "price_1y_ago": 172.10
+  },
+  {
+    "ticker": "AMZN",
+    "name": "Amazon",
+    "sector": "Internet",
+    "description": "E-commerce marketplace with AWS as the primary profit engine.",
+    "price_now": 215.30,
+    "price_1y_ago": 185.20
+  },
+  {
+    "ticker": "META",
+    "name": "Meta Platforms",
+    "sector": "Internet",
+    "description": "Facebook and Instagram advertising; Reality Labs AR/VR investment offset by ad strength.",
+    "price_now": 580.40,
+    "price_1y_ago": 480.10
+  },
+  {
+    "ticker": "TSLA",
+    "name": "Tesla",
+    "sector": "Automotive",
+    "description": "Electric vehicles and energy storage; autonomy and robotaxi narrative drives multiple.",
+    "price_now": 260.50,
+    "price_1y_ago": 235.80
+  },
+  {
+    "ticker": "NFLX",
+    "name": "Netflix",
+    "sector": "Media",
+    "description": "Subscription streaming with ad-tier growth and live-event experimentation.",
+    "price_now": 720.30,
+    "price_1y_ago": 610.20
+  },
+  {
+    "ticker": "AMD",
+    "name": "Advanced Micro Devices",
+    "sector": "Semiconductors",
+    "description": "CPUs (Ryzen, EPYC) and GPUs (Instinct) competing in data-center AI workloads.",
+    "price_now": 185.40,
+    "price_1y_ago": 155.20
+  },
+  {
+    "ticker": "INTC",
+    "name": "Intel",
+    "sector": "Semiconductors",
+    "description": "Incumbent CPU maker pivoting to foundry; turnaround under a multi-year capex plan.",
+    "price_now": 32.10,
+    "price_1y_ago": 42.30
+  },
+  {
+    "ticker": "JPM",
+    "name": "JPMorgan Chase",
+    "sector": "Money-Center Bank",
+    "description": "Universal bank; investment banking, consumer banking, asset management.",
+    "price_now": 215.40,
+    "price_1y_ago": 190.20
+  },
+  {
+    "ticker": "BAC",
+    "name": "Bank of America",
+    "sector": "Money-Center Bank",
+    "description": "Consumer-deposit franchise; rate-sensitive net interest income.",
+    "price_now": 42.10,
+    "price_1y_ago": 38.10
+  },
+  {
+    "ticker": "WFC",
+    "name": "Wells Fargo",
+    "sector": "Money-Center Bank",
+    "description": "Consumer and commercial banking emerging from a regulatory asset cap.",
+    "price_now": 62.30,
+    "price_1y_ago": 54.20
+  },
+  {
+    "ticker": "GS",
+    "name": "Goldman Sachs",
+    "sector": "Investment Bank",
+    "description": "Investment banking, trading, and a growing wealth-management franchise.",
+    "price_now": 520.10,
+    "price_1y_ago": 445.30
+  },
+  {
+    "ticker": "JNJ",
+    "name": "Johnson & Johnson",
+    "sector": "Pharmaceuticals",
+    "description": "Diversified pharma; consumer-health spinoff completed.",
+    "price_now": 158.20,
+    "price_1y_ago": 148.10
+  },
+  {
+    "ticker": "PFE",
+    "name": "Pfizer",
+    "sector": "Pharmaceuticals",
+    "description": "Post-COVID revenue normalization; oncology pipeline rebuild.",
+    "price_now": 28.10,
+    "price_1y_ago": 30.20
+  },
+  {
+    "ticker": "MRNA",
+    "name": "Moderna",
+    "sector": "Biotech",
+    "description": "mRNA platform extending beyond COVID into flu, RSV, and oncology.",
+    "price_now": 34.20,
+    "price_1y_ago": 86.40
+  },
+  {
+    "ticker": "KO",
+    "name": "Coca-Cola",
+    "sector": "Beverages",
+    "description": "Global beverage portfolio; pricing power offsetting volume softness.",
+    "price_now": 72.10,
+    "price_1y_ago": 68.30
+  },
+  {
+    "ticker": "PEP",
+    "name": "PepsiCo",
+    "sector": "Beverages",
+    "description": "Beverages plus Frito-Lay snacks; pricing-led growth.",
+    "price_now": 168.20,
+    "price_1y_ago": 172.40
+  },
+  {
+    "ticker": "MCD",
+    "name": "McDonald's",
+    "sector": "Restaurants",
+    "description": "Global QSR franchise model; value-menu pivot in response to traffic softness.",
+    "price_now": 295.10,
+    "price_1y_ago": 278.20
+  }
+]

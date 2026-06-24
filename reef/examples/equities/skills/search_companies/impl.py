@@ -5,7 +5,7 @@
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 
-"""Tiny BM25 over the in-repo cocktails corpus."""
+"""Tiny BM25 over the in-repo companies corpus."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from typing import Any
 
 from reef.skill_fn import skill_fn
 
-_DATA_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "cocktails.json"
+_DATA_PATH = Path(__file__).resolve().parent.parent.parent / "data" / "companies.json"
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
@@ -25,20 +25,21 @@ def _tokenize(text: str) -> list[str]:
     return _TOKEN_RE.findall(text.lower())
 
 
-def _doc_for(cocktail: dict[str, Any]) -> str:
+def _doc_for(company: dict[str, Any]) -> str:
     """Concatenate the searchable fields into one tokenizable string."""
     return " ".join(
         [
-            cocktail["name"],
-            " ".join(cocktail.get("tags", [])),
-            " ".join(ing["name"] for ing in cocktail.get("ingredients", [])),
+            company["ticker"],
+            company["name"],
+            company["sector"],
+            company.get("description", ""),
         ]
     )
 
 
 with _DATA_PATH.open(encoding="utf-8") as _f:
-    _COCKTAILS: list[dict[str, Any]] = json.load(_f)
-_DOC_TOKENS: list[list[str]] = [_tokenize(_doc_for(c)) for c in _COCKTAILS]
+    _COMPANIES: list[dict[str, Any]] = json.load(_f)
+_DOC_TOKENS: list[list[str]] = [_tokenize(_doc_for(c)) for c in _COMPANIES]
 _DOC_LEN: list[int] = [len(t) for t in _DOC_TOKENS]
 _AVG_DL: float = sum(_DOC_LEN) / max(len(_DOC_LEN), 1)
 _DF: dict[str, int] = {}
@@ -49,7 +50,7 @@ for _tokens in _DOC_TOKENS:
 
 def _bm25(query: str, k: int = 5, k1: float = 1.5, b: float = 0.75) -> list[tuple[int, float]]:
     q_terms = _tokenize(query)
-    N = len(_COCKTAILS)
+    N = len(_COMPANIES)
     scored: list[tuple[int, float]] = []
     for i, tokens in enumerate(_DOC_TOKENS):
         if not tokens:
@@ -73,17 +74,17 @@ def _bm25(query: str, k: int = 5, k1: float = 1.5, b: float = 0.75) -> list[tupl
 
 
 @skill_fn(
-    skill_id="search_cocktails",
+    skill_id="search_companies",
     description=(
-        "Rank cocktails by BM25 relevance to a free-text query over "
-        "cocktail name + tags + ingredient names."
+        "Rank companies by BM25 relevance to a free-text query over "
+        "ticker + name + sector + description."
     ),
     parameters={
         "type": "object",
         "properties": {
             "query": {
                 "type": "string",
-                "description": "Free-text query (e.g. 'gin citrus', 'negroni', 'italian aperitivo').",
+                "description": "Free-text query (e.g. 'NVDA', 'semiconductor', 'money-center bank').",
             },
             "k": {
                 "type": "integer",
@@ -94,18 +95,17 @@ def _bm25(query: str, k: int = 5, k1: float = 1.5, b: float = 0.75) -> list[tupl
         "required": ["query"],
     },
 )
-def search_cocktails(*, query: str, k: int = 5) -> dict[str, Any]:
+def search_companies(*, query: str, k: int = 5) -> dict[str, Any]:
     hits = _bm25(query, k=k)
     results = []
     for idx, score in hits:
-        c = _COCKTAILS[idx]
+        c = _COMPANIES[idx]
         results.append(
             {
-                "id": c["id"],
+                "ticker": c["ticker"],
                 "name": c["name"],
+                "sector": c["sector"],
                 "score": round(score, 3),
-                "tags": c.get("tags", []),
-                "ingredient_names": [ing["name"] for ing in c.get("ingredients", [])],
             }
         )
     return {"query": query, "results": results}

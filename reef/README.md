@@ -24,18 +24,19 @@ git clone https://github.com/Coral-Bricks-AI/coral-ai.git
 cd coral-ai && pip install -e .
 export LLM_API_KEY=sk-...
 
-python reef/examples/cocktails/ask.py "What's in a Negroni and how strong is it?"
+python reef/examples/equities/ask.py "How has NVDA performed over the last year?"
 ```
 
 ```
-Q: What's in a Negroni and how strong is it?
+Q: How has NVDA performed over the last year?
 
-A: A Negroni is 30 ml gin, 30 ml sweet vermouth, and 30 ml Campari, stirred
-   over ice and served in a rocks glass with an orange peel. It comes out
-   to roughly 27% ABV — a strong, bitter aperitivo.
+A: NVIDIA (NVDA) returned +63.0% over the trailing 12 months
+   ($89.10 → $145.20). Price return only; does not include dividends.
 ```
 
-See [`reef/examples/cocktails/`](examples/cocktails) for the worked walkthrough.
+> The corpus is ~20 well-known tickers with **fabricated point-in-time prices** — illustrative, not live market data.
+
+See [`reef/examples/equities/`](examples/equities) for the worked walkthrough.
 
 ---
 
@@ -57,11 +58,11 @@ The long-form design rationale is in the blog post: [Write Your Own Agent Harnes
 
 ## Create your own harness
 
-The fastest path: copy [`reef/examples/cocktails/`](examples/cocktails) and rewrite four pieces. The whole new harness is usually < 100 lines plus your skills.
+The fastest path: copy [`reef/examples/equities/`](examples/equities) and rewrite four pieces. The whole new harness is usually < 100 lines plus your skills.
 
 ### 1. Pick a persona + corpus
 
-Decide what your specialist knows. The bartender knows 20 cocktails. Yours might be a tax analyst over IRS publications, a code reviewer over your repo, a medic over treatment protocols, an SRE over runbooks. The corpus can be a JSON file, a SQLite DB, a directory of markdown, or a remote API — the skills decide.
+Decide what your specialist knows. The equity analyst knows 20 well-known tickers. Yours might be a tax analyst over IRS publications, a code reviewer over your repo, a medic over treatment protocols, an SRE over runbooks. The corpus can be a JSON file, a SQLite DB, a directory of markdown, or a remote API — the skills decide.
 
 ### 2. Write each skill as a folder
 
@@ -203,7 +204,7 @@ That's the whole picture — no graph, no agent class, no orchestrator.
 ## FAQ
 
 **Is this production ready?**
-Yes. [AlphaCumen](../alphacumen) — built on Reef — scores **82.6%** on Vals AI Finance Agent v2 (+24.7pp over the top generic-harness frontier model), **90%** on Vals AI v1.1, and **89.3%** on Patronus FinanceBench at **$0.13/query**. Seven specialists, sixty-nine skills, tens of thousands of evaluations. The same `run_react` loop, `@skill_fn` dispatch, and `llm.chat` client you see in the cocktails example drove those runs.
+Yes. [AlphaCumen](../alphacumen) — built on Reef — scores **82.6%** on Vals AI Finance Agent v2 (+24.7pp over the top generic-harness frontier model), **90%** on Vals AI v1.1, and **89.3%** on Patronus FinanceBench at **$0.13/query**. Seven specialists, sixty-nine skills, tens of thousands of evaluations. The same `run_react` loop, `@skill_fn` dispatch, and `llm.chat` client you see in the equities example drove those runs.
 
 **When should I use Reef?**
 When your domain has dozens of conditional rules (financial conventions, treatment protocols, tax edge cases, compliance carve-outs) you want versioned, diff-able, and editable by people who don't live in framework code. When your agent makes multi-step retrieval + computation calls and you want each step to be a typed dispatch with its own playbook. When you want one ReAct loop you can read end-to-end.

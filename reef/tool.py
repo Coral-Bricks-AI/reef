@@ -281,7 +281,7 @@ def bind_tools(
 
     When ``renderer`` is ``None`` this returns the input tools
     unchanged -- handy for harnesses without dynamic capability
-    schemas (cocktails, hello-world).
+    schemas (equities, hello-world).
     """
     return tuple(t.with_capabilities(dict(capabilities), renderer) for t in tools)
 

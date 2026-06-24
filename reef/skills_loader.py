@@ -21,7 +21,7 @@ dispatch on.
 
 Domain-agnostic. Each consumer passes ``skills_dir`` and
 ``module_prefix`` at the loader call; the framework owns no
-default registry. See ``examples/cocktails`` for the minimal
+default registry. See ``examples/equities`` for the minimal
 binding.
 
 Two on-disk shapes are supported:

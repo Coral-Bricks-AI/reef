@@ -159,7 +159,7 @@ Coral Bricks runs AlphaCumen over a **~4.5 TB pre-processed finance corpus** —
 
 Read the code top-down — `swarm.py` → a specialist `persona_file` → `skills/<slug>/` — and replace the kernel-verb stubs in [`reef/stubs/`](../reef/stubs) with calls against your own backend (OpenSearch / Pinecone / DuckDB / your graph DB / your Python sandbox). The framework primitives and the finance conventions transfer; only the data plane is yours.
 
-The framework primitives — skills, agent types, runtime constraints — are walked one section each in [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-reef). For a minimal end-to-end use of the harness without the finance scaffolding, see [`reef/examples/cocktails/`](../reef/examples/cocktails) — one specialist, two skills, ~50 lines of glue.
+The framework primitives — skills, agent types, runtime constraints — are walked one section each in [Write Your Own Agent Harness](https://coralbricks.ai/blog/write-your-own-reef). For a minimal end-to-end use of the harness without the heavier finance scaffolding, see [`reef/examples/equities/`](../reef/examples/equities) — one specialist, two skills, ~50 lines of glue.
 
 ---
 

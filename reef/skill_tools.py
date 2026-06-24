@@ -22,8 +22,8 @@ interface to that machinery:
 
 The factory pattern keeps the framework domain-agnostic: harness
 ships the dispatch shape (parameters, error envelopes, description
-text) and the consumer plugs in the registry. The cocktails example
-in ``examples/cocktails`` shows the minimal binding; a multi-specialist
+text) and the consumer plugs in the registry. The equities example
+in ``examples/equities`` shows the minimal binding; a multi-specialist
 instance (e.g. a planner + specialists pair) can create one tool per
 side by passing different loader functions.
 """
