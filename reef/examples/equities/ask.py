@@ -12,6 +12,7 @@ Usage::
 
     export LLM_API_KEY=sk-...
     python reef/examples/equities/ask.py "How has NVDA performed over the last year?"
+    python reef/examples/equities/ask.py --model anthropic/claude-sonnet-4-6 "..."
 
 The framework hello-world. No planner, no synthesizer, no
 SpecialistConfig -- just :func:`reef.react.run_react` wired to a
@@ -31,8 +32,7 @@ this for live market data.
 
 from __future__ import annotations
 
-import os
-import sys
+import argparse
 from pathlib import Path
 
 from reef.react import run_react
@@ -62,7 +62,7 @@ _PROMPT = (HERE / "analyst.md").read_text(encoding="utf-8").replace(
 )
 
 
-def ask(question: str, model: str = "openai/gpt-4o-mini") -> str | None:
+def ask(question: str, model: str = "openai/gpt-5-mini") -> str | None:
     """Run the equity analyst on one question; return its final natural-language answer."""
     traj = run_react(
         model=model,
@@ -78,14 +78,27 @@ def ask(question: str, model: str = "openai/gpt-4o-mini") -> str | None:
 
 
 if __name__ == "__main__":
-    if "LLM_API_KEY" not in os.environ and "OPENAI_API_KEY" not in os.environ:
-        print(
-            "Set your LLM API key before running this example:\n"
-            "    export LLM_API_KEY=sk-...\n",
-            file=sys.stderr,
-        )
-        sys.exit(2)
-    q = " ".join(sys.argv[1:]) or "How has NVDA performed over the last year?"
+    parser = argparse.ArgumentParser(
+        description="Ask the equity analyst a question.",
+    )
+    parser.add_argument(
+        "--model",
+        default="openai/gpt-5-mini",
+        help=(
+            "<provider>/<model> string passed to reef.llm.chat "
+            "(default: openai/gpt-5-mini). The matching <PROVIDER>_API_KEY "
+            "env var must be set; reef.llm raises a clear error if not. "
+            "Examples: anthropic/claude-sonnet-4-6, together/kimi-k2.6, "
+            "lilac/moonshotai/kimi-k2.6."
+        ),
+    )
+    parser.add_argument(
+        "question",
+        nargs="*",
+        help="The question to ask. Defaults to a sample NVDA question if omitted.",
+    )
+    args = parser.parse_args()
+    q = " ".join(args.question) or "How has NVDA performed over the last year?"
     print(f"Q: {q}\n")
-    answer = ask(q)
+    answer = ask(q, model=args.model)
     print(f"A: {answer}")

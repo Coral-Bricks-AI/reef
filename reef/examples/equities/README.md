@@ -25,7 +25,7 @@ python reef/examples/equities/ask.py "What does Moderna do and how has the stock
 python reef/examples/equities/ask.py "Compare AMD and INTC over the last 12 months."
 ```
 
-Any provider Reef supports works: switch `model="openai/gpt-4o-mini"` in `ask.py` to `"anthropic/claude-sonnet-4-6"`, `"together/kimi-k2.6"`, `"aws/anthropic.claude-3-5-sonnet"`, etc., and set the matching env var.
+Any provider Reef supports works: pass `--model <provider>/<model>` (e.g., `--model anthropic/claude-sonnet-4-6`, `--model together/kimi-k2.6`, `--model aws/anthropic.claude-3-5-sonnet`) and set the matching env var (`ANTHROPIC_API_KEY`, `TOGETHER_API_KEY`, AWS creds, etc.).
 
 ## What's on disk
 
