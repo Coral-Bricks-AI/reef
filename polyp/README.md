@@ -22,9 +22,11 @@ Three things, all yours:
 |---|---|---|
 | **Coding agent** | Claude Code (canonical) or any agent that can read a task spec and write a worker script. | The Architect / Analyzer / Auto-suggester are headless agent invocations. Wire whatever you want; the runner scripts call `claude` by default. |
 | **Postgres database** | Any Postgres ≥ 13. Local for testing, RDS / Cloud SQL / Neon / Supabase for production. | Schema lives in `queue/schema.sql`. |
-| **A worker** | Your script that takes a `run.spec` and writes a `results.json`. | Hardware (GPU, CPU, distributed) is whatever the worker needs. |
+| **Hardware** | Whatever your workload needs — a single CPU, a GPU box, a distributed cluster, an API call. | The Architect drafts the worker per task; you bring the iron. |
 
-The toy example in `examples/toy_sweep/` ships with a **stubbed worker** so you can exercise the full loop on a laptop with no GPU — but the stub doesn't do real work. Swap it for your own evaluator to drive actual optimization.
+You don't have to bring a worker script. The Architect generates one per task from the spec. In practice, giving the agent some helper libs + a `CLAUDE.md` style template makes its drafts converge faster for non-trivial workloads — but that's onboarding quality, not a prereq.
+
+The toy example in `examples/toy_sweep/` ships with a **stubbed worker** so you can exercise the full loop on a laptop with no GPU — but the stub doesn't do real work. Swap it for your own evaluator (or let the Architect draft one) to drive actual optimization.
 
 ## Quick start
 
