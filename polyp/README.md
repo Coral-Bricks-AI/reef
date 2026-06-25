@@ -12,7 +12,15 @@ Polyp is the *coordinator*, not the *worker*. The worker is yours — any script
 
 Fits anything with a try-evaluate-iterate shape: hyperparameter sweeps, LoRA / full-FT runs, kernel ablations, prompt-engineering loops, retrieval-recipe tuning, scheduler or RL tuning, anything where the next experiment depends on the last one's result.
 
-See it in action: [a 108-experiment LoRA fine-tuning run on gpt-oss-20b that lifted HotpotQA accuracy by 59pp](https://coralbricks.ai/research/lora-trajectory).
+## A real run
+
+I used Polyp to drive a **108-experiment LoRA fine-tuning sweep on gpt-oss-20b vs HotpotQA over three days.** Started at 0.13 EM (untrained baseline), ended at 0.72 EM (+59pp). Most of the gain came from a two-layer super-additive interaction on full-attention layers [9, 19] that the Auto-suggester found by hill-climbing through ~30 layer-subset variants — most of the early ones plateaued at +30-40pp.
+
+![error rate over time across 107 experiments](docs/error-curve.svg)
+
+Best-so-far error rate vs wall-clock time. Each dot is one experiment; the blue stair-step is the running minimum. The Day-2 lull is real — the GPUs were shared with other work that weekend.
+
+[Full writeup with the branching tree + per-experiment table →](https://coralbricks.ai/research/lora-trajectory)
 
 ## Prerequisites
 
