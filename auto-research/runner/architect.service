@@ -1,0 +1,30 @@
+[Unit]
+# Architect watcher as a SUPERVISED system service. The previous design
+# (Type=forking + RemainAfterExit=yes spawning a detached user-slice tmux)
+# left the watcher unmonitored: when the tmux server died (user-session
+# teardown, manual kill-server, operator restarts) systemd still reported
+# active(exited) and never restarted it, and manual tmux restarts silently
+# dropped the EnvironmentFile vars (Slack webhooks). 2026-06-12: four tmux
+# deaths in one day orphaned in-flight coding claims (#0052.1.1 6h stall).
+# Live view: journalctl -fu architect-box  or  tail -f ~/architect/watcher.log
+Description=Auto-research experiments architect watcher (code + analyze + suggest)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+EnvironmentFile=/etc/architect-box.env
+WorkingDirectory=/home/ubuntu/architect
+ExecStart=/home/ubuntu/bin/architect_watcher.sh
+StandardOutput=append:/home/ubuntu/architect/watcher.log
+StandardError=append:/home/ubuntu/architect/watcher.log
+Restart=always
+RestartSec=10
+# Watcher restarts must not kill in-flight Claude phase sessions: signal only
+# the watcher loop; running code/analyze wrappers finish and finalize via cbq.
+KillMode=process
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

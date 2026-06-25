@@ -1,0 +1,25 @@
+[Unit]
+Description=Auto-research experiments worker (GPU box: schedule + execute + fix)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/etc/worker-box.env
+Type=forking
+User=ubuntu
+ExecStart=/home/ubuntu/bin/worker_up.sh
+ExecStop=/usr/bin/tmux kill-session -t worker
+# Stop/restart ONLY the watcher (via ExecStop's tmux kill-session), never the
+# whole cgroup. Training jobs are launched detached (nohup, reparented to init)
+# but remain in this unit's cgroup, so the default KillMode=control-group would
+# SIGTERM every running experiment on ANY restart — including the automatic
+# Restart=on-failure below. Observed 2026-06-13: a watcher restart killed 3
+# in-flight H100 jobs. With KillMode=process the watcher restarts cleanly and
+# running jobs are untouched (they only resume-from-checkpoint if truly killed).
+KillMode=process
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

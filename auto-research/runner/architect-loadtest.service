@@ -1,0 +1,28 @@
+[Unit]
+# Loadtest coder lane as a SUPERVISED system service — same rationale as
+# architect-box.service: the user-slice tmux it used to live in is unmonitored
+# (tmux-server deaths orphan in-flight claims) and hand-started copies silently
+# lack the EnvironmentFile vars (Slack webhooks). See loadtest_coder_lane.sh
+# header for why this lane exists and why it cannot starve other kinds.
+# Live view: journalctl -fu architect-loadtest  or  tail -f ~/architect/loadtest-lane.log
+Description=Loadtest coder/analyze lane (single-slot, kind=loadtest)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+EnvironmentFile=/etc/architect-box.env
+WorkingDirectory=/home/ubuntu/architect
+ExecStart=/home/ubuntu/bin/loadtest_coder_lane.sh
+StandardOutput=append:/home/ubuntu/architect/loadtest-lane.log
+StandardError=append:/home/ubuntu/architect/loadtest-lane.log
+Restart=always
+RestartSec=10
+# Lane restarts must not kill an in-flight phase session: signal only the lane
+# loop; a running code/analyze wrapper finishes and finalizes via cbq.
+KillMode=process
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,25 @@
+# Toy sweep — minimal run.spec for the auto-research loop.
+#
+# Demonstrates the lifecycle without needing a GPU:
+#   architect drafts code → worker "trains" (sleeps + writes random eval) →
+#   analyzer files verdict → auto-suggester proposes next.
+#
+# Submit via:
+#   cbq submit examples/toy_sweep/spec.yaml --slug hello-world --kind research
+
+machine: cpu
+goal: |
+  Sweep the learning-rate axis on the toy_model task; find the LR where the
+  stub-eval accuracy peaks. Compare next variant against parent.
+
+train:
+  lr: 1e-3            # the knob being swept
+  steps: 100
+  seed: 42
+
+eval:
+  n_samples: 50
+  metric: accuracy    # higher is better
+
+budget:
+  timeout_min: 5
