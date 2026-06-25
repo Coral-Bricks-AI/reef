@@ -1,4 +1,4 @@
-# Toy sweep — minimal run.spec for the auto-research loop.
+# Toy sweep — minimal run.spec for the Polyp loop.
 #
 # Demonstrates the lifecycle without needing a GPU:
 #   architect drafts code → worker "trains" (sleeps + writes random eval) →

@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "coral-auto-research"
+name = "polyp"
 version = "0.1.0"
-description = "Architect / Worker / Analyzer / Auto-suggester agent loop over a Postgres-backed experiment queue"
+description = "Polyp — Architect / Worker / Analyzer / Auto-suggester agent loop over a Postgres-backed experiment queue. The atomic research unit that, over time, builds a reef of knowledge."
 requires-python = ">=3.11"
 authors = [{ name = "Coral Bricks AI" }]
 readme = "README.md"
@@ -25,9 +25,11 @@ dependencies = [
 [project.optional-dependencies]
 aws = ["boto3>=1.34"]
 
-[project.scripts]
-cbq = "auto_research.queue.cbq:main"
+# No console_scripts entry: directory layout uses flat `queue/` which collides
+# with the stdlib `queue` module. Invoke the CLI directly:
+#   python polyp/queue/cbq.py --help
+# or `alias cbq='python /path/to/polyp/queue/cbq.py'` in your shell rc.
 
 [project.urls]
 Homepage = "https://github.com/Coral-Bricks-AI/coral-ai"
-Source = "https://github.com/Coral-Bricks-AI/coral-ai/tree/main/auto-research"
+Source = "https://github.com/Coral-Bricks-AI/coral-ai/tree/main/polyp"

@@ -1,4 +1,6 @@
-# auto-research
+# Polyp
+
+> *Each experiment is a polyp. Over time, polyps build a reef.*
 
 An autonomous research loop: four LLM agents — **Architect**, **GPU Worker**, **Analyzer**, **Auto-suggester** — coordinate through a single Postgres queue to run hundreds of experiments while you sleep.
 
@@ -106,7 +108,7 @@ Each per-attempt step inside a phase should call `cbq touch <id>` to refresh `cl
 ## Layout
 
 ```
-auto-research/
+polyp/
 ├── queue/                 # cbq CLI + Postgres schema + telemetry publishers
 │   ├── cbq.py             # the state-machine CLI (1.5k LOC, no magic)
 │   ├── schema.sql         # cb_queue.experiments + leases + workers
