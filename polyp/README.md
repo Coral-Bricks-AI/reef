@@ -1,7 +1,5 @@
 # Polyp
 
-> *Each experiment is a polyp. Over time, polyps build a reef.*
-
 An autonomous research loop: four LLM agents — **Architect**, **GPU Worker**, **Analyzer**, **Auto-suggester** — coordinate through a single Postgres queue to run hundreds of experiments while you sleep.
 
 Originally built for ML research (LoRA fine-tuning sweeps, kernel ablations, layer-localization probes), but the pattern is general — anything that fits the shape *"draft a spec → run it → score it → propose the next spec"* can be queued through it.
