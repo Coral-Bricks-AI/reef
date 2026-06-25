@@ -33,20 +33,13 @@ Each subdirectory is an independently-installable package or example. They share
 | [`reef/`](reef/) | **Reef** — the open agent-harness framework. ReAct loop, skill primitives, run-level constraints, direct-provider LLM client. Domain-agnostic. The [framework write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness) walks the primitives; [`reef/examples/equities/`](reef/examples/equities/) is the hello-world. |
 | [`alphacumen/`](alphacumen/) | The worked finance instance of Reef — 7 agents, 69 skills, the postprocessor synthesis path. Examples + benchmark queries inside. The pattern behind [our finance-benchmark results](https://coralbricks.ai/blog/finance-benchmarks). |
 
-### Building blocks
-
-| Package | PyPI | What it is |
-|---|---|---|
-| [`py-gpu-inference/`](py-gpu-inference/) | [`coralbricks-gpu-inference`](https://pypi.org/project/coralbricks-gpu-inference/) | Production gRPC GPU embedding server. Token-bucket batching, dual backpressure, `torch.compile` + CUDA graphs — pure Python/PyTorch, no ONNX/TensorRT. |
-
 ## Repository layout
 
 ```
 coral-ai/
 ├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
 ├── reef/                    # Reef — agent-harness framework (ReAct, skills, constraints)
-├── alphacumen/              # worked finance instance of Reef (7 agents, 69 skills)
-└── py-gpu-inference/        # gRPC embedding server      → coralbricks.gpu_inference
+└── alphacumen/              # worked finance instance of Reef (7 agents, 69 skills)
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
