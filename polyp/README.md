@@ -1,6 +1,6 @@
 # Polyp
 
-*A general-purpose state machine for autonomous optimization loops — four LLM agents over a Postgres queue, drives any try-evaluate-iterate problem.*
+*A general-purpose state machine for autonomous optimization loops — four LLM agents over a Postgres queue, drives any try-evaluate-iterate problem. Example: 108 LoRA fine-tuning experiments on gpt-oss-20b (+59pp on HotpotQA).*
 
 ![architecture](docs/architecture.svg)
 
