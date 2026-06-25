@@ -1,39 +1,34 @@
 # Polyp
 
-An autonomous research loop: four LLM agents — **Architect**, **GPU Worker**, **Analyzer**, **Auto-suggester** — coordinate through a single Postgres queue to run hundreds of experiments while you sleep.
-
-Originally built for ML research (LoRA fine-tuning sweeps, kernel ablations, layer-localization probes), but the pattern is general — anything that fits the shape *"draft a spec → run it → score it → propose the next spec"* can be queued through it.
+*A general-purpose state machine for autonomous optimization loops — four LLM agents over a Postgres queue, drives any try-evaluate-iterate problem.*
 
 ![architecture](docs/architecture.svg)
 
-## What's in the loop
+## What this is
 
-| Agent | Role | Where it runs |
+Polyp is a Postgres-backed state machine that drives any **try → evaluate → propose-next → repeat** loop. An **Architect** drafts a candidate (a `run.spec` + code), a **Worker** evaluates it, an **Analyzer** files a verdict, and an **Auto-suggester** proposes the next candidate based on what just happened. The cycle repeats until you stop it (or until the auto-suggester stops finding anything worth trying).
+
+Polyp is the *coordinator*, not the *worker*. The worker is yours — any script that takes a spec and writes a `results.json`. Hardware is whatever your worker needs: a single CPU, a GPU box, a distributed cluster, an API call.
+
+Fits anything with a try-evaluate-iterate shape: hyperparameter sweeps, LoRA / full-FT runs, kernel ablations, prompt-engineering loops, retrieval-recipe tuning, scheduler or RL tuning, anything where the next experiment depends on the last one's result.
+
+See it in action: [a 108-experiment LoRA fine-tuning run on gpt-oss-20b that lifted HotpotQA accuracy by 59pp](https://coralbricks.ai/research/lora-trajectory).
+
+## Prerequisites
+
+Three things, all yours:
+
+| | What | Notes |
 |---|---|---|
-| **Architect** | Turns a research question into a concrete `run.spec` + code on a fresh branch. | CPU-only orchestrator box |
-| **GPU Worker** | Claims `ready` tasks, runs training + eval, writes results back. Calls a debug LLM when something non-routine breaks. | GPU box (H100 / A10 / whatever) |
-| **Analyzer** | Reads the execution report, files a verdict (`done` / `falsified` / `blocked`). | CPU-only orchestrator box |
-| **Auto-suggester** | Proposes the next experiment based on the verdict. Enqueues it; the Architect drafts code for it; the cycle repeats. | CPU-only orchestrator box |
+| **Coding agent** | Claude Code (canonical) or any agent that can read a task spec and write a worker script. | The Architect / Analyzer / Auto-suggester are headless agent invocations. Wire whatever you want; the runner scripts call `claude` by default. |
+| **Postgres database** | Any Postgres ≥ 13. Local for testing, RDS / Cloud SQL / Neon / Supabase for production. | Schema lives in `queue/schema.sql`. |
+| **A worker** | Your script that takes a `run.spec` and writes a `results.json`. | Hardware (GPU, CPU, distributed) is whatever the worker needs. |
 
-Humans are the **overseer**, not the operator: review the queue, cancel runs that are wasting compute, file new constraints when something subtle breaks. The rest is the loop.
-
-## State machine
-
-```
-enqueued → coding → ready → executing → executed → analyzing
-analyzing → done | falsified | blocked   ← scientific verdicts
-coding    → code_failed                  ← parked: in-phase retries exhausted
-analyzing → executed | analyze_stuck     ← one auto-retry, then parked
-enqueued  → cancelled                    ← human veto window
-```
-
-The `experiments` table is **authoritative for live state**. Git holds only the archive exports (`done/`, `falsified/`) and your per-experiment `exp/NNNN-*` branches.
+The toy example in `examples/toy_sweep/` ships with a **stubbed worker** so you can exercise the full loop on a laptop with no GPU — but the stub doesn't do real work. Swap it for your own evaluator to drive actual optimization.
 
 ## Quick start
 
 ### 1. Stand up a Postgres database
-
-Any Postgres ≥ 13 works (local, RDS, Neon, Supabase, whatever).
 
 ```bash
 export CB_QUEUE_DB_URL="postgres://user:pass@host:5432/dbname"
@@ -51,7 +46,7 @@ cbq status           # sanity check
 
 ### 3. Submit your first task
 
-See `examples/toy_sweep/` for a minimal end-to-end loop with a stub worker (no GPU required).
+The toy example is a stubbed LR sweep — the worker doesn't train anything, it just emits a deterministic unimodal accuracy curve so the auto-suggester has a real surface to climb.
 
 ```bash
 cd examples/toy_sweep
@@ -59,49 +54,44 @@ cbq submit spec.yaml --slug hello-world --kind research
 cbq list --status enqueued
 ```
 
+**Next step:** replace `examples/toy_sweep/run.py` with your own evaluator to run real work.
+
 ### 4. Run the loop
 
 You can run the agents however you like — systemd units in `runner/`, tmux watchers, cron, Kubernetes. The pattern is:
 
 ```bash
-# Architect side (CPU box)
+# Architect side (orchestrator box)
 runner/architect_watcher.sh           # claims enqueued → coding → ready
 
-# Worker side (GPU box)
+# Worker side (your hardware)
 runner/worker_watcher.sh              # claims ready → executing → executed
 
-# Architect side again (CPU box)
+# Architect side again
 runner/architect_watcher.sh           # claims executed → analyzing → done/falsified/blocked
                                        # then runs suggest_experiment.sh → enqueues next
 ```
 
-## Defining your own experiments
+## How the loop runs
 
-Every experiment is two things: a **`run.spec`** (YAML) and **`run.py`** (or whatever your worker invokes). The Architect writes both. Your worker code receives the spec path, runs whatever it runs, and writes a `results.json`. The Analyzer reads `results.json` + your scoring logic and files the verdict.
+```
+enqueued → coding → ready → executing → executed → analyzing
+analyzing → done | falsified | blocked   ← verdicts
+coding    → code_failed                  ← parked: in-phase retries exhausted
+analyzing → executed | analyze_stuck     ← one auto-retry, then parked
+enqueued  → cancelled                    ← human veto window
+```
 
-The framework doesn't care what your worker actually does — train a model, sweep a hyperparameter, run a backtest, generate synthetic data. It cares about the **lifecycle**: claim, execute, report, verdict, propose next.
+The `experiments` table is **authoritative for live state**. Git holds only the archive exports (`done/`, `falsified/`) and your per-experiment `exp/NNNN-*` branches.
 
-## Operational tips
+| Phase | Who | What |
+|---|---|---|
+| `coding` | Architect | Drafts the `run.spec` + worker code from the task description. |
+| `executing` | Worker | Claims a `ready` task, runs it on your hardware, writes results. |
+| `analyzing` | Analyzer | Reads `results.json` + your scoring logic, files the verdict. |
+| (post-verdict) | Auto-suggester | Proposes the next candidate based on the verdict. Back to `enqueued`. |
 
-### The constraints pattern
-
-Every novel failure — a kernel bug, an OOM at some context length, a dataset namespacing change, an API key path that broke — should land in a single shared `constraints.md` file as one terse `C-NNN` bullet. The Architect reads this file at design time; the next spec won't re-issue something the box can't honor. **This is the single biggest reason the loop gets faster over time.** Treat it as the team's shared memory.
-
-### Veto window before code-gen
-
-`cbq cancel <id>` works for tasks still in `enqueued` (before the architect drafts code). Use it liberally — `auto-suggest` may propose 5 experiments when only 2 are worth running. Killing 3 in the veto window costs nothing.
-
-### `cbq stop <id>` for in-flight
-
-For tasks already `executing`, `cbq stop <id>` sets a DB flag that the worker watcher reconciles within ~60s, SIGTERMs the process, and heals the slot. Use this when you spot a wedged training run.
-
-### Watch the leases, not the heartbeats
-
-The queue tracks worker liveness via `cbq heartbeat`. If a worker box dies mid-run, `cbq reap` returns the stale claim to the queue so another worker (or a respin after fixing the box) can pick it up. Schedule `cbq reap` as a 5-minute cron.
-
-### Touch the claim, not the row
-
-Each per-attempt step inside a phase should call `cbq touch <id>` to refresh `claimed_at` — this prevents the reaper from yanking a slow-but-live multi-attempt session out from under you.
+Humans are the **overseer**, not the operator: review the queue, cancel runs that are wasting compute, file new constraints when something subtle breaks.
 
 ## Layout
 
@@ -118,9 +108,31 @@ polyp/
 │   ├── *.service          # systemd units
 │   └── finalize_completed.sh
 ├── lib/                   # generic helpers: GPU detect, HF hub, progress logging
-├── examples/toy_sweep/    # minimal end-to-end loop (no GPU needed)
+├── examples/toy_sweep/    # minimal end-to-end loop (stubbed worker)
 └── docs/                  # architecture diagram
 ```
+
+## Operational tips
+
+### The constraints pattern
+
+Every novel failure — a kernel bug, an OOM at some context length, a dataset namespacing change, an API key path that broke — should land in a single shared `constraints.md` file as one terse `C-NNN` bullet. The Architect reads this file at design time; the next spec won't re-issue something the box can't honor. **This is the single biggest reason the loop gets faster over time.** Treat it as the shared memory across runs.
+
+### Veto window before code-gen
+
+`cbq cancel <id>` works for tasks still in `enqueued` (before the architect drafts code). Use it liberally — `auto-suggest` may propose 5 experiments when only 2 are worth running. Killing 3 in the veto window costs nothing.
+
+### `cbq stop <id>` for in-flight
+
+For tasks already `executing`, `cbq stop <id>` sets a DB flag that the worker watcher reconciles within ~60s, SIGTERMs the process, and heals the slot. Use this when you spot a wedged run.
+
+### Watch the leases, not the heartbeats
+
+The queue tracks worker liveness via `cbq heartbeat`. If a worker box dies mid-run, `cbq reap` returns the stale claim to the queue so another worker (or a respin after fixing the box) can pick it up. Schedule `cbq reap` as a 5-minute cron.
+
+### Touch the claim, not the row
+
+Each per-attempt step inside a phase should call `cbq touch <id>` to refresh `claimed_at` — this prevents the reaper from yanking a slow-but-live multi-attempt session out from under you.
 
 ## What this is *not*
 
@@ -134,7 +146,3 @@ Closest analogues are home-grown lab queues, `slurm` job arrays, or hand-rolled 
 ## License
 
 Apache 2.0. See `LICENSE`.
-
-## Acknowledgments
-
-Built and battle-tested on a 108-experiment LoRA fine-tuning sweep that ran for 3 days mostly autonomously. Read the write-up at [coralbricks.ai/research/lora-trajectory](https://coralbricks.ai/research/lora-trajectory).
