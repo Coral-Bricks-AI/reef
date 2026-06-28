@@ -1,6 +1,8 @@
 # Reef
 
-**Open-source agent infrastructure from [Coral Bricks](https://coralbricks.ai).** A harness framework for building domain-specific agents, the worked finance instance that beats every frontier model on public benchmarks, and the autonomous loop coordinator that drives 100-experiment optimization runs unattended.
+**Beat frontier models on your domain — at cents per query.**
+
+Open-source agent infrastructure: a harness framework for building domain-specific agents, a worked finance instance scoring **82.6%** on Vals AI Finance v2 (+24.7pp over the frontier) at **$0.13/query**, and an autonomous loop coordinator that drove **108 unattended LoRA experiments** for **+59pp on HotpotQA**.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
