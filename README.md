@@ -1,8 +1,10 @@
 # Reef
 
-**Beat frontier models on your domain — at cents per query.**
+**If your agent improves when you add instructions, then suddenly gets worse, you may not have a prompting problem. You may have a harness problem.**
 
-Open-source agent infrastructure: a harness framework for building domain-specific agents, a worked finance instance scoring **82.6%** on Vals AI Finance v2 (+24.7pp over the frontier) at **$0.13/query**, and an autonomous loop coordinator that drove **108 unattended LoRA experiments** for **+59pp on HotpotQA**.
+We saw this firsthand building a finance research harness steering Kimi K2.6. We were about to announce during the week of the Opus 4.8 launch, riding a wide lead on the then-leading benchmark, Vals AI v1. Then Vals AI released v2 and Anthropic showcased Opus 4.8 on it — moving the spotlight to the harder benchmark overnight. On v2, our edge had collapsed to zero. Prompts had grown past 2,500 lines of instructions and 50+ tool definitions, many overlapping or conflicting. Adding more instructions stopped moving the needle. That's when Reef was born.
+
+What you'll find in this repo: the framework itself ([`reef/`](reef/)), the finance harness that came out the other side at **82.6%** on Vals AI Finance v2 and **$0.13 per query** ([`alphacumen/`](alphacumen/)), the autonomous optimization-loop coordinator that drove **+59pp on HotpotQA** across **108 unattended LoRA experiments** ([`polyp/`](polyp/)), and the token-accounting diagnostic that started everything ([`claude-code-token-xray/`](claude-code-token-xray/)) — all Apache 2.0.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
