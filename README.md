@@ -1,49 +1,74 @@
-# coral-ai
+# Reef
 
-High-throughput inference for your agents — run many of them in parallel over your own private data, so you pay for your context once, not on every turn. Token economics, the agent-harness framework, and the swarm layer behind AlphaCumen.
+**Open-source agent infrastructure from [Coral Bricks](https://coralbricks.ai).** A harness framework for building domain-specific agents, the worked finance instance that beats every frontier model on public benchmarks, and the autonomous loop coordinator that drives 100-experiment optimization runs unattended.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#)
+[![Stars](https://img.shields.io/github/stars/Coral-Bricks-AI/reef?style=social)](https://github.com/Coral-Bricks-AI/reef)
 
-> ⭐ **NEW — [`reef/`](reef/) + [`alphacumen/`](alphacumen/):** **Reef**, the
-> open agent-harness framework behind our finance-benchmark results — and the
-> worked finance instance built on top. **82.6%** on Vals AI Finance Agent v2
-> with Kimi K2.6 (vs. 44.87% on the reference harness, same model). Run the
-> framework hello-world: `python reef/examples/equities/ask.py`. Run the
-> finance instance at scale on the Coral hosted runtime →
-> **[coralbricks.ai/alphacumen](https://coralbricks.ai/alphacumen)** ·
-> **[framework write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness)**.
+---
 
-> ⭐ **Featured — [`claude-code-token-xray`](claude-code-token-xray/):** I broke a
-> month of my own Claude Code logs into tokens, time, and cost. The surprise — you
-> don't pay to generate, you pay to **re-read**: ~29M unique tokens get billed as
-> **4.35B (~150×)**, and **84% of the bill is input**. Runs on your own `~/.claude`
-> logs; nothing leaves your machine → **[the breakdown](claude-code-token-xray/)** ·
-> **[full write-up](https://coralbricks.ai/blog/claude-code-token-xray)**.
+## What's in the project
 
-## What's in here
+Three independently-installable packages plus a diagnostic. Each has its own README, its own quickstart, and its own story.
 
-Each subdirectory is an independently-installable package or example. They share a `coralbricks.*` PEP 420 namespace but have no hard runtime coupling — pick the pieces you need.
+| Path | What it is | Headline |
+|---|---|---|
+| [`reef/`](reef/) | **The harness framework.** ReAct loop, skills-as-folders, declarative runtime constraints, direct-provider LLM client. Domain-agnostic, ~1,900 LOC. | The substrate everything else builds on. |
+| [`alphacumen/`](alphacumen/) | **Finance agent harness built on Reef.** 7 specialists, 69 skills, the postprocessor synthesis path. | **82.6%** on Vals AI Finance Agent v2 · **90%** on Vals AI v1.1 · **89.3%** on FinanceBench · **$0.13/query** |
+| [`polyp/`](polyp/) | **Autonomous optimization-loop coordinator.** Postgres-backed state machine: Architect → Worker → Analyzer → Auto-suggester. Drives any try-evaluate-iterate problem; agent-driver-agnostic (Claude Code by default, your own Reef harness, or any coding agent). | **+59pp on HotpotQA** over 108 unattended LoRA fine-tuning experiments on gpt-oss-20b in 3 days. |
+| [`claude-code-token-xray/`](claude-code-token-xray/) | **The diagnostic that started the company.** Breaks your `~/.claude` logs into tokens, time, and cost. | ~29M unique tokens billed as **4.35B (~150×)** — **84% of the bill is input**. Nothing leaves your machine. |
 
-### Start here
+## Start here
 
-| Path | What it is |
-|---|---|
-| [`claude-code-token-xray/`](claude-code-token-xray/) | Where your Claude Code tokens, time, and cost actually go — you pay to re-read, not generate (~29M unique tokens billed as 4.35B, ~150×). The problem this repo exists to address. Reads `~/.claude` only; nothing leaves your machine. |
-| [`reef/`](reef/) | **Reef** — the open agent-harness framework. ReAct loop, skill primitives, run-level constraints, direct-provider LLM client. Domain-agnostic. The [framework write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness) walks the primitives; [`reef/examples/equities/`](reef/examples/equities/) is the hello-world. |
-| [`alphacumen/`](alphacumen/) | The worked finance instance of Reef — 7 agents, 69 skills, the postprocessor synthesis path. Examples + benchmark queries inside. The pattern behind [our finance-benchmark results](https://coralbricks.ai/blog/finance-benchmarks). |
+**Want to build your own domain agent?** → [`reef/`](reef/) — read the [framework write-up](https://coralbricks.ai/blog/write-a-winning-agent-harness), copy [`reef/examples/equities/`](reef/examples/equities/), rewrite four pieces.
+
+**Want state-of-the-art finance answers right now?** → [`alphacumen/`](alphacumen/) — `pip install`, set `CORAL_API_KEY`, ask. Runs against the hosted ~4.5 TB pre-processed finance corpus.
+
+**Want to run unattended optimization sweeps?** → [`polyp/`](polyp/) — stand up Postgres, `cbq init-db`, point at a worker script. Read the [LoRA trajectory writeup](https://coralbricks.ai/research/lora-trajectory) for a real-world run.
+
+**Curious where your Claude Code bill actually goes?** → [`claude-code-token-xray/`](claude-code-token-xray/) — runs on your own logs in a few seconds. [Full breakdown](https://coralbricks.ai/blog/claude-code-token-xray).
+
+## How the pieces fit
+
+```
+        ┌─────────────────────────────────────────┐
+        │              reef/  (framework)          │
+        │   ReAct loop · skills · constraints      │
+        │   provider-neutral LLM client            │
+        └─────────────────────────────────────────┘
+                  ▲                       ▲
+                  │ imports               │ drives (one option)
+                  │                       │
+        ┌─────────┴──────────┐   ┌────────┴─────────┐
+        │    alphacumen/     │   │      polyp/      │
+        │ 7 specialists,     │   │  Architect →     │
+        │ 69 finance skills  │   │  Worker →        │
+        │ 82.6% Vals v2      │   │  Analyzer →      │
+        │                    │   │  Auto-suggester  │
+        └────────────────────┘   └──────────────────┘
+```
+
+- **AlphaCumen → Reef**: hard import. Same `run_react` loop, `@skill_fn` dispatch, `llm.chat` client.
+- **Polyp → Reef**: optional. Polyp coordinates the loop; the agent driving each phase is yours — Claude Code by default, or wire a Reef harness if you want a domain-specialized Architect.
+- **Reef → nothing**: zero finance, zero queue, zero opinion about your data plane. Vendor on its own.
 
 ## Repository layout
 
 ```
-coral-ai/
-├── claude-code-token-xray/  # where your Claude Code tokens, time, and cost go
-├── reef/                    # Reef — agent-harness framework (ReAct, skills, constraints)
-└── alphacumen/              # worked finance instance of Reef (7 agents, 69 skills)
+reef/                          # this repo
+├── reef/                      # the framework (agent harness primitives)
+├── alphacumen/                # worked finance instance
+├── polyp/                     # autonomous optimization loop coordinator
+└── claude-code-token-xray/    # the diagnostic that started it all
 ```
 
 Each package owns its own `pyproject.toml`, `README.md`, and tests. Install only what you need.
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE) for details.
+Apache 2.0 — see [LICENSE](LICENSE).
+
+## Authors
+
+Hitesh Jain & Divy Vasal — [Coral Bricks](https://coralbricks.ai)
