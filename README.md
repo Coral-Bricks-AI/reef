@@ -22,6 +22,7 @@ Three independently-installable packages plus a diagnostic. Each has its own REA
 | [`alphacumen/`](alphacumen/) | **Finance agent harness built on Reef.** 7 specialists, 69 skills, the postprocessor synthesis path. | **82.6%** on Vals AI Finance Agent v2 · **90%** on Vals AI v1.1 · **89.3%** on FinanceBench · **$0.13/query** |
 | [`polyp/`](polyp/) | **Autonomous optimization-loop coordinator.** Postgres-backed state machine: Architect → Worker → Analyzer → Auto-suggester. Drives any try-evaluate-iterate problem; agent-driver-agnostic (Claude Code by default, your own Reef harness, or any coding agent). | **+59pp on HotpotQA** over 108 unattended LoRA fine-tuning experiments on gpt-oss-20b in 3 days. |
 | [`claude-code-token-xray/`](claude-code-token-xray/) | **The diagnostic that started the company.** Breaks your `~/.claude` logs into tokens, time, and cost. | ~29M unique tokens billed as **4.35B (~150×)** — **84% of the bill is input**. Nothing leaves your machine. |
+| [`research/qwen36-h100/`](research/qwen36-h100/) | **Mantis Qwen3.6 kernel-optimization archive.** Complete hypotheses, configurations, metrics, and failure record. | **+50% MTP throughput** · **-35.4% no-MTP TPOT** · 53 experiments · 211 runs |
 
 ## Start here
 
