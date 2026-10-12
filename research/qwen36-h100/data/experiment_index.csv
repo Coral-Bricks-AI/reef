@@ -1,0 +1,54 @@
+experiment_id,verdict,run_count,title
+exp-20261010-q36-nomtp-stack,confirmed,9,Qwen3.6-35B-A3B FP8: c=1 decode kernel stack vs stock SGLang (no MTP)
+exp-20261010-q36-mtp-stack,confirmed,10,Qwen3.6-35B-A3B FP8: c=1 decode with MTP (NEXTN 3 steps) - kernel stack + draft token map
+exp-20261010-q36-draft-token-map,confirmed,7,MTP draft LM head restricted to top-K frequent tokens: acceptance vs K
+exp-20261010-q36-moe-persistent,falsified,2,Single-launch persistent (flag-synced) Triton MoE vs multi-launch MoE at M=1
+exp-20261010-q36-splitk-epilogue,confirmed,5,Split-K last-arriver reduction vs no-split (full K per CTA) at M=1
+exp-20261010-q36-moe-routing-placement,confirmed,3,Where to compute MoE top-8 routing
+exp-20261010-q36-gdn-relaunch,confirmed,3,SGLang GDN Triton kernels relaunched with more parallelism (BV=4) and the qkvzba split replaced by views
+exp-20261010-q36-m4-dense-triton,falsified,1,Triton W8A16 dense GEMV for M=2..4 (MTP verify)
+exp-20261010-q36-pdl,confirmed,1,Programmatic dependent launch between decode GEMVs
+exp-20261010-q36-norm-fold,diagnostic,1,RMSNorm folded into the following GEMV prologue
+exp-20261010-q36-attn-backend,falsified,3,Attention backend at c=1 on the v10 stack
+exp-20261010-q36-conv1d-tune,falsified,1,GDN causal conv1d BLOCK_N tuning
+exp-20261010-q36-verify-expert-overlap,confirmed,1,Distinct experts across the 4 MTP verify tokens
+exp-20261011-q36-moe-grouped,falsified,8,Expert-grouped MoE for the M=4 MTP verify step (Triton)
+exp-20261011-q36-m4-deferred-reduce,falsified,9,Triton multi-token W8A16 GEMV with deferred reduction (M=2..4)
+exp-20261011-q36-m4-dense-mma,confirmed,11,Hand-written CUDA mma.sync W8A16 for the M=2..4 dense FP8 linears (MTP verify)
+exp-20261011-q36-moe-grouped-mma,falsified,5,Expert-grouped MoE with hand-written CUDA mma (tokens as mma N) for M=2..4
+exp-20261011-q36-mtp-step-profile,diagnostic,1,"Where an MTP step spends time (v13 + CUDA mma + 96K map), nsys on the live server"
+exp-20261011-q36-mtp-draft-length,confirmed,9,"MTP draft length (3/4/5/7 steps) with the kernel stack + 96K map, and a contention-free re-baseline vs stock"
+exp-20261011-q36-mtp-cpu-profile,confirmed,3,CPU side of the MTP step (py-spy on the scheduler) and a text-only M-RoPE fast path
+exp-20261011-q36-moe-m1-down,falsified,3,"M=1 MoE down: CUDA expert-loop (no cross-CTA reduction), with and without PDL weight prefetch overlapping the up kernel"
+exp-20261011-q36-gdn-replayssm,falsified,3,SGLang's built-in GDN ReplaySSM decode (ring of updates instead of a full state write per token)
+exp-20261011-q36-mtp-tree-draft,falsified,2,MTP tree drafting (EAGLE topk 2) on the hybrid GDN model
+exp-20261011-q36-draft-map-4steps,confirmed,4,Draft token-map size with 4 draft steps (draft LM head is ~10% of the GPU-bound MTP step)
+exp-20261011-q36-norm-router,confirmed,7,Fused residual-add + Gemma RMSNorm + MoE router GEMV in one launch (CORAL_NORM_ROUTER)
+exp-20261011-q36-steps-x-map,falsified,4,Draft steps x draft map with the cheaper 48K draft head
+exp-20261011-q36-moe-m5-tune,confirmed,3,"v9 MoE config tuned for M=5 (the 4-draft-step verify), previously an untuned copy of the M=4 config"
+exp-20261011-q36-gdn-conv-fold,confirmed,3,"GDN causal conv1d update folded into the in_proj_qkvz GEMV epilogue (CORAL_GDN_CONV_FOLD), M=1 decode"
+exp-20261011-q36-norm-noquant,confirmed,4,Skip the norm kernel's FP8 copy at decode sizes (CORAL_NORM_NOQUANT)
+exp-20261011-q36-norm-router-route,falsified,1,"add + norm + router + route (top-k table, shared gate) in ONE launch via a last-arriver CTA, M=1"
+exp-20261011-q36-gdn-dual-stream-mtp,confirmed,2,GDN in_proj_ba back on SGLang's side stream under MTP (drop CORAL_GDN_SINGLE_STREAM)
+exp-20261011-q36-norm-router-mtp-v20,confirmed,2,Norm+router fusion re-tested under MTP once the step is GPU-bound (v20)
+exp-20261011-q36-gdn-verify-views,confirmed,3,MTP verify: q/k/v as strided views of the packed post-conv tensor instead of fused_qkv_split_gdn_prefill copies
+exp-20261011-q36-gdn-zview,confirmed,3,"MTP verify GDN forward without the z copy (gated RMSNorm on [B, 4096] rows with group_size=128 and z as a view)"
+exp-20261011-q36-mtp-cpu-profile-v23,falsified,3,Scheduler CPU profile at v23 and the M-RoPE positions as a broadcast view
+exp-20261011-q36-mtp-cpu-flags,confirmed,6,"CPU overhead of server options on the MTP step: --enable-metrics, radix cache (mamba extra_buffer tracking), GC threshold, NUMA pinning"
+exp-20261011-q36-draft-extend-graph,confirmed,4,MTP draft-extend CUDA graph: graph-capable draft attention backends vs forcing FA3 into SGLang's allow-list
+exp-20261011-q36-bottleneck-probe,confirmed,3,Is the MTP step CPU- or GPU-bound? Inject +200 us of GPU time (5 us sleep in each M>1 MoE) vs +200 us CPU sleep per run_batch
+exp-20261011-q36-replayssm-spec,confirmed,2,"--enable-linear-replayssm-spec for the MTP verify (store raw per-step inputs, fold the accepted prefix at commit)"
+exp-20261011-q36-small-kernel-retunes,falsified,2,Two small-kernel retunes for the 5-token verify: multi-token norm+router and causal_conv1d_update BLOCK_N
+exp-20261011-q36-moe-grouped-serial,falsified,3,"Grouped MoE v10c: owner CTA per distinct expert walks member tokens serially, re-loading the weight tile per token (v9 register footprint)"
+exp-20261011-q36-fast-draft-chain,falsified,3,Fused topk=1 draft chain under the draft token map (CORAL_FAST_DRAFT_CHAIN): map draft-vocab ids inside the top-k helpers so SGLang's fused chain path is used
+exp-20261011-q36-nrr-cuda,falsified,3,CUDA add + norm + router + top-k routing + shared gate in ONE launch (last-arriver CTA builds the table with warp-shuffle top-k)
+exp-20261011-q36-megakernel-stage1,confirmed,9,Megakernel stage 1: one persistent kernel streaming FP8 GEMV ops (dense chain at M=5) vs per-op launches
+exp-20261011-q36-megakernel-stage2-moe,falsified,5,"Megakernel stage 2: whole MoE block (router, routing, grouped up, grouped down) in ONE persistent launch at M=5"
+exp-20261011-q36-megakernel-stage2-moe-r2,falsified,5,"Megakernel stage 2, round 2: MoE block in ONE persistent launch - route latency, honest chained timing, races, dynamic scheduling"
+exp-20261011-q36-megakernel-stage2-moe-r3,falsified,7,"Megakernel stage 2, round 3: what limits the single-launch MoE block (strip probes, launch-path breakdown, tensor-core router)"
+exp-20261011-q36-megakernel-stage2-moe-r4,falsified,4,"Megakernel stage 2, round 4: delivery bandwidth of the single-launch MoE block (x cache, ring depth, L2 policy, ncu)"
+exp-20261011-q36-megakernel-stage3-layer-probe,falsified,1,Megakernel stage 3 probe: dense GEMVs + MoE block of each layer in ONE persistent launch (weights of the next op prefetch during routing stalls)
+exp-20261011-q36-l2-prefetch-next-dense,falsified,5,"L2 prefetch of the next layer's dense weights during the MoE (side stream or inline), launch path"
+exp-20261011-q36-megakernel-stage2-moe-r5,falsified,2,"Megakernel stage 2, round 5: polling backoff and router->route fusion in the single-launch MoE block"
+exp-20261011-q36-megakernel-stage2-moe-r6,falsified,1,"Megakernel stage 2, round 6: router K-split (tile = 16 rows x 1/RSPLIT of K, ROUTE sums partial logits in fixed order)"
+exp-20261012-q36-draft-head-slice-and-spec-fuse,confirmed,6,MTP draft-phase trims: smaller draft head for draft steps 2-4 (item 2) and fused eager spec-decode bookkeeping (item 3)

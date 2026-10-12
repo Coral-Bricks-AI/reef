@@ -1,0 +1,25 @@
+name: Validate Qwen3.6 experiment archive
+
+on:
+  pull_request:
+    paths:
+      - "research/qwen36-h100/**"
+      - ".github/workflows/qwen36-archive.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/qwen36-h100/**"
+      - ".github/workflows/qwen36-archive.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python research/qwen36-h100/validate_archive.py

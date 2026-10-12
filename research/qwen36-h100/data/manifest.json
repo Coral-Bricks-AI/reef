@@ -1,0 +1,33 @@
+{
+  "archive": "mantis-qwen36-h100",
+  "engine_baseline": "lmsysorg/sglang:v0.5.18-cu129",
+  "experiment_count": 53,
+  "files": {
+    "experiment_index.csv": {
+      "sha256": "9b9c751c0717c8caa3b95da9a349348ec30a67e1fe5bb59f63b6572e2b18f511"
+    },
+    "experiments.jsonl": {
+      "sha256": "24dbec6de16b7b08f3b0a480e15c1e9ee028082fc34bff615df8a6a5ae6379d3"
+    },
+    "runs.jsonl": {
+      "sha256": "5b338f5465909ff12c1c02d34d46d04a6928378d5d8d65308796d994fd94e44e"
+    }
+  },
+  "hardware": "1x NVIDIA H100 SXM",
+  "model": "Qwen3.6-35B-A3B-FP8",
+  "primary_scope": "tensor-parallel 1, concurrency 1 decode",
+  "privacy": {
+    "credentials_present": false,
+    "host_identifiers_removed": true,
+    "private_issue_links_present": false,
+    "raw_prompts_present": false
+  },
+  "published_by": "Coral Bricks",
+  "run_count": 211,
+  "schema_version": "1.0.0",
+  "verdict_counts": {
+    "confirmed": 26,
+    "diagnostic": 2,
+    "falsified": 25
+  }
+}
