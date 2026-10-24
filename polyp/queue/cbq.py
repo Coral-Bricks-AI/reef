@@ -236,8 +236,10 @@ def git_commit_push(root: Path, paths: list[Path], message: str, retries: int = 
                                     capture_output=True, text=True)
     run("add", *rel)
     c = run("commit", "-m", message)
-    if c.returncode != 0 and "nothing to commit" in (c.stdout + c.stderr):
-        return True
+    if c.returncode != 0 and "nothing to commit" not in (c.stdout + c.stderr):
+        return False
+    # A prior commit can still be local-only after an interrupted push. Even
+    # when there is nothing new to commit, retry publishing the pending HEAD.
     for attempt in range(retries):
         if run("push", "origin", "main").returncode == 0:
             return True
